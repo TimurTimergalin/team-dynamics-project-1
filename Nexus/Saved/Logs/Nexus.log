@@ -1657,3 +1657,6 @@ LogConfig: Set CVar [[r.VRS.ContrastAdaptiveShading:1]]
 [2025.11.13-14.34.37:092][654]LogEOSSDK: LogEOS: SDK Config Product Update Request Completed - No Change
 [2025.11.13-14.34.37:092][654]LogEOSSDK: LogEOS: ScheduleNextSDKConfigDataUpdate - Time: 3540.962158, Update Interval: 319.572754
 [2025.11.13-14.36.54:293][ 66]LogDerivedDataCache: C:/Users/dimka/AppData/Local/UnrealEngine/Common/DerivedDataCache: Maintenance finished in +00:00:00.003 and deleted 0 files with total size 0 MiB and 0 empty folders. Scanned 0 files in 1 folders with total size 0 MiB.
+[2025.11.13-14.40.27:630][817]LogEOSSDK: LogEOS: Updating Product SDK Config, Time: 3891.828613
+[2025.11.13-14.40.28:630][820]LogEOSSDK: LogEOS: SDK Config Product Update Request Completed - No Change
+[2025.11.13-14.40.28:630][820]LogEOSSDK: LogEOS: ScheduleNextSDKConfigDataUpdate - Time: 3892.495361, Update Interval: 311.462738
