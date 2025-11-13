@@ -1482,3 +1482,168 @@ LogConfig: Set CVar [[r.VRS.ContrastAdaptiveShading:1]]
 [2025.11.13-14.16.07:062][867]LogEOSSDK: LogEOS: Updating Product SDK Config, Time: 2431.265137
 [2025.11.13-14.16.08:063][870]LogEOSSDK: LogEOS: SDK Config Product Update Request Completed - No Change
 [2025.11.13-14.16.08:063][870]LogEOSSDK: LogEOS: ScheduleNextSDKConfigDataUpdate - Time: 2431.931885, Update Interval: 320.328979
+[2025.11.13-14.17.21:297][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:322][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:346][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:370][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:394][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:416][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:439][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:463][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:487][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:510][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:533][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:557][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:581][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:603][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:627][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:650][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:675][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:699][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:722][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:746][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:770][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:793][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:817][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:841][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:865][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:889][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:913][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:936][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:960][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.21:983][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:006][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:031][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:055][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:078][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:102][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:126][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:150][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:174][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:198][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:222][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:245][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:269][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:293][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:317][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:341][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:365][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:387][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:410][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:433][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:455][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:477][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:500][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:523][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:547][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:570][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:592][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:617][426]LogSlate: Warning: Slate: Had to block on waiting for a draw buffer
+[2025.11.13-14.17.22:628][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:628][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:628][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:628][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:628][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:628][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:628][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:628][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:628][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:628][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:628][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:628][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:628][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:628][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:628][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:628][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:628][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:628][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:628][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:629][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:629][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:629][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:629][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:629][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:629][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:629][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:629][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:629][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:629][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:629][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:629][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:629][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:629][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:629][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:629][426]SourceControl: Error: fatal: Invalid path 'E:/EpicGames/UnrealProjects/Nexus': No such file or directory
+[2025.11.13-14.17.22:629][426]SourceControl: Error: fatal: Invalid path 'E:/Epic Games': No such file or directory
+[2025.11.13-14.17.22:629][426]SourceControl: Error: fatal: Invalid path 'E:/Epic Games': No such file or directory
+[2025.11.13-14.17.22:650][426]LogSourceControl: Display: Uncontrolled Changelist persistency file saved ../../../../UnrealProjects/team-dynamics-project-1/Nexus/Saved/SourceControl/UncontrolledChangelists.json
+[2025.11.13-14.17.35:811][711]LogSlate: Window 'View Changes' being destroyed
+[2025.11.13-14.17.42:784][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Content: 'E:/EpicGames/UE_5.6/Engine/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:784][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/CharacterFXEditor/BaseCharacterFXEditor/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/CharacterFXEditor/BaseCharacterFXEditor/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:784][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Editor/ObjectMixer/ObjectMixer/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Editor/ObjectMixer/ObjectMixer/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:785][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Editor/ObjectMixer/LightMixer/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Editor/ObjectMixer/LightMixer/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:785][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/MetaHuman/MetaHumanSDK/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/MetaHuman/MetaHumanSDK/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:785][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/ToolPresets/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/ToolPresets/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:785][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/PythonScriptPlugin/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/PythonScriptPlugin/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:785][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/MeshModelingToolsetExp/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/MeshModelingToolsetExp/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:785][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/GeometryFlow/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/GeometryFlow/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:785][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/GeometryCollectionPlugin/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/GeometryCollectionPlugin/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:785][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/GeometryDataflow/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/GeometryDataflow/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:785][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/FullBodyIK/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/FullBodyIK/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:785][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/EditorDataStorageFeatures/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/EditorDataStorageFeatures/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:785][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/EditorDataStorage/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/EditorDataStorage/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:785][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/Dataflow/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/Dataflow/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:785][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/ChaosSolverPlugin/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/ChaosSolverPlugin/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:785][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/ChaosNiagara/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/ChaosNiagara/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:785][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/ChaosCaching/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Experimental/ChaosCaching/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:785][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Editor/SpeedTreeImporter/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Editor/SpeedTreeImporter/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:785][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Editor/UMGWidgetPreview/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Editor/UMGWidgetPreview/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:785][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Editor/UVEditor/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Editor/UVEditor/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:785][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Editor/MeshLODToolset/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Editor/MeshLODToolset/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Editor/ModelingToolsEditorMode/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Editor/ModelingToolsEditorMode/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Editor/GeometryMode/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Editor/GeometryMode/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Editor/BlueprintHeaderView/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Editor/BlueprintHeaderView/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Developer/NamingTokens/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Developer/NamingTokens/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Developer/AnimationSharing/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Developer/AnimationSharing/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Animation/TweeningUtils/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Animation/TweeningUtils/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Cameras/GameplayCameras/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Cameras/GameplayCameras/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Animation/SkeletalMeshModelingTools/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Animation/SkeletalMeshModelingTools/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Animation/RigLogic/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Animation/RigLogic/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Animation/DeformerGraph/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Animation/DeformerGraph/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Animation/ControlRigSpline/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Animation/ControlRigSpline/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Animation/IKRig/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Animation/IKRig/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Animation/ControlRigModules/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Animation/ControlRigModules/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Animation/ControlRig/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Animation/ControlRig/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Animation/ACLPlugin/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Animation/ACLPlugin/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/2D/Paper2D/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/2D/Paper2D/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/WaveTable/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/WaveTable/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/Synthesis/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/Synthesis/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/StateTree/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/StateTree/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/RigVM/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/RigVM/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/ResonanceAudio/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/ResonanceAudio/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/PropertyBindingUtils/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/PropertyBindingUtils/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/Metasound/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/Metasound/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/MeshModelingToolset/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/MeshModelingToolset/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/GameplayStateTree/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/GameplayStateTree/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/HairStrands/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/HairStrands/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:786][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/GeometryProcessing/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/GeometryProcessing/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:787][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/AudioWidgets/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/AudioWidgets/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:787][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/AudioSynesthesia/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Runtime/AudioSynesthesia/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:787][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/NNE/NNEDenoiser/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/NNE/NNEDenoiser/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:787][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/MovieScene/SequencerScripting/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/MovieScene/SequencerScripting/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:787][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/FX/NiagaraSimCaching/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/FX/NiagaraSimCaching/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:787][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/FX/Niagara/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/FX/Niagara/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:787][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/FX/Cascade/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/FX/Cascade/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:787][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/VirtualProduction/Takes/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/VirtualProduction/Takes/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:787][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/VirtualProduction/CameraCalibrationCore/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/VirtualProduction/CameraCalibrationCore/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:787][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Media/MediaPlate/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Media/MediaPlate/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:787][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Media/MediaCompositing/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Media/MediaCompositing/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:787][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Interchange/Runtime/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Interchange/Runtime/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:787][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Interchange/Assets/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Interchange/Assets/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:787][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Enterprise/GLTFExporter/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Enterprise/GLTFExporter/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:787][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Enterprise/DatasmithContent/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Enterprise/DatasmithContent/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:787][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/TraceUtilities/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/TraceUtilities/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:787][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Fab/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Fab/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:787][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/ChaosVD/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/ChaosVD/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.42:787][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Bridge/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Bridge/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
+[2025.11.13-14.17.43:166][434]EditorErrors: Warning: No assets to check in!
