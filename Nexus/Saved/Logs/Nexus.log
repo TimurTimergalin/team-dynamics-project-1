@@ -1647,3 +1647,6 @@ LogConfig: Set CVar [[r.VRS.ContrastAdaptiveShading:1]]
 [2025.11.13-14.17.42:787][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/ChaosVD/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/ChaosVD/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
 [2025.11.13-14.17.42:787][434]SourceControl: fatal: E:/EpicGames/UE_5.6/Engine/Plugins/Bridge/Content: 'E:/EpicGames/UE_5.6/Engine/Plugins/Bridge/Content' is outside repository at 'E:/EpicGames/UnrealProjects/team-dynamics-project-1'
 [2025.11.13-14.17.43:166][434]EditorErrors: Warning: No assets to check in!
+[2025.11.13-14.22.13:635][248]LogEOSSDK: LogEOS: Updating Product SDK Config, Time: 2797.839844
+[2025.11.13-14.22.14:635][251]LogEOSSDK: LogEOS: SDK Config Product Update Request Completed - No Change
+[2025.11.13-14.22.14:635][251]LogEOSSDK: LogEOS: ScheduleNextSDKConfigDataUpdate - Time: 2798.506836, Update Interval: 335.003510
