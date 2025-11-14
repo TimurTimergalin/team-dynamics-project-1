@@ -1,8 +1,0 @@
-{
-	"SourceFiles": [
-		"E:\\EpicGames\\UnrealProjects\\team-dynamics-project-1\\Nexus\\Source\\Nexus\\Nexus.Build.cs",
-		"E:\\EpicGames\\UnrealProjects\\team-dynamics-project-1\\Nexus\\Source\\Nexus.Target.cs",
-		"E:\\EpicGames\\UnrealProjects\\team-dynamics-project-1\\Nexus\\Source\\NexusEditor.Target.cs"
-	],
-	"EngineVersion": "5.6.1"
-}
