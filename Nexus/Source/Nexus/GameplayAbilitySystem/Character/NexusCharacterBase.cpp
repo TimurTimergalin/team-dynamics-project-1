@@ -5,17 +5,19 @@
 #include "AbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "Nexus/GameplayAbilitySystem/NexusAbilitySystemComponent.h"
 #include "Nexus/GameplayAbilitySystem/AttributeSets/BasicAttributeSet.h"
 #include "Nexus/GameplayAbilitySystem/AttributeSets/BattleAttributeSet.h"
 
 // Sets default values
 ANexusCharacterBase::ANexusCharacterBase()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Add the ability System Component
-	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	AbilitySystemComponent = CreateDefaultSubobject<UNexusAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(AscReplicationMode);
 
@@ -46,6 +48,16 @@ ANexusCharacterBase::ANexusCharacterBase()
 	BattleAttributeSet = CreateDefaultSubobject<UBattleAttributeSet>(TEXT("BattleAttributeSet"));
 }
 
+void ANexusCharacterBase::SendAbilitiesChangedEvent()
+{
+	FGameplayEventData EventData;
+	EventData.EventTag = FGameplayTag::RequestGameplayTag(FName("Event.Abilities.Changed"));
+	EventData.Instigator = this;
+	EventData.Target = this;
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, EventData.EventTag, EventData);
+}
+
 // Called when the game starts or when spawned
 void ANexusCharacterBase::BeginPlay()
 {
@@ -60,6 +72,7 @@ void ANexusCharacterBase::PossessedBy(AController* NewController)
 	if (AbilitySystemComponent)
 	{
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+		GrantAbilities(StartingAbilities);
 	}
 }
 
@@ -77,14 +90,12 @@ void ANexusCharacterBase::OnRep_PlayerState()
 void ANexusCharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
 void ANexusCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{	
+{
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
 UAbilitySystemComponent* ANexusCharacterBase::GetAbilitySystemComponent() const
@@ -92,3 +103,36 @@ UAbilitySystemComponent* ANexusCharacterBase::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
+TArray<FGameplayAbilitySpecHandle> ANexusCharacterBase::GrantAbilities(
+	TArray<TSubclassOf<UGameplayAbility>>& Abilities)
+{
+	if (!AbilitySystemComponent || !HasAuthority())
+	{
+		return TArray<FGameplayAbilitySpecHandle>();
+	}
+
+	TArray<FGameplayAbilitySpecHandle> AbilitySpecHandles;
+	for (TSubclassOf<UGameplayAbility> Ability : Abilities)
+	{
+		FGameplayAbilitySpecHandle AbilitySpecHandle = AbilitySystemComponent->GiveAbility(
+			FGameplayAbilitySpec(Ability, 1, -1, this));
+		AbilitySpecHandles.Add(AbilitySpecHandle);
+	}
+
+	SendAbilitiesChangedEvent();
+	return AbilitySpecHandles;
+}
+
+void ANexusCharacterBase::RemoveAbilities(TArray<FGameplayAbilitySpecHandle>& AbilitySpecHandles)
+{
+	if (!AbilitySystemComponent || !HasAuthority())
+	{
+		return;
+	}
+
+	for (FGameplayAbilitySpecHandle AbilitySpecHandle : AbilitySpecHandles)
+	{
+		AbilitySystemComponent->ClearAbility(AbilitySpecHandle);
+	}
+	SendAbilitiesChangedEvent();
+}

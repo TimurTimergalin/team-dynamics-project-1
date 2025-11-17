@@ -6,6 +6,7 @@
 
 UBattleAttributeSet::UBattleAttributeSet()
 {
+	Haste = 0.f;
 	Damage = 20.f;
 	HealingAmount = 20.f;
 	HealingTime = 2.f;
@@ -14,6 +15,7 @@ UBattleAttributeSet::UBattleAttributeSet()
 void UBattleAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME_CONDITION_NOTIFY(UBattleAttributeSet, Haste, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBattleAttributeSet, Damage, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBattleAttributeSet, HealingAmount, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBattleAttributeSet, HealingTime, COND_None, REPNOTIFY_Always);

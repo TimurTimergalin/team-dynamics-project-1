@@ -18,6 +18,10 @@ public:
 	UBattleAttributeSet();
 	
 	// Battle Attributes
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_Haste)
+	FGameplayAttributeData Haste;
+	ATTRIBUTE_ACCESSORS_BASIC(UBattleAttributeSet, Haste);
+	
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_Damage)
 	FGameplayAttributeData Damage;
 	ATTRIBUTE_ACCESSORS_BASIC(UBattleAttributeSet, Damage);
@@ -31,6 +35,12 @@ public:
 	ATTRIBUTE_ACCESSORS_BASIC(UBattleAttributeSet, HealingTime);
 
 public:
+	UFUNCTION()
+	void OnRep_Haste (const FGameplayAttributeData& OldValue)
+	{
+		GAMEPLAYATTRIBUTE_REPNOTIFY(UBattleAttributeSet, Haste, OldValue);
+	}
+	
 	UFUNCTION()
 	void OnRep_Damage (const FGameplayAttributeData& OldValue)
 	{
