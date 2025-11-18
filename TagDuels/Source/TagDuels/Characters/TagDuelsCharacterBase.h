@@ -12,11 +12,17 @@ UCLASS()
 class TAGDUELS_API ATagDuelsCharacterBase : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
-
+	
 public:
 	// Ability System Component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AbilitySystem")
 	UAbilitySystemComponent* AbilitySystemComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AbilitySystem")
+	class UPreyAttributeSet* PreyAttributeSet;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AbilitySystem")
+	class UHunterAttributeSet* HunterAttributeSet; 
 	
 public:
 	// Sets default values for this character's properties

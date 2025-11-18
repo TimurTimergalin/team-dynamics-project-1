@@ -4,6 +4,8 @@
 #include "TagDuelsCharacterBase.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "TagDuels/Attributes/PreyAttributeSet.h"
+#include "TagDuels/Attributes/HunterAttributeSet.h"
 
 
 // Sets default values
@@ -38,13 +40,15 @@ ATagDuelsCharacterBase::ATagDuelsCharacterBase()
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
+
+	PreyAttributeSet = CreateDefaultSubobject<UPreyAttributeSet>(TEXT("PreyAttributeSet"));
+	HunterAttributeSet = CreateDefaultSubobject<UHunterAttributeSet>(TEXT("HunterAttributeSet"));
 }
 
 // Called when the game starts or when spawned
 void ATagDuelsCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void ATagDuelsCharacterBase::PossessedBy(AController* NewController)
