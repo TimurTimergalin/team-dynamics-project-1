@@ -2,7 +2,7 @@
 
 #pragma once
 
-  #include "CoreMinimal.h"
+#include "CoreMinimal.h"
 #include "TagDuelsAttributeSetBase.h"
 #include "AbilitySystemComponent.h"
 #include "PreyAttributeSet.generated.h"

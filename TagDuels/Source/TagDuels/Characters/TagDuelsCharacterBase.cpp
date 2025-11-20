@@ -4,6 +4,7 @@
 #include "TagDuelsCharacterBase.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "TagDuels/Attributes/GeneralAttributeSet.h"
 #include "TagDuels/Attributes/PreyAttributeSet.h"
 #include "TagDuels/Attributes/HunterAttributeSet.h"
 
@@ -41,6 +42,7 @@ ATagDuelsCharacterBase::ATagDuelsCharacterBase()
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
+	GeneralAttributeSet = CreateDefaultSubobject<UGeneralAttributeSet>(TEXT("GeneralAttributeSet"));
 	PreyAttributeSet = CreateDefaultSubobject<UPreyAttributeSet>(TEXT("PreyAttributeSet"));
 	HunterAttributeSet = CreateDefaultSubobject<UHunterAttributeSet>(TEXT("HunterAttributeSet"));
 }
@@ -58,6 +60,7 @@ void ATagDuelsCharacterBase::PossessedBy(AController* NewController)
 	if (AbilitySystemComponent)
 	{
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+		GrantAbilities(StartingAbilities);
 	}
 }
 
@@ -90,3 +93,34 @@ UAbilitySystemComponent* ATagDuelsCharacterBase::GetAbilitySystemComponent() con
 	return AbilitySystemComponent;
 }
 
+TArray<FGameplayAbilitySpecHandle> ATagDuelsCharacterBase::GrantAbilities(
+	TArray<TSubclassOf<UGameplayAbility>>& Abilities)
+{
+	if (!AbilitySystemComponent || !HasAuthority())
+	{
+		return TArray<FGameplayAbilitySpecHandle>();
+	}
+
+	TArray<FGameplayAbilitySpecHandle> AbilitySpecHandles;
+	for (TSubclassOf<UGameplayAbility> Ability : Abilities)
+	{
+		FGameplayAbilitySpecHandle AbilitySpecHandle = AbilitySystemComponent->GiveAbility(
+			FGameplayAbilitySpec(Ability, 1, -1, this));
+		AbilitySpecHandles.Add(AbilitySpecHandle);
+	}
+
+	return AbilitySpecHandles;
+}
+
+void ATagDuelsCharacterBase::RemoveAbilities(TArray<FGameplayAbilitySpecHandle>& AbilitySpecHandles)
+{
+	if (!AbilitySystemComponent || !HasAuthority())
+	{
+		return;
+	}
+
+	for (FGameplayAbilitySpecHandle AbilitySpecHandle : AbilitySpecHandles)
+	{
+		AbilitySystemComponent->ClearAbility(AbilitySpecHandle);
+	}
+}
