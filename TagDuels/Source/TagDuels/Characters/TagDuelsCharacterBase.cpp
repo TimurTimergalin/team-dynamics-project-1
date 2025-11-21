@@ -4,9 +4,9 @@
 #include "TagDuelsCharacterBase.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "TagDuels/Attributes/GeneralAttributeSet.h"
-#include "TagDuels/Attributes/PreyAttributeSet.h"
-#include "TagDuels/Attributes/HunterAttributeSet.h"
+#include "TagDuels/GAS/Attributes/GeneralAttributeSet.h"
+#include "TagDuels/GAS/Attributes/PreyAttributeSet.h"
+#include "TagDuels/GAS/Attributes/HunterAttributeSet.h"
 
 
 // Sets default values
