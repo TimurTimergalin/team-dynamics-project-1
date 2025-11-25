@@ -18,7 +18,6 @@ UTagDuelsCharacterMovementComponent::UTagDuelsCharacterMovementComponent()
 void UTagDuelsCharacterMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("NEW MOVEMENT COMP"));
 }
 
 
@@ -84,11 +83,27 @@ FNetworkPredictionData_Client * UTagDuelsCharacterMovementComponent::GetPredicti
 
 void UTagDuelsCharacterMovementComponent::StartSprinting()
 {
+	if (GetOwner()->GetLocalRole() == ROLE_Authority)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Server: Start Sprint"));
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Client: Start Sprint"));
+	}
 	RequestToStartSprinting = true;
 }
 
 void UTagDuelsCharacterMovementComponent::StopSprinting()
 {
+	if (GetOwner()->GetLocalRole() == ROLE_Authority)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Server: Stop Sprint"));
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Client: Stop Sprint"));
+	}
 	RequestToStartSprinting = false;
 }
 
