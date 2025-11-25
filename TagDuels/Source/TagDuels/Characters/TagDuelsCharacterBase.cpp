@@ -3,6 +3,7 @@
 
 #include "TagDuelsCharacterBase.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/TagDuelsCharacterMovementComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "TagDuels/GAS/Attributes/GeneralAttributeSet.h"
 #include "TagDuels/GAS/Attributes/PreyAttributeSet.h"
@@ -10,7 +11,8 @@
 
 
 // Sets default values
-ATagDuelsCharacterBase::ATagDuelsCharacterBase()
+ATagDuelsCharacterBase::ATagDuelsCharacterBase(const class FObjectInitializer& ObjectInitializer) :
+	Super(ObjectInitializer.SetDefaultSubobjectClass<UTagDuelsCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
