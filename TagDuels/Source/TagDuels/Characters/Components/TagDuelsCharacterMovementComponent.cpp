@@ -140,6 +140,7 @@ void UTagDuelsCharacterMovementComponent::FTagDuelsSavedMove::PrepMoveFor(AChara
 	UTagDuelsCharacterMovementComponent* CharacterMovement = Cast<UTagDuelsCharacterMovementComponent>(Character->GetCharacterMovement());
 	if (CharacterMovement)
 	{
+		CharacterMovement->RequestToStartSprinting = SavedRequestToStartSprinting;
 	}
 }
 
