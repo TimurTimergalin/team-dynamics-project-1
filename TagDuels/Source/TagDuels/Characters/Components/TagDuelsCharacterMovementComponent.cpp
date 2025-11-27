@@ -49,8 +49,26 @@ float UTagDuelsCharacterMovementComponent::GetMaxSpeed() const
 
 	if (RequestToStartSprinting)
 	{
+		/*if (GetOwner()->GetLocalRole() == ROLE_Authority)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Server: Sprinting"));
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Client: Sprinting"));
+		}*/
+		
 		return MaxSprintSpeed;
 	}
+	
+	/*if (GetOwner()->GetLocalRole() == ROLE_Authority)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Purple, TEXT("Server: Walking"));
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Purple, TEXT("Client: Walking"));
+	}*/
 
 	return MaxWalkSpeed;
 }
