@@ -55,6 +55,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sprint")
 	float MaxSprintSpeed;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Net")
+    float MaxSmoothNetUpdateDist;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Net")
+	float NoSmoothNetUpdateDist;
+
+	UPROPERTY(Transient, BlueprintReadOnly)
 	uint8 RequestToStartSprinting : 1;
 
 public:

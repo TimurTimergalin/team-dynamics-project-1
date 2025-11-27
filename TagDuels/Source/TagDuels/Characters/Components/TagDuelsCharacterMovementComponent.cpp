@@ -11,6 +11,9 @@ UTagDuelsCharacterMovementComponent::UTagDuelsCharacterMovementComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+
+	MaxSmoothNetUpdateDist = 150.f;
+	NoSmoothNetUpdateDist = 200.f;
 }
 
 
@@ -49,26 +52,8 @@ float UTagDuelsCharacterMovementComponent::GetMaxSpeed() const
 
 	if (RequestToStartSprinting)
 	{
-		/*if (GetOwner()->GetLocalRole() == ROLE_Authority)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Server: Sprinting"));
-		}
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Client: Sprinting"));
-		}*/
-		
 		return MaxSprintSpeed;
 	}
-	
-	/*if (GetOwner()->GetLocalRole() == ROLE_Authority)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Purple, TEXT("Server: Walking"));
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Purple, TEXT("Client: Walking"));
-	}*/
 
 	return MaxWalkSpeed;
 }
@@ -92,8 +77,8 @@ FNetworkPredictionData_Client * UTagDuelsCharacterMovementComponent::GetPredicti
 		UTagDuelsCharacterMovementComponent* MutableThis = const_cast<UTagDuelsCharacterMovementComponent*>(this);
 
 		MutableThis->ClientPredictionData = new FTagDuelsNetworkPredictionData_Client(*this);
-		MutableThis->ClientPredictionData->MaxSmoothNetUpdateDist = 92.f;
-		MutableThis->ClientPredictionData->NoSmoothNetUpdateDist = 140.f;
+		MutableThis->ClientPredictionData->MaxSmoothNetUpdateDist = MaxSmoothNetUpdateDist;
+		MutableThis->ClientPredictionData->NoSmoothNetUpdateDist = NoSmoothNetUpdateDist;
 	}
 
 	return ClientPredictionData;
@@ -101,27 +86,37 @@ FNetworkPredictionData_Client * UTagDuelsCharacterMovementComponent::GetPredicti
 
 void UTagDuelsCharacterMovementComponent::StartSprinting()
 {
+	// Debug messages
+	FString CurrentTime = FDateTime::Now().ToString(); // [citation:2]
 	if (GetOwner()->GetLocalRole() == ROLE_Authority)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Server: Start Sprint"));
+		FString DebugText = FString::Printf(TEXT("Server(%s): StartSprint"), *CurrentTime);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, DebugText);
 	}
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Client: Start Sprint"));
+		FString DebugText = FString::Printf(TEXT("Client(%s): StartSprint"), *CurrentTime);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, DebugText);
 	}
+	
 	RequestToStartSprinting = true;
 }
 
 void UTagDuelsCharacterMovementComponent::StopSprinting()
 {
+	// Debug messages
+	FString CurrentTime = FDateTime::Now().ToString(); // [citation:2]
 	if (GetOwner()->GetLocalRole() == ROLE_Authority)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Server: Stop Sprint"));
+		FString DebugText = FString::Printf(TEXT("Server(%s): StopSprint"), *CurrentTime);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, DebugText);
 	}
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Client: Stop Sprint"));
+		FString DebugText = FString::Printf(TEXT("Client(%s): StopSprint"), *CurrentTime);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, DebugText);
 	}
+	
 	RequestToStartSprinting = false;
 }
 
@@ -164,6 +159,11 @@ void UTagDuelsCharacterMovementComponent::FTagDuelsSavedMove::SetMoveFor(ACharac
 	{
 		SavedRequestToStartSprinting = CharacterMovement->RequestToStartSprinting;
 	}
+
+	/*// Round acceleration, so sent version and locally used version always match
+	Acceleration.X = FMath::RoundToFloat(Acceleration.X);
+	Acceleration.Y = FMath::RoundToFloat(Acceleration.Y);
+	Acceleration.Z = FMath::RoundToFloat(Acceleration.Z);*/
 }
 
 void UTagDuelsCharacterMovementComponent::FTagDuelsSavedMove::PrepMoveFor(ACharacter * Character)
