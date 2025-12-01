@@ -87,7 +87,7 @@ FNetworkPredictionData_Client * UTagDuelsCharacterMovementComponent::GetPredicti
 void UTagDuelsCharacterMovementComponent::StartSprinting()
 {
 	// Debug messages
-	FString CurrentTime = FDateTime::Now().ToString(); // [citation:2]
+	/*FString CurrentTime = FDateTime::Now().ToString(); // [citation:2]
 	if (GetOwner()->GetLocalRole() == ROLE_Authority)
 	{
 		FString DebugText = FString::Printf(TEXT("Server(%s): StartSprint"), *CurrentTime);
@@ -97,7 +97,7 @@ void UTagDuelsCharacterMovementComponent::StartSprinting()
 	{
 		FString DebugText = FString::Printf(TEXT("Client(%s): StartSprint"), *CurrentTime);
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, DebugText);
-	}
+	}*/
 	
 	RequestToStartSprinting = true;
 }
@@ -105,7 +105,7 @@ void UTagDuelsCharacterMovementComponent::StartSprinting()
 void UTagDuelsCharacterMovementComponent::StopSprinting()
 {
 	// Debug messages
-	FString CurrentTime = FDateTime::Now().ToString(); // [citation:2]
+	/*FString CurrentTime = FDateTime::Now().ToString(); // [citation:2]
 	if (GetOwner()->GetLocalRole() == ROLE_Authority)
 	{
 		FString DebugText = FString::Printf(TEXT("Server(%s): StopSprint"), *CurrentTime);
@@ -115,7 +115,7 @@ void UTagDuelsCharacterMovementComponent::StopSprinting()
 	{
 		FString DebugText = FString::Printf(TEXT("Client(%s): StopSprint"), *CurrentTime);
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, DebugText);
-	}
+	}*/
 	
 	RequestToStartSprinting = false;
 }
