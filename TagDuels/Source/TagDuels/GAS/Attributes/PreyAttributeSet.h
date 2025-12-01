@@ -21,12 +21,32 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_Haste)
 	FGameplayAttributeData Haste;
 	ATTRIBUTE_ACCESSORS_BASIC(UPreyAttributeSet, Haste);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_PalletFastVaultDuration)
+	FGameplayAttributeData PalletFastVaultDuration;
+	ATTRIBUTE_ACCESSORS_BASIC(UPreyAttributeSet, PalletFastVaultDuration);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_PalletSlowVaultDuration)
+	FGameplayAttributeData PalletSlowVaultDuration;
+	ATTRIBUTE_ACCESSORS_BASIC(UPreyAttributeSet, PalletSlowVaultDuration);
 	
 public:
     UFUNCTION()
     void OnRep_Haste (const FGameplayAttributeData& OldValue)
     {
     	GAMEPLAYATTRIBUTE_REPNOTIFY(UPreyAttributeSet, Haste, OldValue);
+    }
+
+	UFUNCTION()
+	void OnRep_PalletFastVaultDuration (const FGameplayAttributeData& OldValue)
+    {
+    	GAMEPLAYATTRIBUTE_REPNOTIFY(UPreyAttributeSet, PalletFastVaultDuration, OldValue);
+    }
+
+	UFUNCTION()
+	void OnRep_PalletSlowVaultDuration (const FGameplayAttributeData& OldValue)
+    {
+    	GAMEPLAYATTRIBUTE_REPNOTIFY(UPreyAttributeSet, PalletSlowVaultDuration, OldValue);
     }
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
