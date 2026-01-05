@@ -17,16 +17,26 @@ class TAGDUELS_API UGeneralAttributeSet : public UTagDuelsAttributeSetBase
 	
 public:
 	UGeneralAttributeSet();
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_Haste)
+	FGameplayAttributeData Haste;
+	ATTRIBUTE_ACCESSORS_BASIC(UGeneralAttributeSet, Haste);
 	
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_General)
-	FGameplayAttributeData General;
-	ATTRIBUTE_ACCESSORS_BASIC(UGeneralAttributeSet, General);
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_Hinder)
+	FGameplayAttributeData Hinder;
+	ATTRIBUTE_ACCESSORS_BASIC(UGeneralAttributeSet, Hinder);
 	
 public:
 	UFUNCTION()
-	void OnRep_General (const FGameplayAttributeData& OldValue)
+	void OnRep_Haste (const FGameplayAttributeData& OldValue)
 	{
-		GAMEPLAYATTRIBUTE_REPNOTIFY(UGeneralAttributeSet, General, OldValue);
+		GAMEPLAYATTRIBUTE_REPNOTIFY(UGeneralAttributeSet, Haste, OldValue);
+	}
+	
+	UFUNCTION()
+	void OnRep_Hinder (const FGameplayAttributeData& OldValue)
+	{
+		GAMEPLAYATTRIBUTE_REPNOTIFY(UGeneralAttributeSet, Hinder, OldValue);
 	}
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

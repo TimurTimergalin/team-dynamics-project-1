@@ -29,6 +29,14 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_PalletBreakDuration)
 	FGameplayAttributeData PalletBreakDuration;
 	ATTRIBUTE_ACCESSORS_BASIC(UHunterAttributeSet, PalletBreakDuration);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_AttackHaste)
+	FGameplayAttributeData AttackHaste;
+	ATTRIBUTE_ACCESSORS_BASIC(UHunterAttributeSet, AttackHaste);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_AttackDuration)
+	FGameplayAttributeData AttackDuration;
+	ATTRIBUTE_ACCESSORS_BASIC(UHunterAttributeSet, AttackDuration);
 	
 public:
 	UFUNCTION()
@@ -47,6 +55,18 @@ public:
 	void OnRep_PalletBreakDuration (const FGameplayAttributeData& OldValue)
 	{
 		GAMEPLAYATTRIBUTE_REPNOTIFY(UHunterAttributeSet, PalletBreakDuration, OldValue);
+	}
+
+	UFUNCTION()
+	void OnRep_AttackHaste (const FGameplayAttributeData& OldValue)
+	{
+		GAMEPLAYATTRIBUTE_REPNOTIFY(UHunterAttributeSet, AttackHaste, OldValue);
+	}
+
+	UFUNCTION()
+	void OnRep_AttackDuration (const FGameplayAttributeData& OldValue)
+	{
+		GAMEPLAYATTRIBUTE_REPNOTIFY(UHunterAttributeSet, AttackDuration, OldValue);
 	}
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

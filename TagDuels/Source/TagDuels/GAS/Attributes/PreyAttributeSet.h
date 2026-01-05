@@ -17,10 +17,6 @@ class TAGDUELS_API UPreyAttributeSet : public UTagDuelsAttributeSetBase
 
 public:
 	UPreyAttributeSet();
-	
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_Haste)
-	FGameplayAttributeData Haste;
-	ATTRIBUTE_ACCESSORS_BASIC(UPreyAttributeSet, Haste);
 
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_PalletFastVaultDuration)
 	FGameplayAttributeData PalletFastVaultDuration;
@@ -31,12 +27,6 @@ public:
 	ATTRIBUTE_ACCESSORS_BASIC(UPreyAttributeSet, PalletSlowVaultDuration);
 	
 public:
-    UFUNCTION()
-    void OnRep_Haste (const FGameplayAttributeData& OldValue)
-    {
-    	GAMEPLAYATTRIBUTE_REPNOTIFY(UPreyAttributeSet, Haste, OldValue);
-    }
-
 	UFUNCTION()
 	void OnRep_PalletFastVaultDuration (const FGameplayAttributeData& OldValue)
     {

@@ -3,6 +3,7 @@
 
 #include "TagDuelsCharacterMovementComponent.h"
 #include "TagDuels/Characters/TagDuelsCharacterBase.h"
+#include "TagDuels/GAS/Attributes/GeneralAttributeSet.h"
 
 
 // Sets default values for this component's properties
@@ -45,17 +46,21 @@ float UTagDuelsCharacterMovementComponent::GetMaxSpeed() const
 		return 0.0f;
 	}
 
+	float Haste = Owner->GetAbilitySystemComponent()->GetNumericAttribute(UGeneralAttributeSet::GetHasteAttribute());
+	float Hinder = Owner->GetAbilitySystemComponent()->GetNumericAttribute(UGeneralAttributeSet::GetHinderAttribute());
+	float SpeedModifier = Haste * Hinder;
+
 	if (IsCrouching())
 	{
-		return MaxWalkSpeedCrouched;
+		return MaxWalkSpeedCrouched * SpeedModifier;
 	}
 
 	if (RequestToStartSprinting)
 	{
-		return MaxSprintSpeed;
+		return MaxSprintSpeed * SpeedModifier;
 	}
 
-	return MaxWalkSpeed;
+	return MaxWalkSpeed * SpeedModifier;
 }
 
 void UTagDuelsCharacterMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
