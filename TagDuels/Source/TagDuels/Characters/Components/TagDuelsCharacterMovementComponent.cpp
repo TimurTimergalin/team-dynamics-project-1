@@ -49,6 +49,10 @@ float UTagDuelsCharacterMovementComponent::GetMaxSpeed() const
 	float Haste = Owner->GetAbilitySystemComponent()->GetNumericAttribute(UGeneralAttributeSet::GetHasteAttribute());
 	float Hinder = Owner->GetAbilitySystemComponent()->GetNumericAttribute(UGeneralAttributeSet::GetHinderAttribute());
 	float SpeedModifier = Haste * Hinder;
+	if (SpeedModifier < 0.1)
+	{
+		SpeedModifier = 0.1;
+	}
 
 	if (IsCrouching())
 	{

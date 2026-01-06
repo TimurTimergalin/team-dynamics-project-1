@@ -37,6 +37,18 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_AttackDuration)
 	FGameplayAttributeData AttackDuration;
 	ATTRIBUTE_ACCESSORS_BASIC(UHunterAttributeSet, AttackDuration);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_AttackRecoveryHinder)
+	FGameplayAttributeData AttackRecoveryHinder;
+	ATTRIBUTE_ACCESSORS_BASIC(UHunterAttributeSet, AttackRecoveryHinder);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_AttackRecoveryDuration)
+	FGameplayAttributeData AttackRecoveryDuration;
+	ATTRIBUTE_ACCESSORS_BASIC(UHunterAttributeSet, AttackRecoveryDuration);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_AttackSuccessRecoveryDuration)
+	FGameplayAttributeData AttackSuccessRecoveryDuration;
+	ATTRIBUTE_ACCESSORS_BASIC(UHunterAttributeSet, AttackSuccessRecoveryDuration);
 	
 public:
 	UFUNCTION()
@@ -67,6 +79,24 @@ public:
 	void OnRep_AttackDuration (const FGameplayAttributeData& OldValue)
 	{
 		GAMEPLAYATTRIBUTE_REPNOTIFY(UHunterAttributeSet, AttackDuration, OldValue);
+	}
+
+	UFUNCTION()
+	void OnRep_AttackRecoveryHinder (const FGameplayAttributeData& OldValue)
+	{
+		GAMEPLAYATTRIBUTE_REPNOTIFY(UHunterAttributeSet, AttackRecoveryHinder, OldValue);
+	}
+
+	UFUNCTION()
+	void OnRep_AttackRecoveryDuration (const FGameplayAttributeData& OldValue)
+	{
+		GAMEPLAYATTRIBUTE_REPNOTIFY(UHunterAttributeSet, AttackRecoveryDuration, OldValue);
+	}
+
+	UFUNCTION()
+	void OnRep_AttackSuccessRecoveryDuration (const FGameplayAttributeData& OldValue)
+	{
+		GAMEPLAYATTRIBUTE_REPNOTIFY(UHunterAttributeSet, AttackSuccessRecoveryDuration, OldValue);
 	}
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
