@@ -14,7 +14,7 @@ UHunterAttributeSet::UHunterAttributeSet()
 	AttackDuration = 0.8f;
 	AttackRecoveryDuration = 0.5f;
 	AttackRecoveryHinder = 0.25f;
-	AttackSuccessRecoveryDuration = 2.7f;
+	AttackSuccessRecoveryDuration = 1.f;
 }
 
 void UHunterAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
