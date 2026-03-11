@@ -20,6 +20,9 @@ RUN CGO_ENABLED=0 GOOS=linux \
 # ---- Final Stage ----
 FROM alpine:latest
 
+RUN addgroup -g 1001 -S appgroup && \
+    adduser -u 1001 -S appuser -G appgroup
+
 # Create application directory and set ownership
 WORKDIR /app
 RUN chown appuser:appgroup /app
