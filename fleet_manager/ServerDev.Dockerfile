@@ -13,8 +13,7 @@ COPY . .
 
 # Build the executable for Linux, statically linked
 # The main package is in ./server
-RUN GOOS=linux \
-    go build -ldflags="-w -s" \
+RUN go build -ldflags="-w -s" \
     -o fleet-manager-server ./server
 
 # ---- Final Stage ----
