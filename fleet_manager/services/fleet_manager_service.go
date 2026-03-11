@@ -8,7 +8,7 @@ import (
 	"fleet_manager/config"
 	pb "fleet_manager/fleet_manager/proto"
 	"fleet_manager/k8s"
-	"github.com/gofiber/fiber/v2/log"
+	"log"
 	"strconv"
 )
 
@@ -31,20 +31,20 @@ func (s *FleetManagerService) Allocate(ctx context.Context, request *pb.Allocate
 			ctx,
 		)
 		if err != nil {
-			log.Errorf("K8s error: %s", err.Error())
+			log.Printf("K8s error: %s", err.Error())
 			return nil, err
 		}
 		switch res.State {
 		case allocv1.GameServerAllocationContention:
-			log.Infof("Contention happened: retrying")
+			log.Printf("Contention happened: retrying")
 			continue
 		case allocv1.GameServerAllocationUnAllocated:
-			log.Errorf("Game servers are full")
+			log.Printf("Game servers are full")
 			return nil, errors.New("game servers are full")
 		}
 		address := k8s.GetAddress(res.Address, res.Ports)
 		if address == nil {
-			log.Errorf("Unable to allocate game port")
+			log.Printf("Unable to allocate game port")
 			return nil, errors.New("unable to allocate game port")
 		}
 		name := res.GameServerName
@@ -55,12 +55,12 @@ func (s *FleetManagerService) Allocate(ctx context.Context, request *pb.Allocate
 func (s *FleetManagerService) GetServer(ctx context.Context, request *pb.GetServerRequest) (*pb.GetServerResponse, error) {
 	res, err := k8s.GetServer(s.K8sClient, s.FmConfig, request.GetName(), ctx)
 	if err != nil {
-		log.Errorf("K8s error: %s", err.Error())
+		log.Printf("K8s error: %s", err.Error())
 		return nil, err
 	}
 	address := k8s.GetAddress(res.Status.Address, res.Status.Ports)
 	if address == nil {
-		log.Errorf("Unable to find game port")
+		log.Print("Unable to find game port")
 		return nil, errors.New("unable to find game port")
 	}
 	return &pb.GetServerResponse{Address: address}, nil

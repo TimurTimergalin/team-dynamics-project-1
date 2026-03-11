@@ -52,7 +52,7 @@ func main() {
 	s := grpc.NewServer()
 	pb.RegisterFleetManagerServer(s, controller)
 
-	log.Infof("Strating to listen on %v", lis.Addr())
+	log.Printf("Strating to listen on %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("Error while trying to serve: %s", err.Error())
 	}
