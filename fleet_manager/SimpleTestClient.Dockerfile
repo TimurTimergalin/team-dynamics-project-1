@@ -13,7 +13,7 @@ COPY . .
 
 # Build the executable for Linux, statically linked
 # The main package is in ./client
-RUN CGO_ENABLED=0 GOOS=linux \
+RUN GOOS=linux \
     go build -ldflags="-w -s" \
     -o simple-test-client ./client
 
