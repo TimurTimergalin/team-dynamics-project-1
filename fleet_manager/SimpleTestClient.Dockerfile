@@ -13,7 +13,6 @@ COPY . .
 
 # Build the executable for Linux, statically linked
 # The main package is in ./client
-RUN protoc --go_out=. --go-grpc_out=. proto/fleet_manager.proto
 RUN go build -ldflags="-w -s" \
     -o simple-test-client ./client
 
