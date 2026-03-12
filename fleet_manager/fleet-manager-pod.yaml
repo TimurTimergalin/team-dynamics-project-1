@@ -6,6 +6,7 @@ metadata:
   labels:
     app: fleet-manager
 spec:
+  serviceAccountName: fleet-manager-sa
   containers:
     - name: fleet-manager
       image: fleet-manager-server:latest
