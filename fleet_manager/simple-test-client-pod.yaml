@@ -22,3 +22,4 @@ spec:
           value: "10000"
         - name: LISTEN_ON
           value: "fleet-manager-service:50001"
+  restartPolicy: Never
