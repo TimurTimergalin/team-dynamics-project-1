@@ -3,7 +3,8 @@ package auth_sidecar
 import (
 	"context"
 	"crypto"
-	"io/ioutil"
+	"fmt"
+	"os"
 	"strings"
 
 	"google.golang.org/grpc/codes"
@@ -28,9 +29,18 @@ type PublicKeyFetcher interface {
 	GetPublicKeys() []crypto.PublicKey
 }
 
+// tokenIdentity holds the extracted identity from a validated token
+type tokenIdentity struct {
+	// For service account tokens
+	serviceAccount *string // format: "namespace:name"
+
+	// For user tokens
+	userID *uint64 // extracted from subject "user:<id>"
+}
+
 // GetToken returns the pod's own Kubernetes service account token.
 func (s *AuthSidecarService) GetToken(ctx context.Context, req *pb.GetTokenRequest) (*pb.GetTokenResponse, error) {
-	tokenBytes, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
+	tokenBytes, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to read token: %v", err)
 	}
@@ -38,21 +48,15 @@ func (s *AuthSidecarService) GetToken(ctx context.Context, req *pb.GetTokenReque
 	return &pb.GetTokenResponse{Token: &token}, nil
 }
 
-// Authorize validates a JWT and returns the role associated with its identity,
-// if present in the authority map.
-func (s *AuthSidecarService) Authorize(ctx context.Context, req *pb.AuthorizeRequest) (*pb.AuthorizeResponse, error) {
-	// If no token provided, return empty response (no role).
-	if req.Token == nil || *req.Token == "" {
-		return &pb.AuthorizeResponse{}, nil
-	}
-	tokenStr := *req.Token
-
-	// 1. Parse token without validation to inspect issuer and header.
+// extractIdentity validates the token and returns the extracted identity
+func (s *AuthSidecarService) extractIdentity(tokenStr string) (*tokenIdentity, error) {
+	// Parse token without validation to inspect issuer and header
 	parser := jwt.NewParser(jwt.WithoutClaimsValidation())
 	unverified, _, err := parser.ParseUnverified(tokenStr, jwt.MapClaims{})
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "failed to parse token: %v", err)
 	}
+
 	claims, ok := unverified.Claims.(jwt.MapClaims)
 	if !ok {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid claims format")
@@ -64,8 +68,9 @@ func (s *AuthSidecarService) Authorize(ctx context.Context, req *pb.AuthorizeReq
 	}
 
 	var validatedClaims jwt.MapClaims
+	identity := &tokenIdentity{}
 
-	// 2. Validate the token with the appropriate key source.
+	// Validate the token with the appropriate key source
 	switch issuer {
 	case "kubernetes/serviceaccount": // Kubernetes service account token
 		kid, ok := unverified.Header["kid"].(string)
@@ -76,16 +81,34 @@ func (s *AuthSidecarService) Authorize(ctx context.Context, req *pb.AuthorizeReq
 		if key == nil {
 			return nil, status.Errorf(codes.Unauthenticated, "key not found for kid: %s", kid)
 		}
+
 		validatedToken, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
 			return key, nil
 		})
 		if err != nil {
 			return nil, status.Errorf(codes.Unauthenticated, "invalid service account token: %v", err)
 		}
+
 		validatedClaims, ok = validatedToken.Claims.(jwt.MapClaims)
 		if !ok {
 			return nil, status.Errorf(codes.Internal, "invalid claims after validation")
 		}
+
+		// Extract service account name from subject
+		sub, ok := validatedClaims["sub"].(string)
+		if !ok {
+			return nil, status.Errorf(codes.InvalidArgument, "missing 'sub' in token")
+		}
+
+		// sub format: system:serviceaccount:<namespace>:<name>
+		parts := strings.Split(sub, ":")
+		if len(parts) != 4 {
+			return nil, status.Errorf(codes.InvalidArgument, "malformed 'sub' claim: %s", sub)
+		}
+		namespace := parts[2]
+		name := parts[3]
+		saWithNamespace := fmt.Sprintf("%s:%s", namespace, name)
+		identity.serviceAccount = &saWithNamespace
 
 	case "TagDuels/UserService": // User token issued by your auth service
 		keys := s.PublicKeyFetcher.GetPublicKeys()
@@ -102,67 +125,78 @@ func (s *AuthSidecarService) Authorize(ctx context.Context, req *pb.AuthorizeReq
 		if validatedToken == nil {
 			return nil, status.Errorf(codes.Unauthenticated, "invalid user token")
 		}
+
 		validatedClaims, ok = validatedToken.Claims.(jwt.MapClaims)
 		if !ok {
 			return nil, status.Errorf(codes.Internal, "invalid claims after validation")
 		}
 
+		// Extract user ID from subject "user:<id>"
+		sub, ok := validatedClaims["sub"].(string)
+		if !ok {
+			return nil, status.Errorf(codes.InvalidArgument, "missing 'sub' in token")
+		}
+
+		if !strings.HasPrefix(sub, "user:") {
+			return nil, status.Errorf(codes.InvalidArgument, "malformed subject, expected 'user:<id>', got: %s", sub)
+		}
+
+		idStr := strings.TrimPrefix(sub, "user:")
+		var userID uint64
+		if _, err := fmt.Sscanf(idStr, "%d", &userID); err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "invalid user ID format: %s", idStr)
+		}
+		identity.userID = &userID
+
 	default:
 		return nil, status.Errorf(codes.InvalidArgument, "unknown issuer: %s", issuer)
 	}
 
-	// 3. Extract identity from the validated claims.
+	return identity, nil
+}
+
+// Authorize validates a JWT and returns the role associated with its identity,
+// if present in the authority map.
+func (s *AuthSidecarService) Authorize(ctx context.Context, req *pb.AuthorizeRequest) (*pb.AuthorizeResponse, error) {
+	// If no token provided, return empty response (no role).
+	if req.Token == nil || *req.Token == "" {
+		return &pb.AuthorizeResponse{}, nil
+	}
+
+	// Extract identity from token (validation happens here)
+	identity, err := s.extractIdentity(*req.Token)
+	if err != nil {
+		return nil, err // Error already has appropriate gRPC status
+	}
+
+	// Match against authority map
 	var matchedRole *string
 	for _, entry := range req.AuthorityMap {
 		switch key := entry.Key.(type) {
 		case *pb.AuthorityMapEntry_ServiceAccount:
-			// Service account token path
-			if issuer != "kubernetes/serviceaccount" {
-				continue
-			}
-			sub, ok := validatedClaims["sub"].(string)
-			if !ok {
-				return nil, status.Errorf(codes.InvalidArgument, "missing 'sub' in token")
-			}
-			// sub format: system:serviceaccount:<namespace>:<name>
-			parts := strings.Split(sub, ":")
-			if len(parts) != 4 {
-				return nil, status.Errorf(codes.InvalidArgument, "malformed 'sub' claim")
-			}
-			saName := parts[3]
-			if saName == key.ServiceAccount {
-				matchedRole = entry.Role // entry.Role is a *string (proto optional)
+			// Service account match
+			if identity.serviceAccount != nil && *identity.serviceAccount == key.ServiceAccount {
+				matchedRole = entry.Role
 				break
 			}
 
 		case *pb.AuthorityMapEntry_UserId:
-			// User token path
-			if issuer != "TagDuels/UserService" {
-				continue
+			// User ID match
+			if identity.userID != nil && *identity.userID == key.UserId {
+				matchedRole = entry.Role
+				break
 			}
-			userIDClaim, ok := validatedClaims["user_id"]
-			if !ok {
-				return nil, status.Errorf(codes.InvalidArgument, "missing 'user_id' in token")
-			}
-			var userID uint64
-			switch v := userIDClaim.(type) {
-			case float64:
-				userID = uint64(v)
-			case int64:
-				userID = uint64(v)
-			case uint64:
-				userID = v
-			default:
-				return nil, status.Errorf(codes.InvalidArgument, "invalid type for 'user_id'")
-			}
-			if userID == key.UserId {
+
+		case *pb.AuthorityMapEntry_AnyUser:
+			// Any user match - grants role to any authenticated user
+			if identity.userID != nil {
 				matchedRole = entry.Role
 				break
 			}
 		}
 	}
 
-	// 4. Return the role (if any) in the response.
+	// Return the role (if any) in the response
 	resp := &pb.AuthorizeResponse{}
 	if matchedRole != nil {
 		resp.Role = matchedRole

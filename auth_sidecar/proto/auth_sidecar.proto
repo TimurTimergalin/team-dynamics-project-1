@@ -10,10 +10,13 @@ message GetTokenResponse {
   optional string token = 1;
 }
 
+message AnyUser {}
+
 message AuthorityMapEntry {
   oneof key {
     string service_account = 1;
     uint64 user_id = 2;
+    AnyUser any_user = 3;
   }
   optional string role = 10;
 }
