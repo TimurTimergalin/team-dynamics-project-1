@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package auth_sidecar;
+option go_package = "auth_sidecar";
+
+message GetTokenRequest {
+}
+
+message GetTokenResponse {
+  optional string token = 1;
+}
+
+message AuthorityMapEntry {
+  oneof key {
+    string service_account = 1;
+    uint64 user_id = 2;
+  }
+  optional string role = 10;
+}
+
+message AuthorizeRequest {
+  repeated AuthorityMapEntry authority_map = 1;
+  optional string token = 2;
+}
+
+message AuthorizeResponse {
+  optional string role = 1;
+}
+
+service AuthSidecar {
+  rpc GetToken(GetTokenRequest) returns (GetTokenResponse);
+  rpc Authorize(AuthorizeRequest) returns (AuthorizeResponse);
+}
