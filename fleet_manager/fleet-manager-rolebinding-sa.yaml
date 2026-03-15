@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: fleet-manager-rolebinding
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name: fleet-manager-sa  # Your new service account
+  namespace: default
+roleRef:
+  kind: Role
+  name: fleet-manager-role
+  apiGroup: rbac.authorization.k8s.io

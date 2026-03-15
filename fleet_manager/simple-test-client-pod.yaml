@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: simple-test-client
+  namespace: default
+spec:
+  containers:
+    - name: simple-test-client
+      image: simple-test-client:latest
+      imagePullPolicy: IfNotPresent
+      ports:
+        - containerPort: 50001
+          name: grpc
+      env:
+        - name: CLUSTER_NAMESPACE
+          value: "default"
+        - name: FLEET_NAME
+          value: "simple-game-server"
+        - name: STRATEGY
+          value: "Packed"
+        - name: K8S_TIMEOUT_MILLIS
+          value: "10000"
+        - name: LISTEN_ON
+          value: "fleet-manager-service:50001"
+  restartPolicy: Never
