@@ -15,6 +15,7 @@ UHunterAttributeSet::UHunterAttributeSet()
 	AttackRecoveryDuration = 1.5f;
 	AttackRecoveryHinder = 0.35f;
 	AttackSuccessRecoveryDuration = 2.7f;
+	BloodlustLevel = 0.f;
 }
 
 void UHunterAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -28,5 +29,5 @@ void UHunterAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME_CONDITION_NOTIFY(UHunterAttributeSet, AttackRecoveryHinder, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UHunterAttributeSet, AttackRecoveryDuration, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UHunterAttributeSet, AttackSuccessRecoveryDuration, COND_None, REPNOTIFY_Always);
-
+	DOREPLIFETIME_CONDITION_NOTIFY(UHunterAttributeSet, BloodlustLevel, COND_None, REPNOTIFY_Always);
 }

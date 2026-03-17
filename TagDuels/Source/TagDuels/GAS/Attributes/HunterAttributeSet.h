@@ -49,6 +49,10 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_AttackSuccessRecoveryDuration)
 	FGameplayAttributeData AttackSuccessRecoveryDuration;
 	ATTRIBUTE_ACCESSORS_BASIC(UHunterAttributeSet, AttackSuccessRecoveryDuration);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_BloodlustLevel)
+	FGameplayAttributeData BloodlustLevel;
+	ATTRIBUTE_ACCESSORS_BASIC(UHunterAttributeSet, BloodlustLevel);
 	
 public:
 	UFUNCTION()
@@ -97,6 +101,12 @@ public:
 	void OnRep_AttackSuccessRecoveryDuration (const FGameplayAttributeData& OldValue)
 	{
 		GAMEPLAYATTRIBUTE_REPNOTIFY(UHunterAttributeSet, AttackSuccessRecoveryDuration, OldValue);
+	}
+
+	UFUNCTION()
+	void OnRep_BloodlustLevel (const FGameplayAttributeData& OldValue)
+	{
+		GAMEPLAYATTRIBUTE_REPNOTIFY(UHunterAttributeSet, BloodlustLevel, OldValue);
 	}
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
