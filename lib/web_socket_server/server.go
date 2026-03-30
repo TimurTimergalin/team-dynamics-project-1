@@ -1,4 +1,4 @@
-package web_socket_server
+package websocketfw
 
 import (
 	"errors"
@@ -137,10 +137,10 @@ func (h *Hub) closeClient(client *Client) {
 }
 
 type WebSocketServer struct {
-	hub        *Hub
-	onMessage  OnMessageFunc
-	config     *Config
-	upgrader   websocket.Upgrader
+	hub       *Hub
+	onMessage OnMessageFunc
+	config    *Config
+	upgrader  websocket.Upgrader
 	bufferPool *sync.Pool
 }
 

@@ -1,4 +1,4 @@
-package redis_pipe
+package redislib
 
 import (
 	"context"
