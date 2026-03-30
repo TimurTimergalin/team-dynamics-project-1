@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option go_package = "fleet_manager/proto";
+
+message AllocateRequest {
+  optional uint64 player1 = 1;
+  optional uint64 player2 = 2;
+}
+
+message AllocateResponse {
+  optional string address = 1;
+  optional string name = 2;
+}
+
+message GetServerRequest {
+  optional string name = 1;
+}
+
+message GetServerResponse {
+  optional string address = 1;
+}
+
+service FleetManager {
+  rpc Allocate(AllocateRequest) returns (AllocateResponse);
+  rpc GetServer(GetServerRequest) returns (GetServerResponse);
+}

@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package user_common;
+option go_package = "api/proto/user_common";
+
+message ExternalKey {
+    oneof key {
+        string steam_id = 1;
+        string egs_id = 2;
+    }
+}

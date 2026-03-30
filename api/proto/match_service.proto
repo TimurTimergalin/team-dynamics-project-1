@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package match_service;
+option go_package = "api/proto/match_service";
+
+import "fleet_manager.proto";
+import "rating_service.proto";
+
+message StartMatchRequest {
+  optional uint64 player1_id = 1;
+  optional uint64 player2_id = 2;
+  optional string fleet_name = 3;
+}
+
+message StartMatchResponse {
+  optional fleet_manager.ConnectionInfo connection_info = 1;
+  optional string match_id = 2;
+}
+
+message GetMatchRequest {
+  optional string match_id = 1;
+}
+
+message GetMatchResponse {
+  optional fleet_manager.ConnectionInfo connection_info = 1;
+}
+
+message EndMatchRequest {
+  optional string match_id = 1;
+  optional uint64 winner_id = 2;
+  optional uint64 loser_id = 3;
+}
+
+message CancelMatchRequest {
+  optional string match_id = 1;
+}
+
+message EndMatchResponse {}
+
+message CancelMatchResponse {}
+
+service MatchService {
+  rpc StartMatch(StartMatchRequest) returns (StartMatchResponse);
+  rpc GetMatch(GetMatchRequest) returns (GetMatchResponse);
+  rpc EndMatch(EndMatchRequest) returns (EndMatchResponse);
+  rpc CancelMatch(CancelMatchRequest) returns (CancelMatchResponse);
+}
