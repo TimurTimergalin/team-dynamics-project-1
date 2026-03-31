@@ -1,0 +1,1 @@
+module rating_service
