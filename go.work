@@ -3,4 +3,5 @@ go 1.26.1
 use (
 	./lib/pg_lib
 	./services/rating_service
+	gen/proto/go
 )

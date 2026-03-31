@@ -1,10 +1,9 @@
 syntax = "proto3";
 
 package match_service;
-option go_package = "api/proto/match_service";
+option go_package = "team_dynamics/api/proto/match_service";
 
-import "fleet_manager.proto";
-import "rating_service.proto";
+import "fleet_manager/fleet_manager.proto";
 
 message StartMatchRequest {
   optional uint64 player1_id = 1;

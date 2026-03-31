@@ -1,9 +1,9 @@
 syntax = "proto3";
 
 package auth_sidecar;
-option go_package = "api/proto/auth_sidecar";
+option go_package = "team_dynamics/api/proto/auth_sidecar";
 
-import "user_common.proto";
+import "user_common/user_common.proto";
 
 message GetTokenRequest {}
 

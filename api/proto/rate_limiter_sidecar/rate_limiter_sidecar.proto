@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package rate_limiter_sidecar;
-option go_package = "api/proto/rate_limiter_sidecar";
+option go_package = "team_dynamics/api/proto/rate_limiter_sidecar";
 
 message CheckRateRequest {
   optional uint64 user_id = 1;

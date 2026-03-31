@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package rating_service;
-option go_package = "api/proto/user_service";
+option go_package = "team_dynamics/api/proto/user_service";
 
 message RatingData {
     optional double rating_value = 1;
