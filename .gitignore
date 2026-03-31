@@ -1,5 +1,6 @@
 releases
 .venv
-*/.venv
+**/.venv
 .idea
-*/.idea
+**/.idea
+**/__pycache__
