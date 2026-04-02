@@ -16,9 +16,11 @@ func makeConnectionString(cfg *ConnectionConfig) string {
 func MakePool(ctx context.Context, connCfg *ConnectionConfig, poolCfg *PoolConfig, initCfg *InitializationConfig) (*pgxpool.Pool, error) {
 	dsn := makeConnectionString(connCfg)
 	var res *pgxpool.Pool
+	var lastErr error = nil
 	for i := initCfg.Retries; i > 0; i -= 1 {
 		config, err := pgxpool.ParseConfig(dsn)
 		if err != nil {
+			lastErr = err
 			continue
 		}
 		config.MaxConns = poolCfg.MaxConns
@@ -32,12 +34,13 @@ func MakePool(ctx context.Context, connCfg *ConnectionConfig, poolCfg *PoolConfi
 
 		pool, err := pgxpool.NewWithConfig(ctx, config)
 		if err != nil {
+			lastErr = err
 			continue
 		}
 		res = pool
 	}
 	if res == nil {
-		return nil, fmt.Errorf("cannot initialize pg connection")
+		return nil, makeConnectionError(lastErr)
 	}
 	return res, nil
 }

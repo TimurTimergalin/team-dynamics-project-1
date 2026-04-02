@@ -21,7 +21,9 @@ def generate_proto(input_dir: str, output_dir: str) -> None:
             "protoc",
             f"--proto_path={input_dir}",
             f"--go_out={output_dir}",
+            f"--go_grpc_out={output_dir}",
             f"--go_opt=paths=source_relative",
+            f"--go_grpc_opt=paths=source_relative",
             f"{sub_path}/*.proto"
         ]
 
@@ -37,13 +39,15 @@ def init_mod(module_path):
         "init",
         "team_dynamics/api/proto"
     ]
-    subprocess.run(cmd, check=True, cwd=module_path)
+    print("initializing go module")
+    subprocess.run(cmd, check=False, cwd=module_path)
 
     cmd = [
         "go",
         "mod",
         "tidy"
     ]
+    print("fixing go.mod")
     subprocess.run(cmd, check=True, cwd=module_path)
 
     cmd = [
@@ -51,6 +55,7 @@ def init_mod(module_path):
         "build",
         "./..."
     ]
+    print("building")
     subprocess.run(cmd, check=True, cwd=module_path)
 
 
