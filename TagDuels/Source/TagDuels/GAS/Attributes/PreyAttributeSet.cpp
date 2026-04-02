@@ -9,6 +9,9 @@ UPreyAttributeSet::UPreyAttributeSet()
 {
 	PalletFastVaultDuration = 1.1f;
 	PalletSlowVaultDuration = 2.f;
+	WindowFastVaultDuration = 0.5f;
+	WindowMediumVaultDuration = 0.9f;
+	WindowSlowVaultDuration = 1.5f;
 	HP = 2.f;
 	HitHaste = 1.5f;
 	HitHasteDuration = 2.f;
@@ -19,6 +22,9 @@ void UPreyAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME_CONDITION_NOTIFY(UPreyAttributeSet, PalletFastVaultDuration, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UPreyAttributeSet, PalletSlowVaultDuration, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UPreyAttributeSet, WindowFastVaultDuration, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UPreyAttributeSet, WindowMediumVaultDuration, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UPreyAttributeSet, WindowSlowVaultDuration, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UPreyAttributeSet, HP, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UPreyAttributeSet, HitHaste, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UPreyAttributeSet, HitHasteDuration, COND_None, REPNOTIFY_Always);

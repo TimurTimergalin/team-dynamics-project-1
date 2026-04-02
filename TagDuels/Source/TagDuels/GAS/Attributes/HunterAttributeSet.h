@@ -30,6 +30,10 @@ public:
 	FGameplayAttributeData PalletBreakDuration;
 	ATTRIBUTE_ACCESSORS_BASIC(UHunterAttributeSet, PalletBreakDuration);
 
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_HunterVaultDuration)
+	FGameplayAttributeData HunterVaultDuration;
+	ATTRIBUTE_ACCESSORS_BASIC(UHunterAttributeSet, HunterVaultDuration);
+
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_AttackHaste)
 	FGameplayAttributeData AttackHaste;
 	ATTRIBUTE_ACCESSORS_BASIC(UHunterAttributeSet, AttackHaste);
@@ -71,6 +75,12 @@ public:
 	void OnRep_PalletBreakDuration (const FGameplayAttributeData& OldValue)
 	{
 		GAMEPLAYATTRIBUTE_REPNOTIFY(UHunterAttributeSet, PalletBreakDuration, OldValue);
+	}
+
+	UFUNCTION()
+	void OnRep_HunterVaultDuration (const FGameplayAttributeData& OldValue)
+	{
+		GAMEPLAYATTRIBUTE_REPNOTIFY(UHunterAttributeSet, HunterVaultDuration, OldValue);
 	}
 
 	UFUNCTION()
