@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	conn, err := grpc.NewClient("rating-service-service.rating.svc.cluster.local:50001", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient("rating-service-service:50001", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("Cannot connect: %v", err)
 	}
