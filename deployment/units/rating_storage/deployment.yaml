@@ -45,10 +45,10 @@ spec:
           resources:
             requests:
               memory: "256Mi"
-              cpu: "50m"
+              cpu: "250m"
             limits:
               memory: "512Mi"
-              cpu: "500m"
+              cpu: "750m"
           livenessProbe:
             exec:
               command:
