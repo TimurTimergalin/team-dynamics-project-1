@@ -3,8 +3,12 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"log/slog"
+	"logging"
+	"os"
 	pb "team_dynamics/api/proto/rating_service"
 	"team_dynamics/rating_service/services"
 )
@@ -20,14 +24,20 @@ func handlePanic(errOut *error) {
 	}
 }
 
+func addLogger(ctx context.Context, rpc string) context.Context {
+	handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{AddSource: true, Level: slog.LevelDebug})
+	logger := slog.New(handler).With("requestId", uuid.New().String(), "rpc", rpc)
+	return logging.WithLogger(ctx, logger)
+}
+
 func (c *RatingServiceController) GetRating(ctx context.Context, request *pb.GetRatingRequest) (response *pb.GetRatingResponse, err error) {
 	defer handlePanic(&err)
-	response, err = c.Service.GetRating(ctx, request)
+	response, err = c.Service.GetRating(addLogger(ctx, "GetRating"), request)
 	return
 }
 
 func (c *RatingServiceController) UpdateRating(ctx context.Context, request *pb.UpdateRatingRequest) (response *pb.UpdateRatingResponse, err error) {
 	defer handlePanic(&err)
-	response, err = c.Service.UpdateRating(ctx, request)
+	response, err = c.Service.UpdateRating(addLogger(ctx, "UpdateRating"), request)
 	return
 }

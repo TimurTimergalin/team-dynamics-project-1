@@ -37,7 +37,7 @@ spec:
                   key: POSTGRES_DB
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
-          volumeMounts:
+          volumeMounts:  # ✅ volumeMounts inside container
             - name: postgres-storage
               mountPath: /var/lib/postgresql/data
             - name: postgres-init
@@ -49,13 +49,6 @@ spec:
             limits:
               memory: "512Mi"
               cpu: "500m"
-          volumes:
-            - name: postgres-storage
-              persistentVolumeClaim:
-                claimName: rating-storage-pvc
-            - name: postgres-init
-              configMap:
-                name: postgres-init
           livenessProbe:
             exec:
               command:
@@ -70,3 +63,10 @@ spec:
                 - pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
             initialDelaySeconds: 5
             periodSeconds: 5
+      volumes:  # ✅ volumes at pod spec level (outside containers)
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: rating-storage-pvc
+        - name: postgres-init
+          configMap:
+            name: postgres-init
