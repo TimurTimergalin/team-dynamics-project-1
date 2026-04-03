@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"time"
 )
 
 func makeConnectionString(cfg *ConnectionConfig) string {
@@ -11,6 +12,16 @@ func makeConnectionString(cfg *ConnectionConfig) string {
 		"postgres://%s:%s@%s:%d/%s?sslmode=%s",
 		cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.Database, cfg.SSLMode,
 	)
+}
+
+func ping(ctx context.Context, pool *pgxpool.Pool, timeout time.Duration) error {
+	pingCtx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	if err := pool.Ping(pingCtx); err != nil {
+		pool.Close()
+		return fmt.Errorf("error while pinging: %w", err)
+	}
+	return nil
 }
 
 func MakePool(ctx context.Context, connCfg *ConnectionConfig, poolCfg *PoolConfig, initCfg *InitializationConfig) (*pgxpool.Pool, error) {
@@ -24,7 +35,7 @@ func MakePool(ctx context.Context, connCfg *ConnectionConfig, poolCfg *PoolConfi
 			continue
 		}
 		config.MaxConns = poolCfg.MaxConns
-		config.MaxConns = poolCfg.MinConns
+		config.MinConns = poolCfg.MinConns
 		config.MaxConnLifetime = poolCfg.MaxConnLifetime
 		config.MaxConnIdleTime = poolCfg.MaxConnIdleTime
 		config.HealthCheckPeriod = poolCfg.HealthCheckPeriod
@@ -37,10 +48,18 @@ func MakePool(ctx context.Context, connCfg *ConnectionConfig, poolCfg *PoolConfi
 			lastErr = err
 			continue
 		}
+
+		if err := ping(ctx, pool, initCfg.ConnectionTimeout); err != nil {
+			lastErr = err
+			continue
+		}
+
 		res = pool
+		break
 	}
 	if res == nil {
 		return nil, makeConnectionError(lastErr)
 	}
+
 	return res, nil
 }
