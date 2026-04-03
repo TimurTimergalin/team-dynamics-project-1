@@ -76,7 +76,7 @@ func updateUserRatingImpl(ctx context.Context, pool *pgxpool.Pool, ratingInfos [
 func (repo ratingRepoImpl) GetUserRating(ctx context.Context, ratingInfo *models.RatingInfo) (*models.RatingInfo, *pglib.PgLibError) {
 	return pglib.PerformOperation(ctx, repo.pool, &pglib.QueryConfig{
 		Retries:        3,
-		Timeout:        1000 * time.Millisecond,
+		Timeout:        30000 * time.Millisecond,
 		IsolationLevel: pgx.RepeatableRead,
 		AccessMode:     pgx.ReadWrite,
 	}, func(ctx1 context.Context, pool1 *pgxpool.Pool) (*models.RatingInfo, error, pglib.RetryPolicy) {
@@ -87,7 +87,7 @@ func (repo ratingRepoImpl) GetUserRating(ctx context.Context, ratingInfo *models
 func (repo ratingRepoImpl) UpdateUserRating(ctx context.Context, updateRequests []*models.RatingInfo, matchId string) *pglib.PgLibError {
 	_, err := pglib.PerformOperation(ctx, repo.pool, &pglib.QueryConfig{
 		Retries:        3,
-		Timeout:        1000 * time.Millisecond,
+		Timeout:        30000 * time.Millisecond,
 		IsolationLevel: pgx.RepeatableRead,
 		AccessMode:     pgx.ReadWrite,
 	}, func(ctx1 context.Context, pool1 *pgxpool.Pool) (*struct{}, error, pglib.RetryPolicy) {
