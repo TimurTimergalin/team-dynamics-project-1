@@ -31,11 +31,11 @@ func convertError(pgLibErr *pglib.PgLibError) error {
 	}
 	switch pgLibErr.Type {
 	case pglib.LogicError:
-		return status.Error(codes.FailedPrecondition, "logic error encountered")
+		return status.Errorf(codes.FailedPrecondition, "logic error encountered: %v", pgLibErr)
 	case pglib.ServerError:
-		return status.Error(codes.Internal, "server error encountered")
+		return status.Errorf(codes.Internal, "server error encountered: %v", pgLibErr)
 	case pglib.ConnectionError:
-		return status.Error(codes.Canceled, "connection error encountered")
+		return status.Errorf(codes.Canceled, "connection error encountered: %v", pgLibErr)
 	}
 	return pgLibErr
 }
