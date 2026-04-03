@@ -1,8 +1,9 @@
 import os
 import subprocess
 import sys
+import monorepo_root
 
-__PROJECT_ROOT__ = os.path.split(os.path.split(__file__)[0])[0]
+__REPO_ROOT__ = monorepo_root.get_root()
 
 
 def generate_proto(input_dir: str, output_dir: str) -> None:
@@ -60,8 +61,8 @@ def init_mod(module_path):
 
 
 def main():
-    input_dir = os.path.join(__PROJECT_ROOT__, "api", "proto")
-    output_dir = os.path.join(__PROJECT_ROOT__, "gen", "proto", "go")
+    input_dir = os.path.join(__REPO_ROOT__, "api", "proto")
+    output_dir = os.path.join(__REPO_ROOT__, "gen", "proto", "go")
     try:
         generate_proto(input_dir, output_dir)
     except subprocess.CalledProcessError:

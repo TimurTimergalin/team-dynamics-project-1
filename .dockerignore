@@ -5,3 +5,4 @@ releases
 **/.idea
 **/__pycache__
 deployment/secrets/*.yaml
+.git/

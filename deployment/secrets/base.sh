@@ -1,0 +1,1 @@
+cd $ROOT/deployment/secrets

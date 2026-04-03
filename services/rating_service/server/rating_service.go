@@ -48,7 +48,7 @@ func getPgConnectionConfig() (*pglib.ConnectionConfig, error) {
 
 	sslMode := os.Getenv("PG_SSLMODE")
 	if sslMode == "" {
-		sslMode = "disable" // optional default, but you may want to require it
+		sslMode = "disable"
 	}
 
 	return &pglib.ConnectionConfig{
