@@ -3,14 +3,15 @@ package main
 import (
 	"context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	pb "team_dynamics/api/proto/rating_service"
 )
 
 func main() {
-	conn, err := grpc.NewClient("rating-service.rating.svc.cluster.local:50001")
+	conn, err := grpc.NewClient("rating-service.rating.svc.cluster.local:50001", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		log.Fatalf("Cannot connect")
+		log.Fatalf("Cannot connect: %v", err)
 	}
 	defer func(conn *grpc.ClientConn) {
 		err := conn.Close()
