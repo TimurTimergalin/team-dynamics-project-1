@@ -24,7 +24,7 @@ type ratingRepoImpl struct {
 func getUserRatingImpl(ctx context.Context, pool *pgxpool.Pool, ratingInfo *models.RatingInfo) (*models.RatingInfo, error, pglib.RetryPolicy) {
 	logger := logging.GetLogger(ctx)
 	ratingInfoRes := models.RatingInfo{UserId: ratingInfo.UserId}
-	err := pool.QueryRow(ctx, "SELECT rating, rating_deviation, rating_volatility, last_updated FROM ratings WHERE user_id = $1", ratingInfo.UserId).Scan(&ratingInfoRes.UserId, &ratingInfoRes.Value, &ratingInfoRes.Deviation, &ratingInfoRes.Volatility, &ratingInfoRes.LastUpdate)
+	err := pool.QueryRow(ctx, "SELECT rating, rating_deviation, rating_volatility, last_updated FROM ratings WHERE user_id = $1", ratingInfo.UserId).Scan(&ratingInfoRes.Value, &ratingInfoRes.Deviation, &ratingInfoRes.Volatility, &ratingInfoRes.LastUpdate)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			_, err := pool.Exec(ctx, "INSERT INTO ratings (user_id, rating, rating_deviation, rating_volatility, last_updated) VALUES ($1, $2, $3, $4, $5)", ratingInfo.UserId, ratingInfo.Value, ratingInfo.Deviation, ratingInfo.Volatility, ratingInfo.LastUpdate)
@@ -66,7 +66,7 @@ func updateUserRatingImpl(ctx context.Context, pool *pgxpool.Pool, ratingInfos [
 	}
 	for _, ratingInfo := range ratingInfos {
 		var foundUserId int64
-		err := pool.QueryRow(ctx, "UPDATE ratings SET (rating, rating_deviation, rating_volatility, last_updated) = ($2, $3, $4, $5) WHERE id = $1 RETURNING id", ratingInfo.UserId, ratingInfo.Value, ratingInfo.Deviation, ratingInfo.Volatility, ratingInfo.LastUpdate).Scan(&foundUserId)
+		err := pool.QueryRow(ctx, "UPDATE ratings SET (rating, rating_deviation, rating_volatility, last_updated) = ($2, $3, $4, $5) WHERE user_id = $1 RETURNING user_id", ratingInfo.UserId, ratingInfo.Value, ratingInfo.Deviation, ratingInfo.Volatility, ratingInfo.LastUpdate).Scan(&foundUserId)
 		if err != nil {
 			if pglib.IsNoRows(err) {
 				logger.Warn("No rating when updating", "error", err)
