@@ -1,1 +1,5 @@
 releases
+.venv
+*/.venv
+.idea
+*/.idea

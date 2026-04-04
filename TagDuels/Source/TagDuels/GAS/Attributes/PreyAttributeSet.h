@@ -26,6 +26,18 @@ public:
 	FGameplayAttributeData PalletSlowVaultDuration;
 	ATTRIBUTE_ACCESSORS_BASIC(UPreyAttributeSet, PalletSlowVaultDuration);
 
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_WindowFastVaultDuration)
+	FGameplayAttributeData WindowFastVaultDuration;
+	ATTRIBUTE_ACCESSORS_BASIC(UPreyAttributeSet, WindowFastVaultDuration);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_WindowMediumVaultDuration)
+	FGameplayAttributeData WindowMediumVaultDuration;
+	ATTRIBUTE_ACCESSORS_BASIC(UPreyAttributeSet, WindowMediumVaultDuration);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_WindowSlowVaultDuration)
+	FGameplayAttributeData WindowSlowVaultDuration;
+	ATTRIBUTE_ACCESSORS_BASIC(UPreyAttributeSet, WindowSlowVaultDuration);
+
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_HP)
 	FGameplayAttributeData HP;
 	ATTRIBUTE_ACCESSORS_BASIC(UPreyAttributeSet, HP);
@@ -50,6 +62,24 @@ public:
     {
     	GAMEPLAYATTRIBUTE_REPNOTIFY(UPreyAttributeSet, PalletSlowVaultDuration, OldValue);
     }
+
+	UFUNCTION()
+	void OnRep_WindowFastVaultDuration (const FGameplayAttributeData& OldValue)
+	{
+		GAMEPLAYATTRIBUTE_REPNOTIFY(UPreyAttributeSet, WindowFastVaultDuration, OldValue);
+	}
+
+	UFUNCTION()
+	void OnRep_WindowMediumVaultDuration (const FGameplayAttributeData& OldValue)
+	{
+		GAMEPLAYATTRIBUTE_REPNOTIFY(UPreyAttributeSet, WindowMediumVaultDuration, OldValue);
+	}
+
+	UFUNCTION()
+	void OnRep_WindowSlowVaultDuration (const FGameplayAttributeData& OldValue)
+	{
+		GAMEPLAYATTRIBUTE_REPNOTIFY(UPreyAttributeSet, WindowSlowVaultDuration, OldValue);
+	}
 
 	UFUNCTION()
 	void OnRep_HP (const FGameplayAttributeData& OldValue)
