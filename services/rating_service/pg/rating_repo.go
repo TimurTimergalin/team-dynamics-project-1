@@ -21,11 +21,11 @@ type ratingRepoImpl struct {
 }
 
 func getUserRatingImpl(ctx context.Context, pool *pgxpool.Pool, ratingInfo *models.RatingInfo) (*models.RatingInfo, error, pglib.RetryPolicy) {
-	var ratingInfoRes models.RatingInfo
-	err := pool.QueryRow(ctx, "SELECT id, rating, rating_distribution FROM ratings WHERE id = $1", ratingInfo.UserId).Scan(&ratingInfoRes.UserId, &ratingInfoRes.Value, &ratingInfoRes.Deviation)
+	ratingInfoRes := models.RatingInfo{UserId: ratingInfo.UserId}
+	err := pool.QueryRow(ctx, "SELECT rating, rating_deviation, rating_volatility, last_updated FROM ratings WHERE user_id = $1", ratingInfo.UserId).Scan(&ratingInfoRes.UserId, &ratingInfoRes.Value, &ratingInfoRes.Deviation, &ratingInfoRes.Volatility, &ratingInfoRes.LastUpdate)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			_, err := pool.Exec(ctx, "INSERT INTO ratings (id, rating, rating_distribution) VALUES ($1, $2, $3)", ratingInfo.UserId, ratingInfo.Value, ratingInfo.Deviation)
+			_, err := pool.Exec(ctx, "INSERT INTO ratings (user_id, rating, rating_deviation, rating_volatility, last_updated) VALUES ($1, $2, $3, $4, $5)", ratingInfo.UserId, ratingInfo.Value, ratingInfo.Deviation, ratingInfo.Volatility, ratingInfo.LastUpdate)
 			if err != nil {
 				var pgErr *pgconn.PgError
 				if errors.As(err, &pgErr) {
@@ -41,7 +41,7 @@ func getUserRatingImpl(ctx context.Context, pool *pgxpool.Pool, ratingInfo *mode
 }
 
 func updateUserRatingImpl(ctx context.Context, pool *pgxpool.Pool, ratingInfos []*models.RatingInfo, matchId string) (*struct{}, error, pglib.RetryPolicy) {
-	_, err := pool.Exec(ctx, "INSERT INTO matches (matchId) VALUES ($1)", matchId)
+	_, err := pool.Exec(ctx, "INSERT INTO matches (match_id) VALUES ($1)", matchId)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
@@ -56,7 +56,7 @@ func updateUserRatingImpl(ctx context.Context, pool *pgxpool.Pool, ratingInfos [
 	}
 	for _, ratingInfo := range ratingInfos {
 		var foundUserId int64
-		err := pool.QueryRow(ctx, "UPDATE ratings SET (rating, rating_distribution) = ($2, $3) WHERE id = $1 RETURNING id", ratingInfo.UserId, ratingInfo.Value, ratingInfo.Deviation).Scan(&foundUserId)
+		err := pool.QueryRow(ctx, "UPDATE ratings SET (rating, rating_deviation, rating_volatility, last_updated) = ($2, $3, $4, $5) WHERE id = $1 RETURNING id", ratingInfo.UserId, ratingInfo.Value, ratingInfo.Deviation, ratingInfo.Volatility, ratingInfo.LastUpdate).Scan(&foundUserId)
 		if err != nil {
 			if pglib.IsNoRows(err) {
 				return nil, err, pglib.NoRetry
