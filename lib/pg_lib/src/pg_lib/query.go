@@ -27,10 +27,7 @@ func withTransaction[T any](ctx context.Context, pool *pgxpool.Pool, cfg *QueryC
 		return nil, makeConnectionError(err), NormalRetry
 	}
 	defer func(tx pgx.Tx, ctx context.Context) {
-		err := tx.Rollback(ctx)
-		if err != nil {
-			logger.Debug("Could not rollback tx", "error", err)
-		}
+		_ = tx.Rollback(ctx)
 	}(tx, ctx)
 
 	res, err, shouldRetry := op(ctx, pool)

@@ -97,10 +97,17 @@ func (s ratingServiceImpl) UpdateRating(ctx context.Context, request *pb.UpdateR
 	}
 
 	newRating1, newRating2 := s.glicko2.UpdateRatings(rating1Info, rating2Info, convertMatchResult(request.MatchResult))
-	err = s.repo.UpdateUserRating(ctx, []*models.RatingInfo{newRating1, newRating2}, request.GetMatchId())
+	updated, err := s.repo.UpdateUserRating(ctx, []*models.RatingInfo{newRating1, newRating2}, request.GetMatchId())
 	if err != nil {
 		return nil, convertError(err)
 	}
 
-	return &pb.UpdateRatingResponse{Player1Rating: makeRatingData(newRating1), Player2Rating: makeRatingData(newRating2)}, nil
+	rating1Res := rating1Info
+	rating2Res := rating2Info
+	if updated {
+		rating1Res = newRating1
+		rating2Res = newRating2
+	}
+
+	return &pb.UpdateRatingResponse{Player1Rating: makeRatingData(rating1Res), Player2Rating: makeRatingData(rating2Res)}, nil
 }

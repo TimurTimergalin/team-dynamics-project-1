@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: rating-storage
+    environment:
+      POSTGRES_USER: rating_user
+      POSTGRES_PASSWORD: rating_pass
+      POSTGRES_DB: rating_storage
+    ports:
+      - "5432:5432"
+    volumes:
+      # Mount the init script (create a file named init.sql in the same directory)
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql

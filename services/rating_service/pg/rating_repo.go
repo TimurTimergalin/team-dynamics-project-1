@@ -14,7 +14,7 @@ import (
 
 type RatingRepo interface {
 	GetUserRating(ctx context.Context, ratingInfo *models.RatingInfo) (*models.RatingInfo, *pglib.PgLibError)
-	UpdateUserRating(ctx context.Context, ratingInfo []*models.RatingInfo, matchId string) *pglib.PgLibError
+	UpdateUserRating(ctx context.Context, ratingInfo []*models.RatingInfo, matchId string) (bool, *pglib.PgLibError)
 }
 
 type ratingRepoImpl struct {
@@ -47,15 +47,16 @@ func getUserRatingImpl(ctx context.Context, pool *pgxpool.Pool, ratingInfo *mode
 	return &ratingInfoRes, nil, pglib.NoRetry
 }
 
-func updateUserRatingImpl(ctx context.Context, pool *pgxpool.Pool, ratingInfos []*models.RatingInfo, matchId string) (*struct{}, error, pglib.RetryPolicy) {
+func updateUserRatingImpl(ctx context.Context, pool *pgxpool.Pool, ratingInfos []*models.RatingInfo, matchId string) (*bool, error, pglib.RetryPolicy) {
 	logger := logging.GetLogger(ctx)
 	_, err := pool.Exec(ctx, "INSERT INTO matches (match_id) VALUES ($1)", matchId)
+	res := false
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pglib.IsConstraintViolated(pgErr) {
 				logger.Info("Repeated handling of a match", "match", matchId, "error", pgErr)
-				return nil, nil, pglib.NoRetry
+				return &res, nil, pglib.NoRetry
 			}
 			if pglib.IsSerializationError(pgErr) {
 				logger.Debug("Serialization error while inserting match", "error", err)
@@ -83,7 +84,8 @@ func updateUserRatingImpl(ctx context.Context, pool *pgxpool.Pool, ratingInfos [
 			return nil, err, pglib.NormalRetry
 		}
 	}
-	return nil, nil, pglib.NoRetry
+	res = true
+	return &res, nil, pglib.NoRetry
 }
 
 func (repo ratingRepoImpl) GetUserRating(ctx context.Context, ratingInfo *models.RatingInfo) (*models.RatingInfo, *pglib.PgLibError) {
@@ -97,16 +99,19 @@ func (repo ratingRepoImpl) GetUserRating(ctx context.Context, ratingInfo *models
 	})
 }
 
-func (repo ratingRepoImpl) UpdateUserRating(ctx context.Context, updateRequests []*models.RatingInfo, matchId string) *pglib.PgLibError {
-	_, err := pglib.PerformOperation(ctx, repo.pool, &pglib.QueryConfig{
+func (repo ratingRepoImpl) UpdateUserRating(ctx context.Context, updateRequests []*models.RatingInfo, matchId string) (bool, *pglib.PgLibError) {
+	res, err := pglib.PerformOperation(ctx, repo.pool, &pglib.QueryConfig{
 		Retries:        3,
 		Timeout:        30000 * time.Millisecond,
 		IsolationLevel: pgx.RepeatableRead,
 		AccessMode:     pgx.ReadWrite,
-	}, func(ctx1 context.Context, pool1 *pgxpool.Pool) (*struct{}, error, pglib.RetryPolicy) {
+	}, func(ctx1 context.Context, pool1 *pgxpool.Pool) (*bool, error, pglib.RetryPolicy) {
 		return updateUserRatingImpl(ctx1, pool1, updateRequests, matchId)
 	})
-	return err
+	if res == nil {
+		return false, err
+	}
+	return *res, err
 }
 
 func MakeRatingRepo(pool *pgxpool.Pool) RatingRepo {
