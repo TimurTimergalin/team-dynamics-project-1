@@ -17,7 +17,7 @@ ARG PROJECT_DIR
 RUN addgroup -g 1001 -S appgroup && \
     adduser -u 1001 -S appuser -G appgroup
 
-RUN #apk add --no-cache \
+#RUN apk add --no-cache \
 #    net-tools \
 #    bind-tools \
 #    busybox-extras \
