@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: match-history-service
-  namespace: rating
+  namespace: match-history
   labels:
     app: match-history-service
 spec:
