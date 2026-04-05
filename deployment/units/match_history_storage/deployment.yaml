@@ -69,4 +69,4 @@ spec:
             claimName: match-history-storage-pvc
         - name: postgres-init
           configMap:
-            name: postgres-init
+            name: match-history-storage-init
