@@ -7,11 +7,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: postgres
+      app:  match-history-storage
   template:
     metadata:
       labels:
-        app: postgres
+        app:  match-history-storage
     spec:
       containers:
         - name: postgres
