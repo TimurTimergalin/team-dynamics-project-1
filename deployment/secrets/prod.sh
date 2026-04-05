@@ -1,2 +1,3 @@
 source base.sh
 kubectl apply -f prod_rating_storage_credentials_secret.yaml
+kubectl apply -f prod_match_history_storage_credentials_secret.yaml

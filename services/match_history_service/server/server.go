@@ -8,11 +8,11 @@ import (
 	"net"
 	"os"
 	"strconv"
-	pb "team_dynamics/api/proto/rating_service"
+	pb "team_dynamics/api/proto/match_history_service"
+	"team_dynamics/match_history_service/controllers"
+	"team_dynamics/match_history_service/pg"
+	"team_dynamics/match_history_service/services"
 	pglib "team_dynamics/pg_lib/include"
-	"team_dynamics/rating_service/controllers"
-	"team_dynamics/rating_service/pg"
-	"team_dynamics/rating_service/services"
 	"time"
 )
 
@@ -173,8 +173,11 @@ func main() {
 		panic(fmt.Sprintf("Unable to get listen address: %v", err))
 	}
 
-	controller := &controllers.RatingServiceController{
-		Service: services.MakeRatingService(pg.MakeRatingRepo(pool), services.MakeGlicko2Service()),
+	contoller := &controllers.MatchHistoryServiceController{
+		Service: services.MakeMatchHistoryService(
+			services.MakePageKeyService(),
+			pg.MakeMatchHistoryRepo(pool),
+		),
 	}
 
 	lis, err := net.Listen("tcp", listenAddress)
@@ -183,7 +186,7 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	pb.RegisterRatingServiceServer(s, controller)
+	pb.RegisterMatchHistoryServiceServer(s, contoller)
 
 	if err := s.Serve(lis); err != nil {
 		panic(fmt.Sprintf("Unable to serve: %v", err))

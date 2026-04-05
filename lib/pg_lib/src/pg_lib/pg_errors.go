@@ -17,3 +17,7 @@ func IsConstraintViolated(err *pgconn.PgError) bool {
 func IsSerializationError(err *pgconn.PgError) bool {
 	return err.Code == "40001"
 }
+
+func IsServerSideTimeout(err *pgconn.PgError) bool {
+	return err.Code == "57014"
+}

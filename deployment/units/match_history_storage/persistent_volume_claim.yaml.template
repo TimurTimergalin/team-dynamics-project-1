@@ -1,0 +1,28 @@
+base:
+  apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: match-history-storage-pvc
+    namespace: match-history
+  spec:
+    accessModes:
+      - ReadWriteOnce
+versions:
+  prod:
+    merge:
+      metadata:
+        labels:
+          environment: production
+      spec:
+        resources:
+          requests:
+            storage: 10Gi
+  dev:
+    merge:
+      metadata:
+        labels:
+          environment: dev
+      spec:
+        resources:
+          requests:
+            storage: 512Mi

@@ -21,13 +21,13 @@ type ratingRepoImpl struct {
 	pool *pgxpool.Pool
 }
 
-func getUserRatingImpl(ctx context.Context, pool *pgxpool.Pool, ratingInfo *models.RatingInfo) (*models.RatingInfo, error, pglib.RetryPolicy) {
+func getUserRatingImpl(ctx context.Context, tx pgx.Tx, ratingInfo *models.RatingInfo) (*models.RatingInfo, error, pglib.ResponseStatus) {
 	logger := logging.GetLogger(ctx)
 	ratingInfoRes := models.RatingInfo{UserId: ratingInfo.UserId}
-	err := pool.QueryRow(ctx, "SELECT rating, rating_deviation, rating_volatility, last_updated FROM ratings WHERE user_id = $1", ratingInfo.UserId).Scan(&ratingInfoRes.Value, &ratingInfoRes.Deviation, &ratingInfoRes.Volatility, &ratingInfoRes.LastUpdate)
+	err := tx.QueryRow(ctx, "SELECT rating, rating_deviation, rating_volatility, last_updated FROM ratings WHERE user_id = $1", ratingInfo.UserId).Scan(&ratingInfoRes.Value, &ratingInfoRes.Deviation, &ratingInfoRes.Volatility, &ratingInfoRes.LastUpdate)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			_, err := pool.Exec(ctx, "INSERT INTO ratings (user_id, rating, rating_deviation, rating_volatility, last_updated) VALUES ($1, $2, $3, $4, $5)", ratingInfo.UserId, ratingInfo.Value, ratingInfo.Deviation, ratingInfo.Volatility, ratingInfo.LastUpdate)
+			_, err := tx.Exec(ctx, "INSERT INTO ratings (user_id, rating, rating_deviation, rating_volatility, last_updated) VALUES ($1, $2, $3, $4, $5)", ratingInfo.UserId, ratingInfo.Value, ratingInfo.Deviation, ratingInfo.Volatility, ratingInfo.LastUpdate)
 			if err != nil {
 				var pgErr *pgconn.PgError
 				if errors.As(err, &pgErr) {
@@ -47,16 +47,16 @@ func getUserRatingImpl(ctx context.Context, pool *pgxpool.Pool, ratingInfo *mode
 	return &ratingInfoRes, nil, pglib.NoRetry
 }
 
-func updateUserRatingImpl(ctx context.Context, pool *pgxpool.Pool, ratingInfos []*models.RatingInfo, matchId string) (*bool, error, pglib.RetryPolicy) {
+func updateUserRatingImpl(ctx context.Context, tx pgx.Tx, ratingInfos []*models.RatingInfo, matchId string) (*bool, error, pglib.ResponseStatus) {
 	logger := logging.GetLogger(ctx)
-	_, err := pool.Exec(ctx, "INSERT INTO matches (match_id) VALUES ($1)", matchId)
+	_, err := tx.Exec(ctx, "INSERT INTO matches (match_id) VALUES ($1)", matchId)
 	res := false
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pglib.IsConstraintViolated(pgErr) {
 				logger.Info("Repeated handling of a match", "match", matchId, "error", pgErr)
-				return &res, nil, pglib.NoRetry
+				return &res, nil, pglib.ForceRollback
 			}
 			if pglib.IsSerializationError(pgErr) {
 				logger.Debug("Serialization error while inserting match", "error", err)
@@ -67,7 +67,7 @@ func updateUserRatingImpl(ctx context.Context, pool *pgxpool.Pool, ratingInfos [
 	}
 	for _, ratingInfo := range ratingInfos {
 		var foundUserId int64
-		err := pool.QueryRow(ctx, "UPDATE ratings SET (rating, rating_deviation, rating_volatility, last_updated) = ($2, $3, $4, $5) WHERE user_id = $1 RETURNING user_id", ratingInfo.UserId, ratingInfo.Value, ratingInfo.Deviation, ratingInfo.Volatility, ratingInfo.LastUpdate).Scan(&foundUserId)
+		err := tx.QueryRow(ctx, "UPDATE ratings SET (rating, rating_deviation, rating_volatility, last_updated) = ($2, $3, $4, $5) WHERE user_id = $1 RETURNING user_id", ratingInfo.UserId, ratingInfo.Value, ratingInfo.Deviation, ratingInfo.Volatility, ratingInfo.LastUpdate).Scan(&foundUserId)
 		if err != nil {
 			if pglib.IsNoRows(err) {
 				logger.Warn("No rating when updating", "error", err)
@@ -91,11 +91,11 @@ func updateUserRatingImpl(ctx context.Context, pool *pgxpool.Pool, ratingInfos [
 func (repo ratingRepoImpl) GetUserRating(ctx context.Context, ratingInfo *models.RatingInfo) (*models.RatingInfo, *pglib.PgLibError) {
 	return pglib.PerformOperation(ctx, repo.pool, &pglib.QueryConfig{
 		Retries:        3,
-		Timeout:        30000 * time.Millisecond,
+		Timeout:        200 * time.Millisecond,
 		IsolationLevel: pgx.RepeatableRead,
 		AccessMode:     pgx.ReadWrite,
-	}, func(ctx1 context.Context, pool1 *pgxpool.Pool) (*models.RatingInfo, error, pglib.RetryPolicy) {
-		return getUserRatingImpl(ctx1, pool1, ratingInfo)
+	}, func(ctx1 context.Context, tx pgx.Tx) (*models.RatingInfo, error, pglib.ResponseStatus) {
+		return getUserRatingImpl(ctx1, tx, ratingInfo)
 	})
 }
 
@@ -105,8 +105,8 @@ func (repo ratingRepoImpl) UpdateUserRating(ctx context.Context, updateRequests 
 		Timeout:        30000 * time.Millisecond,
 		IsolationLevel: pgx.RepeatableRead,
 		AccessMode:     pgx.ReadWrite,
-	}, func(ctx1 context.Context, pool1 *pgxpool.Pool) (*bool, error, pglib.RetryPolicy) {
-		return updateUserRatingImpl(ctx1, pool1, updateRequests, matchId)
+	}, func(ctx1 context.Context, tx pgx.Tx) (*bool, error, pglib.ResponseStatus) {
+		return updateUserRatingImpl(ctx1, tx, updateRequests, matchId)
 	})
 	if res == nil {
 		return false, err

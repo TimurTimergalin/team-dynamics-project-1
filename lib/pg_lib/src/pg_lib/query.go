@@ -8,15 +8,16 @@ import (
 	"logging"
 )
 
-type RetryPolicy = int32
+type ResponseStatus = int32
 
 const (
-	NoRetry RetryPolicy = iota
+	NoRetry ResponseStatus = iota
 	NormalRetry
 	FreeRetry
+	ForceRollback
 )
 
-func withTransaction[T any](ctx context.Context, pool *pgxpool.Pool, cfg *QueryConfig, op func(context.Context, *pgxpool.Pool) (_res *T, _err error, _shouldRetry RetryPolicy)) (_res *T, _err *PgLibError, _shouldRetry RetryPolicy) {
+func withTransaction[T any](ctx context.Context, pool *pgxpool.Pool, cfg *QueryConfig, op func(context.Context, pgx.Tx) (_res *T, _err error, _shouldRetry ResponseStatus)) (_res *T, _err *PgLibError, _shouldRetry ResponseStatus) {
 	logger := logging.GetLogger(ctx)
 	tx, err := pool.BeginTx(ctx, pgx.TxOptions{
 		IsoLevel:   cfg.IsolationLevel,
@@ -30,7 +31,7 @@ func withTransaction[T any](ctx context.Context, pool *pgxpool.Pool, cfg *QueryC
 		_ = tx.Rollback(ctx)
 	}(tx, ctx)
 
-	res, err, shouldRetry := op(ctx, pool)
+	res, err, shouldRetry := op(ctx, tx)
 	if err != nil {
 		if shouldRetry == NoRetry {
 			logger.Debug("Some non-retryable error occurred", "error", err)
@@ -38,6 +39,10 @@ func withTransaction[T any](ctx context.Context, pool *pgxpool.Pool, cfg *QueryC
 		}
 		logger.Debug("Some retryable error occurred", "error", err)
 		return nil, makeConnectionError(err), shouldRetry
+	}
+	if shouldRetry == ForceRollback {
+		logger.Debug("Rollback without error")
+		return nil, nil, NoRetry
 	}
 
 	err = tx.Commit(ctx)
@@ -49,13 +54,13 @@ func withTransaction[T any](ctx context.Context, pool *pgxpool.Pool, cfg *QueryC
 	return res, nil, NoRetry
 }
 
-func withTimeout[T any](ctx context.Context, cfg *QueryConfig, op func(context.Context) (_res *T, _err *PgLibError, _shouldRetry RetryPolicy)) (_res *T, _err *PgLibError, _shouldRetry RetryPolicy) {
+func withTimeout[T any](ctx context.Context, cfg *QueryConfig, op func(context.Context) (_res *T, _err *PgLibError, _shouldRetry ResponseStatus)) (_res *T, _err *PgLibError, _shouldRetry ResponseStatus) {
 	ctx, cancel := context.WithTimeout(ctx, cfg.Timeout)
 	defer cancel()
 	return op(ctx)
 }
 
-func withRetry[T any](ctx context.Context, cfg *QueryConfig, op func() (_res *T, _err *PgLibError, _shouldRetry RetryPolicy)) (*T, *PgLibError) {
+func withRetry[T any](ctx context.Context, cfg *QueryConfig, op func() (_res *T, _err *PgLibError, _shouldRetry ResponseStatus)) (*T, *PgLibError) {
 	logger := logging.GetLogger(ctx)
 	var lastErr *PgLibError = nil
 	maxAllowedFree := 5
@@ -80,9 +85,9 @@ func withRetry[T any](ctx context.Context, cfg *QueryConfig, op func() (_res *T,
 	return nil, makeConnectionError(lastErr)
 }
 
-func PerformOperation[T any](ctx context.Context, pool *pgxpool.Pool, cfg *QueryConfig, op func(context.Context, *pgxpool.Pool) (*T, error, RetryPolicy)) (*T, *PgLibError) {
-	res, err := withRetry[T](ctx, cfg, func() (*T, *PgLibError, RetryPolicy) {
-		return withTimeout[T](ctx, cfg, func(timeoutCtx context.Context) (*T, *PgLibError, RetryPolicy) {
+func PerformOperation[T any](ctx context.Context, pool *pgxpool.Pool, cfg *QueryConfig, op func(context.Context, pgx.Tx) (*T, error, ResponseStatus)) (*T, *PgLibError) {
+	res, err := withRetry[T](ctx, cfg, func() (*T, *PgLibError, ResponseStatus) {
+		return withTimeout[T](ctx, cfg, func(timeoutCtx context.Context) (*T, *PgLibError, ResponseStatus) {
 			return withTransaction[T](timeoutCtx, pool, cfg, op)
 		})
 	})

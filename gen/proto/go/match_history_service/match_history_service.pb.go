@@ -21,12 +21,66 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type MatchResult int32
+
+const (
+	MatchResult_MATCH_RESULT_UNSPECIFIED MatchResult = 0
+	MatchResult_MATCH_RESULT_PLAYER1_WIN MatchResult = 1
+	MatchResult_MATCH_RESULT_DRAW        MatchResult = 2
+	MatchResult_MATCH_RESULT_PLAYER2_WIN MatchResult = 3
+	MatchResult_MATCH_RESULT_CANCELLED   MatchResult = 4
+)
+
+// Enum value maps for MatchResult.
+var (
+	MatchResult_name = map[int32]string{
+		0: "MATCH_RESULT_UNSPECIFIED",
+		1: "MATCH_RESULT_PLAYER1_WIN",
+		2: "MATCH_RESULT_DRAW",
+		3: "MATCH_RESULT_PLAYER2_WIN",
+		4: "MATCH_RESULT_CANCELLED",
+	}
+	MatchResult_value = map[string]int32{
+		"MATCH_RESULT_UNSPECIFIED": 0,
+		"MATCH_RESULT_PLAYER1_WIN": 1,
+		"MATCH_RESULT_DRAW":        2,
+		"MATCH_RESULT_PLAYER2_WIN": 3,
+		"MATCH_RESULT_CANCELLED":   4,
+	}
+)
+
+func (x MatchResult) Enum() *MatchResult {
+	p := new(MatchResult)
+	*p = x
+	return p
+}
+
+func (x MatchResult) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (MatchResult) Descriptor() protoreflect.EnumDescriptor {
+	return file_match_history_service_match_history_service_proto_enumTypes[0].Descriptor()
+}
+
+func (MatchResult) Type() protoreflect.EnumType {
+	return &file_match_history_service_match_history_service_proto_enumTypes[0]
+}
+
+func (x MatchResult) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use MatchResult.Descriptor instead.
+func (MatchResult) EnumDescriptor() ([]byte, []int) {
+	return file_match_history_service_match_history_service_proto_rawDescGZIP(), []int{0}
+}
+
 type ParticipantData struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            *uint64                `protobuf:"varint,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	Id            *int64                 `protobuf:"varint,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	Name          *string                `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
-	Rating        *uint64                `protobuf:"varint,3,opt,name=rating,proto3,oneof" json:"rating,omitempty"`
-	Diff          *int64                 `protobuf:"varint,4,opt,name=diff,proto3,oneof" json:"diff,omitempty"`
+	Rating        *int64                 `protobuf:"varint,3,opt,name=rating,proto3,oneof" json:"rating,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -61,7 +115,7 @@ func (*ParticipantData) Descriptor() ([]byte, []int) {
 	return file_match_history_service_match_history_service_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ParticipantData) GetId() uint64 {
+func (x *ParticipantData) GetId() int64 {
 	if x != nil && x.Id != nil {
 		return *x.Id
 	}
@@ -75,16 +129,9 @@ func (x *ParticipantData) GetName() string {
 	return ""
 }
 
-func (x *ParticipantData) GetRating() uint64 {
+func (x *ParticipantData) GetRating() int64 {
 	if x != nil && x.Rating != nil {
 		return *x.Rating
-	}
-	return 0
-}
-
-func (x *ParticipantData) GetDiff() int64 {
-	if x != nil && x.Diff != nil {
-		return *x.Diff
 	}
 	return 0
 }
@@ -92,7 +139,7 @@ func (x *ParticipantData) GetDiff() int64 {
 type Round struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	IsPlayer1Killer *bool                  `protobuf:"varint,1,opt,name=is_player1_killer,json=isPlayer1Killer,proto3,oneof" json:"is_player1_killer,omitempty"`
-	TimeMillis      *uint64                `protobuf:"varint,2,opt,name=time_millis,json=timeMillis,proto3,oneof" json:"time_millis,omitempty"`
+	TimeMillis      *int64                 `protobuf:"varint,2,opt,name=time_millis,json=timeMillis,proto3,oneof" json:"time_millis,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -134,7 +181,7 @@ func (x *Round) GetIsPlayer1Killer() bool {
 	return false
 }
 
-func (x *Round) GetTimeMillis() uint64 {
+func (x *Round) GetTimeMillis() int64 {
 	if x != nil && x.TimeMillis != nil {
 		return *x.TimeMillis
 	}
@@ -146,7 +193,9 @@ type MatchData struct {
 	Player1       *ParticipantData       `protobuf:"bytes,1,opt,name=player1,proto3,oneof" json:"player1,omitempty"`
 	Player2       *ParticipantData       `protobuf:"bytes,2,opt,name=player2,proto3,oneof" json:"player2,omitempty"`
 	Rounds        []*Round               `protobuf:"bytes,3,rep,name=rounds,proto3" json:"rounds,omitempty"`
-	EndTimestamp  *uint64                `protobuf:"varint,4,opt,name=end_timestamp,json=endTimestamp,proto3,oneof" json:"end_timestamp,omitempty"`
+	EndTimestamp  *int64                 `protobuf:"varint,4,opt,name=end_timestamp,json=endTimestamp,proto3,oneof" json:"end_timestamp,omitempty"`
+	MatchResult   MatchResult            `protobuf:"varint,5,opt,name=match_result,json=matchResult,proto3,enum=match_history_service.MatchResult" json:"match_result,omitempty"`
+	MatchId       *string                `protobuf:"bytes,6,opt,name=match_id,json=matchId,proto3,oneof" json:"match_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -202,16 +251,31 @@ func (x *MatchData) GetRounds() []*Round {
 	return nil
 }
 
-func (x *MatchData) GetEndTimestamp() uint64 {
+func (x *MatchData) GetEndTimestamp() int64 {
 	if x != nil && x.EndTimestamp != nil {
 		return *x.EndTimestamp
 	}
 	return 0
 }
 
+func (x *MatchData) GetMatchResult() MatchResult {
+	if x != nil {
+		return x.MatchResult
+	}
+	return MatchResult_MATCH_RESULT_UNSPECIFIED
+}
+
+func (x *MatchData) GetMatchId() string {
+	if x != nil && x.MatchId != nil {
+		return *x.MatchId
+	}
+	return ""
+}
+
 type GetMatchHistoryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Pagekey       *string                `protobuf:"bytes,1,opt,name=pagekey,proto3,oneof" json:"pagekey,omitempty"`
+	UserId        *int64                 `protobuf:"varint,2,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -251,6 +315,13 @@ func (x *GetMatchHistoryRequest) GetPagekey() string {
 		return *x.Pagekey
 	}
 	return ""
+}
+
+func (x *GetMatchHistoryRequest) GetUserId() int64 {
+	if x != nil && x.UserId != nil {
+		return *x.UserId
+	}
+	return 0
 }
 
 type GetMatchHistoryResponse struct {
@@ -389,36 +460,40 @@ var File_match_history_service_match_history_service_proto protoreflect.FileDesc
 
 const file_match_history_service_match_history_service_proto_rawDesc = "" +
 	"\n" +
-	"1match_history_service/match_history_service.proto\x12\x15match_history_service\"\x99\x01\n" +
+	"1match_history_service/match_history_service.proto\x12\x15match_history_service\"w\n" +
 	"\x0fParticipantData\x12\x13\n" +
-	"\x02id\x18\x01 \x01(\x04H\x00R\x02id\x88\x01\x01\x12\x17\n" +
+	"\x02id\x18\x01 \x01(\x03H\x00R\x02id\x88\x01\x01\x12\x17\n" +
 	"\x04name\x18\x02 \x01(\tH\x01R\x04name\x88\x01\x01\x12\x1b\n" +
-	"\x06rating\x18\x03 \x01(\x04H\x02R\x06rating\x88\x01\x01\x12\x17\n" +
-	"\x04diff\x18\x04 \x01(\x03H\x03R\x04diff\x88\x01\x01B\x05\n" +
+	"\x06rating\x18\x03 \x01(\x03H\x02R\x06rating\x88\x01\x01B\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\t\n" +
-	"\a_ratingB\a\n" +
-	"\x05_diff\"\x84\x01\n" +
+	"\a_rating\"\x84\x01\n" +
 	"\x05Round\x12/\n" +
 	"\x11is_player1_killer\x18\x01 \x01(\bH\x00R\x0fisPlayer1Killer\x88\x01\x01\x12$\n" +
-	"\vtime_millis\x18\x02 \x01(\x04H\x01R\n" +
+	"\vtime_millis\x18\x02 \x01(\x03H\x01R\n" +
 	"timeMillis\x88\x01\x01B\x14\n" +
 	"\x12_is_player1_killerB\x0e\n" +
-	"\f_time_millis\"\xa3\x02\n" +
+	"\f_time_millis\"\x97\x03\n" +
 	"\tMatchData\x12E\n" +
 	"\aplayer1\x18\x01 \x01(\v2&.match_history_service.ParticipantDataH\x00R\aplayer1\x88\x01\x01\x12E\n" +
 	"\aplayer2\x18\x02 \x01(\v2&.match_history_service.ParticipantDataH\x01R\aplayer2\x88\x01\x01\x124\n" +
 	"\x06rounds\x18\x03 \x03(\v2\x1c.match_history_service.RoundR\x06rounds\x12(\n" +
-	"\rend_timestamp\x18\x04 \x01(\x04H\x02R\fendTimestamp\x88\x01\x01B\n" +
+	"\rend_timestamp\x18\x04 \x01(\x03H\x02R\fendTimestamp\x88\x01\x01\x12E\n" +
+	"\fmatch_result\x18\x05 \x01(\x0e2\".match_history_service.MatchResultR\vmatchResult\x12\x1e\n" +
+	"\bmatch_id\x18\x06 \x01(\tH\x03R\amatchId\x88\x01\x01B\n" +
 	"\n" +
 	"\b_player1B\n" +
 	"\n" +
 	"\b_player2B\x10\n" +
-	"\x0e_end_timestamp\"C\n" +
+	"\x0e_end_timestampB\v\n" +
+	"\t_match_id\"m\n" +
 	"\x16GetMatchHistoryRequest\x12\x1d\n" +
-	"\apagekey\x18\x01 \x01(\tH\x00R\apagekey\x88\x01\x01B\n" +
+	"\apagekey\x18\x01 \x01(\tH\x00R\apagekey\x88\x01\x01\x12\x1c\n" +
+	"\auser_id\x18\x02 \x01(\x03H\x01R\x06userId\x88\x01\x01B\n" +
 	"\n" +
-	"\b_pagekey\"\x80\x01\n" +
+	"\b_pagekeyB\n" +
+	"\n" +
+	"\b_user_id\"\x80\x01\n" +
 	"\x17GetMatchHistoryResponse\x12:\n" +
 	"\amatches\x18\x01 \x03(\v2 .match_history_service.MatchDataR\amatches\x12\x1d\n" +
 	"\apagekey\x18\x02 \x01(\tH\x00R\apagekey\x88\x01\x01B\n" +
@@ -427,7 +502,13 @@ const file_match_history_service_match_history_service_proto_rawDesc = "" +
 	"\x10SaveMatchRequest\x12;\n" +
 	"\x05match\x18\x01 \x01(\v2 .match_history_service.MatchDataH\x00R\x05match\x88\x01\x01B\b\n" +
 	"\x06_match\"\x13\n" +
-	"\x11SaveMatchResponse2\xe7\x01\n" +
+	"\x11SaveMatchResponse*\x9a\x01\n" +
+	"\vMatchResult\x12\x1c\n" +
+	"\x18MATCH_RESULT_UNSPECIFIED\x10\x00\x12\x1c\n" +
+	"\x18MATCH_RESULT_PLAYER1_WIN\x10\x01\x12\x15\n" +
+	"\x11MATCH_RESULT_DRAW\x10\x02\x12\x1c\n" +
+	"\x18MATCH_RESULT_PLAYER2_WIN\x10\x03\x12\x1a\n" +
+	"\x16MATCH_RESULT_CANCELLED\x10\x042\xe7\x01\n" +
 	"\x13MatchHistoryService\x12p\n" +
 	"\x0fGetMatchHistory\x12-.match_history_service.GetMatchHistoryRequest\x1a..match_history_service.GetMatchHistoryResponse\x12^\n" +
 	"\tSaveMatch\x12'.match_history_service.SaveMatchRequest\x1a(.match_history_service.SaveMatchResponseB/Z-team_dynamics/api/proto/match_history_serviceb\x06proto3"
@@ -444,31 +525,34 @@ func file_match_history_service_match_history_service_proto_rawDescGZIP() []byte
 	return file_match_history_service_match_history_service_proto_rawDescData
 }
 
+var file_match_history_service_match_history_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_match_history_service_match_history_service_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_match_history_service_match_history_service_proto_goTypes = []any{
-	(*ParticipantData)(nil),         // 0: match_history_service.ParticipantData
-	(*Round)(nil),                   // 1: match_history_service.Round
-	(*MatchData)(nil),               // 2: match_history_service.MatchData
-	(*GetMatchHistoryRequest)(nil),  // 3: match_history_service.GetMatchHistoryRequest
-	(*GetMatchHistoryResponse)(nil), // 4: match_history_service.GetMatchHistoryResponse
-	(*SaveMatchRequest)(nil),        // 5: match_history_service.SaveMatchRequest
-	(*SaveMatchResponse)(nil),       // 6: match_history_service.SaveMatchResponse
+	(MatchResult)(0),                // 0: match_history_service.MatchResult
+	(*ParticipantData)(nil),         // 1: match_history_service.ParticipantData
+	(*Round)(nil),                   // 2: match_history_service.Round
+	(*MatchData)(nil),               // 3: match_history_service.MatchData
+	(*GetMatchHistoryRequest)(nil),  // 4: match_history_service.GetMatchHistoryRequest
+	(*GetMatchHistoryResponse)(nil), // 5: match_history_service.GetMatchHistoryResponse
+	(*SaveMatchRequest)(nil),        // 6: match_history_service.SaveMatchRequest
+	(*SaveMatchResponse)(nil),       // 7: match_history_service.SaveMatchResponse
 }
 var file_match_history_service_match_history_service_proto_depIdxs = []int32{
-	0, // 0: match_history_service.MatchData.player1:type_name -> match_history_service.ParticipantData
-	0, // 1: match_history_service.MatchData.player2:type_name -> match_history_service.ParticipantData
-	1, // 2: match_history_service.MatchData.rounds:type_name -> match_history_service.Round
-	2, // 3: match_history_service.GetMatchHistoryResponse.matches:type_name -> match_history_service.MatchData
-	2, // 4: match_history_service.SaveMatchRequest.match:type_name -> match_history_service.MatchData
-	3, // 5: match_history_service.MatchHistoryService.GetMatchHistory:input_type -> match_history_service.GetMatchHistoryRequest
-	5, // 6: match_history_service.MatchHistoryService.SaveMatch:input_type -> match_history_service.SaveMatchRequest
-	4, // 7: match_history_service.MatchHistoryService.GetMatchHistory:output_type -> match_history_service.GetMatchHistoryResponse
-	6, // 8: match_history_service.MatchHistoryService.SaveMatch:output_type -> match_history_service.SaveMatchResponse
-	7, // [7:9] is the sub-list for method output_type
-	5, // [5:7] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	1, // 0: match_history_service.MatchData.player1:type_name -> match_history_service.ParticipantData
+	1, // 1: match_history_service.MatchData.player2:type_name -> match_history_service.ParticipantData
+	2, // 2: match_history_service.MatchData.rounds:type_name -> match_history_service.Round
+	0, // 3: match_history_service.MatchData.match_result:type_name -> match_history_service.MatchResult
+	3, // 4: match_history_service.GetMatchHistoryResponse.matches:type_name -> match_history_service.MatchData
+	3, // 5: match_history_service.SaveMatchRequest.match:type_name -> match_history_service.MatchData
+	4, // 6: match_history_service.MatchHistoryService.GetMatchHistory:input_type -> match_history_service.GetMatchHistoryRequest
+	6, // 7: match_history_service.MatchHistoryService.SaveMatch:input_type -> match_history_service.SaveMatchRequest
+	5, // 8: match_history_service.MatchHistoryService.GetMatchHistory:output_type -> match_history_service.GetMatchHistoryResponse
+	7, // 9: match_history_service.MatchHistoryService.SaveMatch:output_type -> match_history_service.SaveMatchResponse
+	8, // [8:10] is the sub-list for method output_type
+	6, // [6:8] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_match_history_service_match_history_service_proto_init() }
@@ -487,13 +571,14 @@ func file_match_history_service_match_history_service_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_match_history_service_match_history_service_proto_rawDesc), len(file_match_history_service_match_history_service_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_match_history_service_match_history_service_proto_goTypes,
 		DependencyIndexes: file_match_history_service_match_history_service_proto_depIdxs,
+		EnumInfos:         file_match_history_service_match_history_service_proto_enumTypes,
 		MessageInfos:      file_match_history_service_match_history_service_proto_msgTypes,
 	}.Build()
 	File_match_history_service_match_history_service_proto = out.File
