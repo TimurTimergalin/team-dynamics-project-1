@@ -8,8 +8,8 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"log/slog"
-	"logging"
 	"os"
+	"team_dynamics/logging"
 )
 
 func HandlePanic(ctx context.Context, errOut *error) {

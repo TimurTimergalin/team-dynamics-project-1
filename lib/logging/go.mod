@@ -1,1 +1,1 @@
-module logging
+module team_dynamics/logging

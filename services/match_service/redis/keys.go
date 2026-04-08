@@ -19,7 +19,7 @@ func (ks playerKeys) rating() string {
 }
 
 func (ks playerKeys) name() string {
-	return fmt.Sprintf("match_id:%d", ks.id)
+	return fmt.Sprintf("name:%d", ks.id)
 }
 
 func (ks playerKeys) keys() []string {

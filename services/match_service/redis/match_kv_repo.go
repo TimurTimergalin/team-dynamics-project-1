@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
-	"logging"
 	"strconv"
+	"team_dynamics/logging"
 	"team_dynamics/match_service/models"
 )
 
@@ -157,10 +157,10 @@ if player1_has_match or player2_has_match then
     return {2, player1_response, player2_response}
 end
 
-if player1_has_match and p1cm_keys.status ~= "" then
+if p1cm_keys.status ~= "" then
     clear_match(p1cm_keys)
 end
-if player2_has_match and p2cm_keys.status ~= "" then
+if p2cm_keys.status ~= "" then
     clear_match(p2cm_keys)
 end
 
@@ -229,7 +229,7 @@ func (r *matchKvRepoImpl) readMatch(ctx context.Context, keys realMatchKeys) (*m
 	if err != nil {
 		panic("player1 id is not a number")
 	}
-	player2Id, err := strconv.ParseInt(resultSl[4].(string), 10, 64)
+	player2Id, err := strconv.ParseInt(resultSl[3].(string), 10, 64)
 	if err != nil {
 		panic("player2 id is not a number")
 	}
@@ -243,12 +243,22 @@ func (r *matchKvRepoImpl) readMatch(ctx context.Context, keys realMatchKeys) (*m
 }
 
 func (r *matchKvRepoImpl) SaveCreateMatch(ctx context.Context, match models.Match, player1, player2 models.Player) (CreateMatchResult, error) {
+	var result CreateMatchResult
+	exists, err := r.rdb.ScriptExists(ctx, r.createMatchScript.Hash()).Result()
+	if err != nil {
+		return result, fmt.Errorf("cannot check script validity: %w", err)
+	}
+	if !exists[0] {
+		_, err := r.createMatchScript.Load(ctx, r.rdb).Result()
+		if err != nil {
+			return result, fmt.Errorf("cannot load script: %w", err)
+		}
+	}
 	match.MatchId = makeMatchId()
 	p1Keys := playerKeys{player1.Id}
 	p2Keys := playerKeys{player2.Id}
 	mKeys := realMatchKeys{match.MatchId}
-	var result CreateMatchResult
-	err := r.rdb.Watch(ctx, func(tx *redis.Tx) error {
+	err = r.rdb.Watch(ctx, func(tx *redis.Tx) error {
 		p1cmId, err := tx.Get(ctx, p1Keys.matchId()).Result()
 		if err != nil && !errors.Is(err, redis.Nil) {
 			return err
@@ -328,8 +338,8 @@ func (r *matchKvRepoImpl) SaveCreateMatch(ctx context.Context, match models.Matc
 		if len(resSl) == 0 {
 			panic("Empty response from script")
 		}
-		scriptStatus := resSl[0].(string)
-		if scriptStatus == "0" {
+		scriptStatus := resSl[0].(int64)
+		if scriptStatus == 0 {
 			result.MatchId = &match.MatchId
 		} else {
 			p1Resp, err := ParseFailResponse(resSl[1].(string))
@@ -482,7 +492,7 @@ func (r *matchKvRepoImpl) RestartMatch(ctx context.Context, matchId string) erro
 		_, err = tx.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 			pipe.Del(ctx, mKeys.keys()...)
 			pipe.MSet(ctx, []interface{}{
-				newMKeys.status(), models.Ongoing,
+				newMKeys.status(), int32(models.Ongoing),
 				newMKeys.fleet(), fleet,
 				newMKeys.player1(), player1,
 				newMKeys.player2(), player2,

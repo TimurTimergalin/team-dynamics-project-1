@@ -12,6 +12,7 @@ import (
 	mhsPb "team_dynamics/api/proto/match_history_service"
 	pb "team_dynamics/api/proto/match_service"
 	rsPb "team_dynamics/api/proto/rating_service"
+	"team_dynamics/logging"
 	"team_dynamics/match_service/models"
 	"team_dynamics/match_service/redis"
 	"time"
@@ -123,12 +124,16 @@ func validateRenewMatchRequest(req *pb.RenewMatchRequest) error {
 }
 
 func (s *matchServiceImpl) StartMatch(ctx context.Context, request *pb.StartMatchRequest) (*pb.StartMatchResponse, error) {
+	logger := logging.GetLogger(ctx)
+
 	// Validate request
 	if request == nil {
+		logger.Debug("StartMatch: request is nil")
 		return nil, status.Error(codes.InvalidArgument, "request is nil")
 	}
 	for i, match := range request.Matches {
 		if err := validateInputMatch(match, i); err != nil {
+			logger.Debug("StartMatch: validation failed", "index", i, "error", err)
 			return nil, status.Errorf(codes.InvalidArgument, "invalid input match %d: %v", i, err)
 		}
 	}
@@ -159,7 +164,8 @@ func (s *matchServiceImpl) StartMatch(ctx context.Context, request *pb.StartMatc
 
 		// Call repo
 		result, err := s.repo.SaveCreateMatch(ctx, match, player1, player2)
-		if err != nil || result.MatchId == nil {
+		if err != nil {
+			logger.Debug("StartMatch: SaveCreateMatch failed", "error", err, "result", result)
 			results = append(results, &pb.MatchCreationResult{
 				MatchId:             nil,
 				Player1FailResponse: pb.PlayerFailResponse_PLAYER_FAIL_RESPONSE_REENTER,
@@ -169,9 +175,8 @@ func (s *matchServiceImpl) StartMatch(ctx context.Context, request *pb.StartMatc
 		}
 
 		// Success
-		matchId := *result.MatchId
 		res := &pb.MatchCreationResult{
-			MatchId: &matchId,
+			MatchId: result.MatchId,
 		}
 		if result.Fail1 != nil {
 			res.Player1FailResponse = mapFailResponse(*result.Fail1)
@@ -186,19 +191,26 @@ func (s *matchServiceImpl) StartMatch(ctx context.Context, request *pb.StartMatc
 }
 
 func (s *matchServiceImpl) GetMatch(ctx context.Context, request *pb.GetMatchRequest) (*pb.GetMatchResponse, error) {
+	logger := logging.GetLogger(ctx)
+
 	if err := validateGetMatchRequest(request); err != nil {
+		logger.Debug("GetMatch: validation failed", "error", err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 	match, player1, player2, err := s.repo.GetMatchByPlayerId(ctx, *request.PlayerId)
 	if err != nil {
+		logger.Debug("GetMatch: GetMatchByPlayerId failed", "playerId", *request.PlayerId, "error", err)
 		return nil, status.Errorf(codes.Internal, "failed to get match: %v", err)
 	}
 	if match == nil {
+		logger.Debug("GetMatch: no match found for player", "playerId", *request.PlayerId)
 		return &pb.GetMatchResponse{}, nil
 	}
 	switch match.Status {
 	case models.Finished:
+		logger.Debug("GetMatch: match finished, removing", "matchId", match.MatchId)
 		if err := s.repo.RemoveMatch(ctx, match.MatchId); err != nil {
+			logger.Debug("GetMatch: RemoveMatch failed", "matchId", match.MatchId, "error", err)
 			return nil, status.Errorf(codes.Internal, "failed to remove finished match: %v", err)
 		}
 		return &pb.GetMatchResponse{}, nil
@@ -210,7 +222,7 @@ func (s *matchServiceImpl) GetMatch(ctx context.Context, request *pb.GetMatchReq
 		}
 		resp, err := s.fmClient.GetServer(ctx, req)
 		if err != nil || resp == nil || resp.ConnectionInfo == nil {
-			// No connection info – return empty response
+			logger.Debug("GetMatch: GetServer failed or no connection info", "matchId", match.MatchId, "error", err)
 			return &pb.GetMatchResponse{}, nil
 		}
 		return &pb.GetMatchResponse{
@@ -243,11 +255,12 @@ func (s *matchServiceImpl) GetMatch(ctx context.Context, request *pb.GetMatchReq
 		}
 		allocResp, err := s.fmClient.Allocate(ctx, allocReq)
 		if err != nil || allocResp == nil || allocResp.ConnectionInfo == nil {
-			// Allocation failed – no server available
+			logger.Debug("GetMatch: Allocate failed or no connection info", "matchId", match.MatchId, "error", err)
 			return &pb.GetMatchResponse{}, nil
 		}
 		// Mark match as started
 		if err := s.repo.SaveMatchStart(ctx, match.MatchId); err != nil {
+			logger.Debug("GetMatch: SaveMatchStart failed", "matchId", match.MatchId, "error", err)
 			return nil, status.Errorf(codes.Internal, "failed to update match status: %v", err)
 		}
 		return &pb.GetMatchResponse{
@@ -255,28 +268,33 @@ func (s *matchServiceImpl) GetMatch(ctx context.Context, request *pb.GetMatchReq
 		}, nil
 
 	default:
-		// Unknown status – treat as not found
+		logger.Debug("GetMatch: unknown match status", "matchId", match.MatchId, "status", match.Status)
 		return &pb.GetMatchResponse{}, nil
 	}
 }
 
 func (s *matchServiceImpl) EndMatch(ctx context.Context, request *pb.EndMatchRequest) (*pb.EndMatchResponse, error) {
+	logger := logging.GetLogger(ctx)
+
 	if err := validateEndMatchRequest(request); err != nil {
+		logger.Debug("EndMatch: validation failed", "error", err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	// Retrieve match and players by match id
 	match, player1, player2, err := s.repo.GetMatchById(ctx, *request.MatchId)
 	if err != nil {
-		// If error (e.g., not found), return empty response
+		logger.Debug("EndMatch: GetMatchById failed", "matchId", *request.MatchId, "error", err)
 		return &pb.EndMatchResponse{}, nil
 	}
 	if match == nil {
+		logger.Debug("EndMatch: match not found", "matchId", *request.MatchId)
 		return &pb.EndMatchResponse{}, nil
 	}
 
 	// Only ongoing matches can be ended
 	if match.Status != models.Ongoing {
+		logger.Debug("EndMatch: match not ongoing", "matchId", match.MatchId, "status", match.Status)
 		return &pb.EndMatchResponse{}, nil
 	}
 
@@ -297,6 +315,7 @@ func (s *matchServiceImpl) EndMatch(ctx context.Context, request *pb.EndMatchReq
 			result = rsPb.MatchResult_MATCH_RESULT_LOSER
 			historyResult = mhsPb.MatchResult_MATCH_RESULT_PLAYER2_WIN
 		default:
+			logger.Debug("EndMatch: winner_id does not match any player", "winnerId", winnerId, "player1Id", player1.Id, "player2Id", player2.Id)
 			return nil, status.Error(codes.InvalidArgument, "winner_id does not match either player")
 		}
 	}
@@ -312,7 +331,6 @@ func (s *matchServiceImpl) EndMatch(ctx context.Context, request *pb.EndMatchReq
 	// Prepare match history request
 	nowMillis := time.Now().UnixMilli()
 	endTimestamp := nowMillis
-	// Build participant data
 	p1Data := &mhsPb.ParticipantData{
 		Id:     &player1.Id,
 		Name:   &player1.Name,
@@ -326,7 +344,7 @@ func (s *matchServiceImpl) EndMatch(ctx context.Context, request *pb.EndMatchReq
 	matchData := &mhsPb.MatchData{
 		Player1:      p1Data,
 		Player2:      p2Data,
-		Rounds:       []*mhsPb.Round{}, // no round details in EndMatch
+		Rounds:       []*mhsPb.Round{},
 		EndTimestamp: &endTimestamp,
 		MatchResult:  historyResult,
 		MatchId:      &match.MatchId,
@@ -353,11 +371,13 @@ func (s *matchServiceImpl) EndMatch(ctx context.Context, request *pb.EndMatchReq
 
 	// If either fails, return conflict error
 	if ratingErr != nil || historyErr != nil {
+		logger.Debug("EndMatch: downstream service error", "ratingErr", ratingErr, "historyErr", historyErr)
 		return nil, status.Errorf(codes.Aborted, "failed to record match result: rating error=%v, history error=%v", ratingErr, historyErr)
 	}
 
 	// Mark match as finished in Redis
 	if err := s.repo.SaveMatchFinish(ctx, match.MatchId); err != nil {
+		logger.Debug("EndMatch: SaveMatchFinish failed", "matchId", match.MatchId, "error", err)
 		return nil, status.Errorf(codes.Aborted, "failed to update match status: %v", err)
 	}
 
@@ -365,14 +385,17 @@ func (s *matchServiceImpl) EndMatch(ctx context.Context, request *pb.EndMatchReq
 }
 
 func (s *matchServiceImpl) CancelMatch(ctx context.Context, request *pb.CancelMatchRequest) (*pb.CancelMatchResponse, error) {
+	logger := logging.GetLogger(ctx)
+
 	if err := validateCancelMatchRequest(request); err != nil {
+		logger.Debug("CancelMatch: validation failed", "error", err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	// Retrieve match and players by match id
 	match, player1, player2, err := s.repo.GetMatchById(ctx, *request.MatchId)
 	if err != nil || match == nil {
-		// If not found or error, return empty response
+		logger.Debug("CancelMatch: match not found or error", "matchId", *request.MatchId, "error", err)
 		return &pb.CancelMatchResponse{}, nil
 	}
 
@@ -403,11 +426,13 @@ func (s *matchServiceImpl) CancelMatch(ctx context.Context, request *pb.CancelMa
 	// Save cancelled match to history
 	_, err = s.mhsClient.SaveMatch(ctx, historyReq)
 	if err != nil {
+		logger.Debug("CancelMatch: SaveMatch failed", "matchId", match.MatchId, "error", err)
 		return nil, status.Errorf(codes.Aborted, "failed to save cancelled match to history: %v", err)
 	}
 
 	// Remove match from Redis
 	if err := s.repo.RemoveMatch(ctx, match.MatchId); err != nil {
+		logger.Debug("CancelMatch: RemoveMatch failed", "matchId", match.MatchId, "error", err)
 		return nil, status.Errorf(codes.Aborted, "failed to remove match: %v", err)
 	}
 
@@ -415,11 +440,15 @@ func (s *matchServiceImpl) CancelMatch(ctx context.Context, request *pb.CancelMa
 }
 
 func (s *matchServiceImpl) RenewMatch(ctx context.Context, request *pb.RenewMatchRequest) (*pb.RenewMatchResponse, error) {
+	logger := logging.GetLogger(ctx)
+
 	if err := validateRenewMatchRequest(request); err != nil {
+		logger.Debug("RenewMatch: validation failed", "error", err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	if err := s.repo.RestartMatch(ctx, *request.MatchId); err != nil {
+		logger.Debug("RenewMatch: RestartMatch failed", "matchId", *request.MatchId, "error", err)
 		return nil, status.Errorf(codes.Aborted, "failed to renew match: %v", err)
 	}
 

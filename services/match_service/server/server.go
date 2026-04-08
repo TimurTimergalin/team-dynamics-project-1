@@ -138,21 +138,33 @@ func main() {
 		log.Fatalf("error in redis options: %v", err)
 	}
 	redisClient := redis.NewClient(redisOptions)
+	defer func(redisClient *redis.Client) {
+		_ = redisClient.Close()
+	}(redisClient)
 	matchServiceConfig, err := getMatchServiceConfig()
 	if err != nil {
 		log.Fatalf("error in match service config: %v", err)
 	}
 	fmConn, err := grpc.NewClient(matchServiceConfig.FleetManagerAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	defer func(fmConn *grpc.ClientConn) {
+		_ = fmConn.Close()
+	}(fmConn)
 	if err != nil {
 		log.Fatalf("error in fleet manager: %v", err)
 	}
 	fmClient := fmPb.NewFleetManagerClient(fmConn)
 	rsConn, err := grpc.NewClient(matchServiceConfig.RatingServiceAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	defer func(rsConn *grpc.ClientConn) {
+		_ = rsConn.Close()
+	}(rsConn)
 	if err != nil {
 		log.Fatalf("error in rating service: %v", err)
 	}
 	rsClient := rsPb.NewRatingServiceClient(rsConn)
 	mhsConn, err := grpc.NewClient(matchServiceConfig.MatchHistoryServiceAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	defer func(mhsConn *grpc.ClientConn) {
+		_ = mhsConn.Close()
+	}(mhsConn)
 	if err != nil {
 		log.Fatalf("error in match history service: %v", err)
 	}
