@@ -4,7 +4,7 @@ metadata:
   name: simple-game-server
   namespace: fleet
   labels:
-    is-fleet: true
+    is-fleet: "true"
 spec:
   replicas: 2
   template:
