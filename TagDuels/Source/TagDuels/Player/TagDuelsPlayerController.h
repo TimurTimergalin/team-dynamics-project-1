@@ -13,4 +13,7 @@ UCLASS()
 class TAGDUELS_API ATagDuelsPlayerController : public APlayerController
 {
 	GENERATED_BODY()
+	
+public:
+    virtual void SetViewTarget(class AActor* NewViewTarget, FViewTargetTransitionParams TransitionParams = FViewTargetTransitionParams()) override;
 };
