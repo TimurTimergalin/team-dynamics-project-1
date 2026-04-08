@@ -23,6 +23,7 @@ const (
 	MatchService_GetMatch_FullMethodName    = "/match_service.MatchService/GetMatch"
 	MatchService_EndMatch_FullMethodName    = "/match_service.MatchService/EndMatch"
 	MatchService_CancelMatch_FullMethodName = "/match_service.MatchService/CancelMatch"
+	MatchService_RenewMatch_FullMethodName  = "/match_service.MatchService/RenewMatch"
 )
 
 // MatchServiceClient is the client API for MatchService service.
@@ -33,6 +34,7 @@ type MatchServiceClient interface {
 	GetMatch(ctx context.Context, in *GetMatchRequest, opts ...grpc.CallOption) (*GetMatchResponse, error)
 	EndMatch(ctx context.Context, in *EndMatchRequest, opts ...grpc.CallOption) (*EndMatchResponse, error)
 	CancelMatch(ctx context.Context, in *CancelMatchRequest, opts ...grpc.CallOption) (*CancelMatchResponse, error)
+	RenewMatch(ctx context.Context, in *RenewMatchRequest, opts ...grpc.CallOption) (*RenewMatchResponse, error)
 }
 
 type matchServiceClient struct {
@@ -83,6 +85,16 @@ func (c *matchServiceClient) CancelMatch(ctx context.Context, in *CancelMatchReq
 	return out, nil
 }
 
+func (c *matchServiceClient) RenewMatch(ctx context.Context, in *RenewMatchRequest, opts ...grpc.CallOption) (*RenewMatchResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RenewMatchResponse)
+	err := c.cc.Invoke(ctx, MatchService_RenewMatch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MatchServiceServer is the server API for MatchService service.
 // All implementations must embed UnimplementedMatchServiceServer
 // for forward compatibility.
@@ -91,6 +103,7 @@ type MatchServiceServer interface {
 	GetMatch(context.Context, *GetMatchRequest) (*GetMatchResponse, error)
 	EndMatch(context.Context, *EndMatchRequest) (*EndMatchResponse, error)
 	CancelMatch(context.Context, *CancelMatchRequest) (*CancelMatchResponse, error)
+	RenewMatch(context.Context, *RenewMatchRequest) (*RenewMatchResponse, error)
 	mustEmbedUnimplementedMatchServiceServer()
 }
 
@@ -112,6 +125,9 @@ func (UnimplementedMatchServiceServer) EndMatch(context.Context, *EndMatchReques
 }
 func (UnimplementedMatchServiceServer) CancelMatch(context.Context, *CancelMatchRequest) (*CancelMatchResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CancelMatch not implemented")
+}
+func (UnimplementedMatchServiceServer) RenewMatch(context.Context, *RenewMatchRequest) (*RenewMatchResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RenewMatch not implemented")
 }
 func (UnimplementedMatchServiceServer) mustEmbedUnimplementedMatchServiceServer() {}
 func (UnimplementedMatchServiceServer) testEmbeddedByValue()                      {}
@@ -206,6 +222,24 @@ func _MatchService_CancelMatch_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MatchService_RenewMatch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RenewMatchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MatchServiceServer).RenewMatch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MatchService_RenewMatch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MatchServiceServer).RenewMatch(ctx, req.(*RenewMatchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MatchService_ServiceDesc is the grpc.ServiceDesc for MatchService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -228,6 +262,10 @@ var MatchService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CancelMatch",
 			Handler:    _MatchService_CancelMatch_Handler,
+		},
+		{
+			MethodName: "RenewMatch",
+			Handler:    _MatchService_RenewMatch_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

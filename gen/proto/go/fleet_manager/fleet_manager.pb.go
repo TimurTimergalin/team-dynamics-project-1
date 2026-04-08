@@ -21,10 +21,70 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type PlayerAnnotations struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            *string                `protobuf:"bytes,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	Name          *string                `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	Rating        *string                `protobuf:"bytes,3,opt,name=rating,proto3,oneof" json:"rating,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PlayerAnnotations) Reset() {
+	*x = PlayerAnnotations{}
+	mi := &file_fleet_manager_fleet_manager_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PlayerAnnotations) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PlayerAnnotations) ProtoMessage() {}
+
+func (x *PlayerAnnotations) ProtoReflect() protoreflect.Message {
+	mi := &file_fleet_manager_fleet_manager_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PlayerAnnotations.ProtoReflect.Descriptor instead.
+func (*PlayerAnnotations) Descriptor() ([]byte, []int) {
+	return file_fleet_manager_fleet_manager_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *PlayerAnnotations) GetId() string {
+	if x != nil && x.Id != nil {
+		return *x.Id
+	}
+	return ""
+}
+
+func (x *PlayerAnnotations) GetName() string {
+	if x != nil && x.Name != nil {
+		return *x.Name
+	}
+	return ""
+}
+
+func (x *PlayerAnnotations) GetRating() string {
+	if x != nil && x.Rating != nil {
+		return *x.Rating
+	}
+	return ""
+}
+
 type AllocateRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Player1Id     *uint64                `protobuf:"varint,1,opt,name=player1_id,json=player1Id,proto3,oneof" json:"player1_id,omitempty"`
-	Player2Id     *uint64                `protobuf:"varint,2,opt,name=player2_id,json=player2Id,proto3,oneof" json:"player2_id,omitempty"`
+	Player1       *PlayerAnnotations     `protobuf:"bytes,1,opt,name=player1,proto3,oneof" json:"player1,omitempty"`
+	Player2       *PlayerAnnotations     `protobuf:"bytes,2,opt,name=player2,proto3,oneof" json:"player2,omitempty"`
 	FleetName     *string                `protobuf:"bytes,3,opt,name=fleet_name,json=fleetName,proto3,oneof" json:"fleet_name,omitempty"`
 	MatchId       *string                `protobuf:"bytes,4,opt,name=match_id,json=matchId,proto3,oneof" json:"match_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -33,7 +93,7 @@ type AllocateRequest struct {
 
 func (x *AllocateRequest) Reset() {
 	*x = AllocateRequest{}
-	mi := &file_fleet_manager_fleet_manager_proto_msgTypes[0]
+	mi := &file_fleet_manager_fleet_manager_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -45,7 +105,7 @@ func (x *AllocateRequest) String() string {
 func (*AllocateRequest) ProtoMessage() {}
 
 func (x *AllocateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_fleet_manager_fleet_manager_proto_msgTypes[0]
+	mi := &file_fleet_manager_fleet_manager_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -58,21 +118,21 @@ func (x *AllocateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AllocateRequest.ProtoReflect.Descriptor instead.
 func (*AllocateRequest) Descriptor() ([]byte, []int) {
-	return file_fleet_manager_fleet_manager_proto_rawDescGZIP(), []int{0}
+	return file_fleet_manager_fleet_manager_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *AllocateRequest) GetPlayer1Id() uint64 {
-	if x != nil && x.Player1Id != nil {
-		return *x.Player1Id
+func (x *AllocateRequest) GetPlayer1() *PlayerAnnotations {
+	if x != nil {
+		return x.Player1
 	}
-	return 0
+	return nil
 }
 
-func (x *AllocateRequest) GetPlayer2Id() uint64 {
-	if x != nil && x.Player2Id != nil {
-		return *x.Player2Id
+func (x *AllocateRequest) GetPlayer2() *PlayerAnnotations {
+	if x != nil {
+		return x.Player2
 	}
-	return 0
+	return nil
 }
 
 func (x *AllocateRequest) GetFleetName() string {
@@ -91,14 +151,14 @@ func (x *AllocateRequest) GetMatchId() string {
 
 type GetServerRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ServerName    *string                `protobuf:"bytes,1,opt,name=server_name,json=serverName,proto3,oneof" json:"server_name,omitempty"`
+	MatchId       *string                `protobuf:"bytes,1,opt,name=match_id,json=matchId,proto3,oneof" json:"match_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetServerRequest) Reset() {
 	*x = GetServerRequest{}
-	mi := &file_fleet_manager_fleet_manager_proto_msgTypes[1]
+	mi := &file_fleet_manager_fleet_manager_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -110,7 +170,7 @@ func (x *GetServerRequest) String() string {
 func (*GetServerRequest) ProtoMessage() {}
 
 func (x *GetServerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_fleet_manager_fleet_manager_proto_msgTypes[1]
+	mi := &file_fleet_manager_fleet_manager_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -123,12 +183,12 @@ func (x *GetServerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetServerRequest.ProtoReflect.Descriptor instead.
 func (*GetServerRequest) Descriptor() ([]byte, []int) {
-	return file_fleet_manager_fleet_manager_proto_rawDescGZIP(), []int{1}
+	return file_fleet_manager_fleet_manager_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *GetServerRequest) GetServerName() string {
-	if x != nil && x.ServerName != nil {
-		return *x.ServerName
+func (x *GetServerRequest) GetMatchId() string {
+	if x != nil && x.MatchId != nil {
+		return *x.MatchId
 	}
 	return ""
 }
@@ -142,7 +202,7 @@ type ConnectionInfo struct {
 
 func (x *ConnectionInfo) Reset() {
 	*x = ConnectionInfo{}
-	mi := &file_fleet_manager_fleet_manager_proto_msgTypes[2]
+	mi := &file_fleet_manager_fleet_manager_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -154,7 +214,7 @@ func (x *ConnectionInfo) String() string {
 func (*ConnectionInfo) ProtoMessage() {}
 
 func (x *ConnectionInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_fleet_manager_fleet_manager_proto_msgTypes[2]
+	mi := &file_fleet_manager_fleet_manager_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -167,7 +227,7 @@ func (x *ConnectionInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectionInfo.ProtoReflect.Descriptor instead.
 func (*ConnectionInfo) Descriptor() ([]byte, []int) {
-	return file_fleet_manager_fleet_manager_proto_rawDescGZIP(), []int{2}
+	return file_fleet_manager_fleet_manager_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ConnectionInfo) GetAddress() string {
@@ -186,7 +246,7 @@ type AllocateResponse struct {
 
 func (x *AllocateResponse) Reset() {
 	*x = AllocateResponse{}
-	mi := &file_fleet_manager_fleet_manager_proto_msgTypes[3]
+	mi := &file_fleet_manager_fleet_manager_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -198,7 +258,7 @@ func (x *AllocateResponse) String() string {
 func (*AllocateResponse) ProtoMessage() {}
 
 func (x *AllocateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_fleet_manager_fleet_manager_proto_msgTypes[3]
+	mi := &file_fleet_manager_fleet_manager_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -211,7 +271,7 @@ func (x *AllocateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AllocateResponse.ProtoReflect.Descriptor instead.
 func (*AllocateResponse) Descriptor() ([]byte, []int) {
-	return file_fleet_manager_fleet_manager_proto_rawDescGZIP(), []int{3}
+	return file_fleet_manager_fleet_manager_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *AllocateResponse) GetConnectionInfo() *ConnectionInfo {
@@ -230,7 +290,7 @@ type GetServerResponse struct {
 
 func (x *GetServerResponse) Reset() {
 	*x = GetServerResponse{}
-	mi := &file_fleet_manager_fleet_manager_proto_msgTypes[4]
+	mi := &file_fleet_manager_fleet_manager_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -242,7 +302,7 @@ func (x *GetServerResponse) String() string {
 func (*GetServerResponse) ProtoMessage() {}
 
 func (x *GetServerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_fleet_manager_fleet_manager_proto_msgTypes[4]
+	mi := &file_fleet_manager_fleet_manager_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -255,7 +315,7 @@ func (x *GetServerResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetServerResponse.ProtoReflect.Descriptor instead.
 func (*GetServerResponse) Descriptor() ([]byte, []int) {
-	return file_fleet_manager_fleet_manager_proto_rawDescGZIP(), []int{4}
+	return file_fleet_manager_fleet_manager_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetServerResponse) GetConnectionInfo() *ConnectionInfo {
@@ -269,23 +329,29 @@ var File_fleet_manager_fleet_manager_proto protoreflect.FileDescriptor
 
 const file_fleet_manager_fleet_manager_proto_rawDesc = "" +
 	"\n" +
-	"!fleet_manager/fleet_manager.proto\x12\rfleet_manager\"\xd7\x01\n" +
-	"\x0fAllocateRequest\x12\"\n" +
-	"\n" +
-	"player1_id\x18\x01 \x01(\x04H\x00R\tplayer1Id\x88\x01\x01\x12\"\n" +
-	"\n" +
-	"player2_id\x18\x02 \x01(\x04H\x01R\tplayer2Id\x88\x01\x01\x12\"\n" +
+	"!fleet_manager/fleet_manager.proto\x12\rfleet_manager\"y\n" +
+	"\x11PlayerAnnotations\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12\x17\n" +
+	"\x04name\x18\x02 \x01(\tH\x01R\x04name\x88\x01\x01\x12\x1b\n" +
+	"\x06rating\x18\x03 \x01(\tH\x02R\x06rating\x88\x01\x01B\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_nameB\t\n" +
+	"\a_rating\"\x8b\x02\n" +
+	"\x0fAllocateRequest\x12?\n" +
+	"\aplayer1\x18\x01 \x01(\v2 .fleet_manager.PlayerAnnotationsH\x00R\aplayer1\x88\x01\x01\x12?\n" +
+	"\aplayer2\x18\x02 \x01(\v2 .fleet_manager.PlayerAnnotationsH\x01R\aplayer2\x88\x01\x01\x12\"\n" +
 	"\n" +
 	"fleet_name\x18\x03 \x01(\tH\x02R\tfleetName\x88\x01\x01\x12\x1e\n" +
-	"\bmatch_id\x18\x04 \x01(\tH\x03R\amatchId\x88\x01\x01B\r\n" +
-	"\v_player1_idB\r\n" +
-	"\v_player2_idB\r\n" +
+	"\bmatch_id\x18\x04 \x01(\tH\x03R\amatchId\x88\x01\x01B\n" +
+	"\n" +
+	"\b_player1B\n" +
+	"\n" +
+	"\b_player2B\r\n" +
 	"\v_fleet_nameB\v\n" +
-	"\t_match_id\"H\n" +
-	"\x10GetServerRequest\x12$\n" +
-	"\vserver_name\x18\x01 \x01(\tH\x00R\n" +
-	"serverName\x88\x01\x01B\x0e\n" +
-	"\f_server_name\";\n" +
+	"\t_match_id\"?\n" +
+	"\x10GetServerRequest\x12\x1e\n" +
+	"\bmatch_id\x18\x01 \x01(\tH\x00R\amatchId\x88\x01\x01B\v\n" +
+	"\t_match_id\";\n" +
 	"\x0eConnectionInfo\x12\x1d\n" +
 	"\aaddress\x18\x01 \x01(\tH\x00R\aaddress\x88\x01\x01B\n" +
 	"\n" +
@@ -312,26 +378,29 @@ func file_fleet_manager_fleet_manager_proto_rawDescGZIP() []byte {
 	return file_fleet_manager_fleet_manager_proto_rawDescData
 }
 
-var file_fleet_manager_fleet_manager_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_fleet_manager_fleet_manager_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_fleet_manager_fleet_manager_proto_goTypes = []any{
-	(*AllocateRequest)(nil),   // 0: fleet_manager.AllocateRequest
-	(*GetServerRequest)(nil),  // 1: fleet_manager.GetServerRequest
-	(*ConnectionInfo)(nil),    // 2: fleet_manager.ConnectionInfo
-	(*AllocateResponse)(nil),  // 3: fleet_manager.AllocateResponse
-	(*GetServerResponse)(nil), // 4: fleet_manager.GetServerResponse
+	(*PlayerAnnotations)(nil), // 0: fleet_manager.PlayerAnnotations
+	(*AllocateRequest)(nil),   // 1: fleet_manager.AllocateRequest
+	(*GetServerRequest)(nil),  // 2: fleet_manager.GetServerRequest
+	(*ConnectionInfo)(nil),    // 3: fleet_manager.ConnectionInfo
+	(*AllocateResponse)(nil),  // 4: fleet_manager.AllocateResponse
+	(*GetServerResponse)(nil), // 5: fleet_manager.GetServerResponse
 }
 var file_fleet_manager_fleet_manager_proto_depIdxs = []int32{
-	2, // 0: fleet_manager.AllocateResponse.connection_info:type_name -> fleet_manager.ConnectionInfo
-	2, // 1: fleet_manager.GetServerResponse.connection_info:type_name -> fleet_manager.ConnectionInfo
-	0, // 2: fleet_manager.FleetManager.Allocate:input_type -> fleet_manager.AllocateRequest
-	1, // 3: fleet_manager.FleetManager.GetServer:input_type -> fleet_manager.GetServerRequest
-	3, // 4: fleet_manager.FleetManager.Allocate:output_type -> fleet_manager.AllocateResponse
-	4, // 5: fleet_manager.FleetManager.GetServer:output_type -> fleet_manager.GetServerResponse
-	4, // [4:6] is the sub-list for method output_type
-	2, // [2:4] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	0, // 0: fleet_manager.AllocateRequest.player1:type_name -> fleet_manager.PlayerAnnotations
+	0, // 1: fleet_manager.AllocateRequest.player2:type_name -> fleet_manager.PlayerAnnotations
+	3, // 2: fleet_manager.AllocateResponse.connection_info:type_name -> fleet_manager.ConnectionInfo
+	3, // 3: fleet_manager.GetServerResponse.connection_info:type_name -> fleet_manager.ConnectionInfo
+	1, // 4: fleet_manager.FleetManager.Allocate:input_type -> fleet_manager.AllocateRequest
+	2, // 5: fleet_manager.FleetManager.GetServer:input_type -> fleet_manager.GetServerRequest
+	4, // 6: fleet_manager.FleetManager.Allocate:output_type -> fleet_manager.AllocateResponse
+	5, // 7: fleet_manager.FleetManager.GetServer:output_type -> fleet_manager.GetServerResponse
+	6, // [6:8] is the sub-list for method output_type
+	4, // [4:6] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_fleet_manager_fleet_manager_proto_init() }
@@ -344,13 +413,14 @@ func file_fleet_manager_fleet_manager_proto_init() {
 	file_fleet_manager_fleet_manager_proto_msgTypes[2].OneofWrappers = []any{}
 	file_fleet_manager_fleet_manager_proto_msgTypes[3].OneofWrappers = []any{}
 	file_fleet_manager_fleet_manager_proto_msgTypes[4].OneofWrappers = []any{}
+	file_fleet_manager_fleet_manager_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_fleet_manager_fleet_manager_proto_rawDesc), len(file_fleet_manager_fleet_manager_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

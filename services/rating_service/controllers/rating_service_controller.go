@@ -10,6 +10,7 @@ import (
 	"logging"
 	"os"
 	pb "team_dynamics/api/proto/rating_service"
+	"team_dynamics/grpc_lib"
 	"team_dynamics/rating_service/services"
 )
 
@@ -31,13 +32,13 @@ func addLogger(ctx context.Context, rpc string) context.Context {
 }
 
 func (c *RatingServiceController) GetRating(ctx context.Context, request *pb.GetRatingRequest) (response *pb.GetRatingResponse, err error) {
-	defer handlePanic(&err)
-	response, err = c.Service.GetRating(addLogger(ctx, "GetRating"), request)
-	return
+	ctx = grpc_lib.WithLogger(ctx, "GetRating")
+	defer grpc_lib.HandlePanic(ctx, &err)
+	return c.Service.GetRating(ctx, request)
 }
 
 func (c *RatingServiceController) UpdateRating(ctx context.Context, request *pb.UpdateRatingRequest) (response *pb.UpdateRatingResponse, err error) {
-	defer handlePanic(&err)
-	response, err = c.Service.UpdateRating(addLogger(ctx, "UpdateRating"), request)
-	return
+	ctx = grpc_lib.WithLogger(ctx, "UpdateRating")
+	defer grpc_lib.HandlePanic(ctx, &err)
+	return c.Service.UpdateRating(ctx, request)
 }

@@ -3,7 +3,10 @@ go 1.26.1
 use (
 	./lib/pg_lib
 	./lib/logging
+	./lib/grpc_lib
+	./services/fleet_manager
 	./services/match_history_service
+	./services/match_service
 	./services/rating_service
 	gen/proto/go
 )

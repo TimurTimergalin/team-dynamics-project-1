@@ -5,19 +5,41 @@ option go_package = "team_dynamics/api/proto/match_service";
 
 import "fleet_manager/fleet_manager.proto";
 
+message PlayerData {
+  optional int64 player_id = 1;
+  optional string player_name = 2;
+  optional int64 player_rating = 3;
+  optional string reg_id = 4;
+}
+
+message InputMatch {
+  optional PlayerData player1 = 1;
+  optional PlayerData player2 = 2;
+  optional string fleet = 3;
+}
+
 message StartMatchRequest {
-  optional uint64 player1_id = 1;
-  optional uint64 player2_id = 2;
-  optional string fleet_name = 3;
+  repeated InputMatch matches = 1;
+}
+
+enum PlayerFailResponse {
+  PLAYER_FAIL_RESPONSE_UNSPECIFIED = 0;
+  PLAYER_FAIL_RESPONSE_REENTER = 1;
+  PLAYER_FAIL_RESPONSE_REMOVE = 2;
+}
+
+message MatchCreationResult {
+  optional string match_id = 1;
+  PlayerFailResponse player1_fail_response = 2;
+  PlayerFailResponse player2_fail_response = 3;
 }
 
 message StartMatchResponse {
-  optional fleet_manager.ConnectionInfo connection_info = 1;
-  optional string match_id = 2;
+  repeated MatchCreationResult results = 1;
 }
 
 message GetMatchRequest {
-  optional string match_id = 1;
+  optional int64 player_id = 1;
 }
 
 message GetMatchResponse {
@@ -26,21 +48,30 @@ message GetMatchResponse {
 
 message EndMatchRequest {
   optional string match_id = 1;
-  optional uint64 winner_id = 2;
-  optional uint64 loser_id = 3;
+  optional int64 winner_id = 2;
 }
+
+message EndMatchResponse {}
 
 message CancelMatchRequest {
   optional string match_id = 1;
 }
 
-message EndMatchResponse {}
+message CancelMatchResponse {
+  optional int64 new_rating_1 = 1;
+  optional int64 new_rating_2 = 2;
+}
 
-message CancelMatchResponse {}
+message RenewMatchRequest {
+  optional string match_id = 1;
+}
+
+message RenewMatchResponse {}
 
 service MatchService {
   rpc StartMatch(StartMatchRequest) returns (StartMatchResponse);
   rpc GetMatch(GetMatchRequest) returns (GetMatchResponse);
   rpc EndMatch(EndMatchRequest) returns (EndMatchResponse);
   rpc CancelMatch(CancelMatchRequest) returns (CancelMatchResponse);
+  rpc RenewMatch(RenewMatchRequest) returns (RenewMatchResponse);
 }

@@ -41,7 +41,7 @@ func main() {
 
 	controller, err := getController(fmConfig)
 	if err != nil {
-		log.Fatalf("Error while getting controller, %s", err.Error())
+		log.Fatalf("Error while getting controllers, %s", err.Error())
 	}
 
 	lis, err := net.Listen("tcp", fmConfig.ListenAddress)

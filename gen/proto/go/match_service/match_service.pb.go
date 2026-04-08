@@ -22,18 +22,193 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type PlayerFailResponse int32
+
+const (
+	PlayerFailResponse_PLAYER_FAIL_RESPONSE_UNSPECIFIED PlayerFailResponse = 0
+	PlayerFailResponse_PLAYER_FAIL_RESPONSE_REENTER     PlayerFailResponse = 1
+	PlayerFailResponse_PLAYER_FAIL_RESPONSE_REMOVE      PlayerFailResponse = 2
+)
+
+// Enum value maps for PlayerFailResponse.
+var (
+	PlayerFailResponse_name = map[int32]string{
+		0: "PLAYER_FAIL_RESPONSE_UNSPECIFIED",
+		1: "PLAYER_FAIL_RESPONSE_REENTER",
+		2: "PLAYER_FAIL_RESPONSE_REMOVE",
+	}
+	PlayerFailResponse_value = map[string]int32{
+		"PLAYER_FAIL_RESPONSE_UNSPECIFIED": 0,
+		"PLAYER_FAIL_RESPONSE_REENTER":     1,
+		"PLAYER_FAIL_RESPONSE_REMOVE":      2,
+	}
+)
+
+func (x PlayerFailResponse) Enum() *PlayerFailResponse {
+	p := new(PlayerFailResponse)
+	*p = x
+	return p
+}
+
+func (x PlayerFailResponse) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (PlayerFailResponse) Descriptor() protoreflect.EnumDescriptor {
+	return file_match_service_match_service_proto_enumTypes[0].Descriptor()
+}
+
+func (PlayerFailResponse) Type() protoreflect.EnumType {
+	return &file_match_service_match_service_proto_enumTypes[0]
+}
+
+func (x PlayerFailResponse) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use PlayerFailResponse.Descriptor instead.
+func (PlayerFailResponse) EnumDescriptor() ([]byte, []int) {
+	return file_match_service_match_service_proto_rawDescGZIP(), []int{0}
+}
+
+type PlayerData struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PlayerId      *int64                 `protobuf:"varint,1,opt,name=player_id,json=playerId,proto3,oneof" json:"player_id,omitempty"`
+	PlayerName    *string                `protobuf:"bytes,2,opt,name=player_name,json=playerName,proto3,oneof" json:"player_name,omitempty"`
+	PlayerRating  *int64                 `protobuf:"varint,3,opt,name=player_rating,json=playerRating,proto3,oneof" json:"player_rating,omitempty"`
+	RegId         *string                `protobuf:"bytes,4,opt,name=reg_id,json=regId,proto3,oneof" json:"reg_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PlayerData) Reset() {
+	*x = PlayerData{}
+	mi := &file_match_service_match_service_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PlayerData) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PlayerData) ProtoMessage() {}
+
+func (x *PlayerData) ProtoReflect() protoreflect.Message {
+	mi := &file_match_service_match_service_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PlayerData.ProtoReflect.Descriptor instead.
+func (*PlayerData) Descriptor() ([]byte, []int) {
+	return file_match_service_match_service_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *PlayerData) GetPlayerId() int64 {
+	if x != nil && x.PlayerId != nil {
+		return *x.PlayerId
+	}
+	return 0
+}
+
+func (x *PlayerData) GetPlayerName() string {
+	if x != nil && x.PlayerName != nil {
+		return *x.PlayerName
+	}
+	return ""
+}
+
+func (x *PlayerData) GetPlayerRating() int64 {
+	if x != nil && x.PlayerRating != nil {
+		return *x.PlayerRating
+	}
+	return 0
+}
+
+func (x *PlayerData) GetRegId() string {
+	if x != nil && x.RegId != nil {
+		return *x.RegId
+	}
+	return ""
+}
+
+type InputMatch struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Player1       *PlayerData            `protobuf:"bytes,1,opt,name=player1,proto3,oneof" json:"player1,omitempty"`
+	Player2       *PlayerData            `protobuf:"bytes,2,opt,name=player2,proto3,oneof" json:"player2,omitempty"`
+	Fleet         *string                `protobuf:"bytes,3,opt,name=fleet,proto3,oneof" json:"fleet,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InputMatch) Reset() {
+	*x = InputMatch{}
+	mi := &file_match_service_match_service_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InputMatch) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InputMatch) ProtoMessage() {}
+
+func (x *InputMatch) ProtoReflect() protoreflect.Message {
+	mi := &file_match_service_match_service_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InputMatch.ProtoReflect.Descriptor instead.
+func (*InputMatch) Descriptor() ([]byte, []int) {
+	return file_match_service_match_service_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *InputMatch) GetPlayer1() *PlayerData {
+	if x != nil {
+		return x.Player1
+	}
+	return nil
+}
+
+func (x *InputMatch) GetPlayer2() *PlayerData {
+	if x != nil {
+		return x.Player2
+	}
+	return nil
+}
+
+func (x *InputMatch) GetFleet() string {
+	if x != nil && x.Fleet != nil {
+		return *x.Fleet
+	}
+	return ""
+}
+
 type StartMatchRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Player1Id     *uint64                `protobuf:"varint,1,opt,name=player1_id,json=player1Id,proto3,oneof" json:"player1_id,omitempty"`
-	Player2Id     *uint64                `protobuf:"varint,2,opt,name=player2_id,json=player2Id,proto3,oneof" json:"player2_id,omitempty"`
-	FleetName     *string                `protobuf:"bytes,3,opt,name=fleet_name,json=fleetName,proto3,oneof" json:"fleet_name,omitempty"`
+	Matches       []*InputMatch          `protobuf:"bytes,1,rep,name=matches,proto3" json:"matches,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *StartMatchRequest) Reset() {
 	*x = StartMatchRequest{}
-	mi := &file_match_service_match_service_proto_msgTypes[0]
+	mi := &file_match_service_match_service_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -45,7 +220,7 @@ func (x *StartMatchRequest) String() string {
 func (*StartMatchRequest) ProtoMessage() {}
 
 func (x *StartMatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_match_service_match_service_proto_msgTypes[0]
+	mi := &file_match_service_match_service_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -58,41 +233,86 @@ func (x *StartMatchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartMatchRequest.ProtoReflect.Descriptor instead.
 func (*StartMatchRequest) Descriptor() ([]byte, []int) {
-	return file_match_service_match_service_proto_rawDescGZIP(), []int{0}
+	return file_match_service_match_service_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *StartMatchRequest) GetPlayer1Id() uint64 {
-	if x != nil && x.Player1Id != nil {
-		return *x.Player1Id
+func (x *StartMatchRequest) GetMatches() []*InputMatch {
+	if x != nil {
+		return x.Matches
 	}
-	return 0
+	return nil
 }
 
-func (x *StartMatchRequest) GetPlayer2Id() uint64 {
-	if x != nil && x.Player2Id != nil {
-		return *x.Player2Id
+type MatchCreationResult struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	MatchId             *string                `protobuf:"bytes,1,opt,name=match_id,json=matchId,proto3,oneof" json:"match_id,omitempty"`
+	Player1FailResponse PlayerFailResponse     `protobuf:"varint,2,opt,name=player1_fail_response,json=player1FailResponse,proto3,enum=match_service.PlayerFailResponse" json:"player1_fail_response,omitempty"`
+	Player2FailResponse PlayerFailResponse     `protobuf:"varint,3,opt,name=player2_fail_response,json=player2FailResponse,proto3,enum=match_service.PlayerFailResponse" json:"player2_fail_response,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *MatchCreationResult) Reset() {
+	*x = MatchCreationResult{}
+	mi := &file_match_service_match_service_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MatchCreationResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MatchCreationResult) ProtoMessage() {}
+
+func (x *MatchCreationResult) ProtoReflect() protoreflect.Message {
+	mi := &file_match_service_match_service_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
 	}
-	return 0
+	return mi.MessageOf(x)
 }
 
-func (x *StartMatchRequest) GetFleetName() string {
-	if x != nil && x.FleetName != nil {
-		return *x.FleetName
+// Deprecated: Use MatchCreationResult.ProtoReflect.Descriptor instead.
+func (*MatchCreationResult) Descriptor() ([]byte, []int) {
+	return file_match_service_match_service_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *MatchCreationResult) GetMatchId() string {
+	if x != nil && x.MatchId != nil {
+		return *x.MatchId
 	}
 	return ""
 }
 
+func (x *MatchCreationResult) GetPlayer1FailResponse() PlayerFailResponse {
+	if x != nil {
+		return x.Player1FailResponse
+	}
+	return PlayerFailResponse_PLAYER_FAIL_RESPONSE_UNSPECIFIED
+}
+
+func (x *MatchCreationResult) GetPlayer2FailResponse() PlayerFailResponse {
+	if x != nil {
+		return x.Player2FailResponse
+	}
+	return PlayerFailResponse_PLAYER_FAIL_RESPONSE_UNSPECIFIED
+}
+
 type StartMatchResponse struct {
-	state          protoimpl.MessageState        `protogen:"open.v1"`
-	ConnectionInfo *fleet_manager.ConnectionInfo `protobuf:"bytes,1,opt,name=connection_info,json=connectionInfo,proto3,oneof" json:"connection_info,omitempty"`
-	MatchId        *string                       `protobuf:"bytes,2,opt,name=match_id,json=matchId,proto3,oneof" json:"match_id,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Results       []*MatchCreationResult `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *StartMatchResponse) Reset() {
 	*x = StartMatchResponse{}
-	mi := &file_match_service_match_service_proto_msgTypes[1]
+	mi := &file_match_service_match_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -104,7 +324,7 @@ func (x *StartMatchResponse) String() string {
 func (*StartMatchResponse) ProtoMessage() {}
 
 func (x *StartMatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_match_service_match_service_proto_msgTypes[1]
+	mi := &file_match_service_match_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -117,33 +337,26 @@ func (x *StartMatchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartMatchResponse.ProtoReflect.Descriptor instead.
 func (*StartMatchResponse) Descriptor() ([]byte, []int) {
-	return file_match_service_match_service_proto_rawDescGZIP(), []int{1}
+	return file_match_service_match_service_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *StartMatchResponse) GetConnectionInfo() *fleet_manager.ConnectionInfo {
+func (x *StartMatchResponse) GetResults() []*MatchCreationResult {
 	if x != nil {
-		return x.ConnectionInfo
+		return x.Results
 	}
 	return nil
 }
 
-func (x *StartMatchResponse) GetMatchId() string {
-	if x != nil && x.MatchId != nil {
-		return *x.MatchId
-	}
-	return ""
-}
-
 type GetMatchRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	MatchId       *string                `protobuf:"bytes,1,opt,name=match_id,json=matchId,proto3,oneof" json:"match_id,omitempty"`
+	PlayerId      *int64                 `protobuf:"varint,1,opt,name=player_id,json=playerId,proto3,oneof" json:"player_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetMatchRequest) Reset() {
 	*x = GetMatchRequest{}
-	mi := &file_match_service_match_service_proto_msgTypes[2]
+	mi := &file_match_service_match_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -155,7 +368,7 @@ func (x *GetMatchRequest) String() string {
 func (*GetMatchRequest) ProtoMessage() {}
 
 func (x *GetMatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_match_service_match_service_proto_msgTypes[2]
+	mi := &file_match_service_match_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -168,14 +381,14 @@ func (x *GetMatchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMatchRequest.ProtoReflect.Descriptor instead.
 func (*GetMatchRequest) Descriptor() ([]byte, []int) {
-	return file_match_service_match_service_proto_rawDescGZIP(), []int{2}
+	return file_match_service_match_service_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *GetMatchRequest) GetMatchId() string {
-	if x != nil && x.MatchId != nil {
-		return *x.MatchId
+func (x *GetMatchRequest) GetPlayerId() int64 {
+	if x != nil && x.PlayerId != nil {
+		return *x.PlayerId
 	}
-	return ""
+	return 0
 }
 
 type GetMatchResponse struct {
@@ -187,7 +400,7 @@ type GetMatchResponse struct {
 
 func (x *GetMatchResponse) Reset() {
 	*x = GetMatchResponse{}
-	mi := &file_match_service_match_service_proto_msgTypes[3]
+	mi := &file_match_service_match_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -199,7 +412,7 @@ func (x *GetMatchResponse) String() string {
 func (*GetMatchResponse) ProtoMessage() {}
 
 func (x *GetMatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_match_service_match_service_proto_msgTypes[3]
+	mi := &file_match_service_match_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -212,7 +425,7 @@ func (x *GetMatchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMatchResponse.ProtoReflect.Descriptor instead.
 func (*GetMatchResponse) Descriptor() ([]byte, []int) {
-	return file_match_service_match_service_proto_rawDescGZIP(), []int{3}
+	return file_match_service_match_service_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetMatchResponse) GetConnectionInfo() *fleet_manager.ConnectionInfo {
@@ -225,15 +438,14 @@ func (x *GetMatchResponse) GetConnectionInfo() *fleet_manager.ConnectionInfo {
 type EndMatchRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	MatchId       *string                `protobuf:"bytes,1,opt,name=match_id,json=matchId,proto3,oneof" json:"match_id,omitempty"`
-	WinnerId      *uint64                `protobuf:"varint,2,opt,name=winner_id,json=winnerId,proto3,oneof" json:"winner_id,omitempty"`
-	LoserId       *uint64                `protobuf:"varint,3,opt,name=loser_id,json=loserId,proto3,oneof" json:"loser_id,omitempty"`
+	WinnerId      *int64                 `protobuf:"varint,2,opt,name=winner_id,json=winnerId,proto3,oneof" json:"winner_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *EndMatchRequest) Reset() {
 	*x = EndMatchRequest{}
-	mi := &file_match_service_match_service_proto_msgTypes[4]
+	mi := &file_match_service_match_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -245,7 +457,7 @@ func (x *EndMatchRequest) String() string {
 func (*EndMatchRequest) ProtoMessage() {}
 
 func (x *EndMatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_match_service_match_service_proto_msgTypes[4]
+	mi := &file_match_service_match_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -258,7 +470,7 @@ func (x *EndMatchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EndMatchRequest.ProtoReflect.Descriptor instead.
 func (*EndMatchRequest) Descriptor() ([]byte, []int) {
-	return file_match_service_match_service_proto_rawDescGZIP(), []int{4}
+	return file_match_service_match_service_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *EndMatchRequest) GetMatchId() string {
@@ -268,62 +480,11 @@ func (x *EndMatchRequest) GetMatchId() string {
 	return ""
 }
 
-func (x *EndMatchRequest) GetWinnerId() uint64 {
+func (x *EndMatchRequest) GetWinnerId() int64 {
 	if x != nil && x.WinnerId != nil {
 		return *x.WinnerId
 	}
 	return 0
-}
-
-func (x *EndMatchRequest) GetLoserId() uint64 {
-	if x != nil && x.LoserId != nil {
-		return *x.LoserId
-	}
-	return 0
-}
-
-type CancelMatchRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	MatchId       *string                `protobuf:"bytes,1,opt,name=match_id,json=matchId,proto3,oneof" json:"match_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CancelMatchRequest) Reset() {
-	*x = CancelMatchRequest{}
-	mi := &file_match_service_match_service_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CancelMatchRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CancelMatchRequest) ProtoMessage() {}
-
-func (x *CancelMatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_match_service_match_service_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CancelMatchRequest.ProtoReflect.Descriptor instead.
-func (*CancelMatchRequest) Descriptor() ([]byte, []int) {
-	return file_match_service_match_service_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *CancelMatchRequest) GetMatchId() string {
-	if x != nil && x.MatchId != nil {
-		return *x.MatchId
-	}
-	return ""
 }
 
 type EndMatchResponse struct {
@@ -334,7 +495,7 @@ type EndMatchResponse struct {
 
 func (x *EndMatchResponse) Reset() {
 	*x = EndMatchResponse{}
-	mi := &file_match_service_match_service_proto_msgTypes[6]
+	mi := &file_match_service_match_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -346,7 +507,7 @@ func (x *EndMatchResponse) String() string {
 func (*EndMatchResponse) ProtoMessage() {}
 
 func (x *EndMatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_match_service_match_service_proto_msgTypes[6]
+	mi := &file_match_service_match_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -359,18 +520,64 @@ func (x *EndMatchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EndMatchResponse.ProtoReflect.Descriptor instead.
 func (*EndMatchResponse) Descriptor() ([]byte, []int) {
-	return file_match_service_match_service_proto_rawDescGZIP(), []int{6}
+	return file_match_service_match_service_proto_rawDescGZIP(), []int{8}
+}
+
+type CancelMatchRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	MatchId       *string                `protobuf:"bytes,1,opt,name=match_id,json=matchId,proto3,oneof" json:"match_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CancelMatchRequest) Reset() {
+	*x = CancelMatchRequest{}
+	mi := &file_match_service_match_service_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CancelMatchRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CancelMatchRequest) ProtoMessage() {}
+
+func (x *CancelMatchRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_match_service_match_service_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CancelMatchRequest.ProtoReflect.Descriptor instead.
+func (*CancelMatchRequest) Descriptor() ([]byte, []int) {
+	return file_match_service_match_service_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *CancelMatchRequest) GetMatchId() string {
+	if x != nil && x.MatchId != nil {
+		return *x.MatchId
+	}
+	return ""
 }
 
 type CancelMatchResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	NewRating_1   *int64                 `protobuf:"varint,1,opt,name=new_rating_1,json=newRating1,proto3,oneof" json:"new_rating_1,omitempty"`
+	NewRating_2   *int64                 `protobuf:"varint,2,opt,name=new_rating_2,json=newRating2,proto3,oneof" json:"new_rating_2,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CancelMatchResponse) Reset() {
 	*x = CancelMatchResponse{}
-	mi := &file_match_service_match_service_proto_msgTypes[7]
+	mi := &file_match_service_match_service_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -382,7 +589,7 @@ func (x *CancelMatchResponse) String() string {
 func (*CancelMatchResponse) ProtoMessage() {}
 
 func (x *CancelMatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_match_service_match_service_proto_msgTypes[7]
+	mi := &file_match_service_match_service_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -395,54 +602,179 @@ func (x *CancelMatchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelMatchResponse.ProtoReflect.Descriptor instead.
 func (*CancelMatchResponse) Descriptor() ([]byte, []int) {
-	return file_match_service_match_service_proto_rawDescGZIP(), []int{7}
+	return file_match_service_match_service_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *CancelMatchResponse) GetNewRating_1() int64 {
+	if x != nil && x.NewRating_1 != nil {
+		return *x.NewRating_1
+	}
+	return 0
+}
+
+func (x *CancelMatchResponse) GetNewRating_2() int64 {
+	if x != nil && x.NewRating_2 != nil {
+		return *x.NewRating_2
+	}
+	return 0
+}
+
+type RenewMatchRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	MatchId       *string                `protobuf:"bytes,1,opt,name=match_id,json=matchId,proto3,oneof" json:"match_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RenewMatchRequest) Reset() {
+	*x = RenewMatchRequest{}
+	mi := &file_match_service_match_service_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RenewMatchRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RenewMatchRequest) ProtoMessage() {}
+
+func (x *RenewMatchRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_match_service_match_service_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RenewMatchRequest.ProtoReflect.Descriptor instead.
+func (*RenewMatchRequest) Descriptor() ([]byte, []int) {
+	return file_match_service_match_service_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *RenewMatchRequest) GetMatchId() string {
+	if x != nil && x.MatchId != nil {
+		return *x.MatchId
+	}
+	return ""
+}
+
+type RenewMatchResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RenewMatchResponse) Reset() {
+	*x = RenewMatchResponse{}
+	mi := &file_match_service_match_service_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RenewMatchResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RenewMatchResponse) ProtoMessage() {}
+
+func (x *RenewMatchResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_match_service_match_service_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RenewMatchResponse.ProtoReflect.Descriptor instead.
+func (*RenewMatchResponse) Descriptor() ([]byte, []int) {
+	return file_match_service_match_service_proto_rawDescGZIP(), []int{12}
 }
 
 var File_match_service_match_service_proto protoreflect.FileDescriptor
 
 const file_match_service_match_service_proto_rawDesc = "" +
 	"\n" +
-	"!match_service/match_service.proto\x12\rmatch_service\x1a!fleet_manager/fleet_manager.proto\"\xac\x01\n" +
-	"\x11StartMatchRequest\x12\"\n" +
+	"!match_service/match_service.proto\x12\rmatch_service\x1a!fleet_manager/fleet_manager.proto\"\xd5\x01\n" +
 	"\n" +
-	"player1_id\x18\x01 \x01(\x04H\x00R\tplayer1Id\x88\x01\x01\x12\"\n" +
+	"PlayerData\x12 \n" +
+	"\tplayer_id\x18\x01 \x01(\x03H\x00R\bplayerId\x88\x01\x01\x12$\n" +
+	"\vplayer_name\x18\x02 \x01(\tH\x01R\n" +
+	"playerName\x88\x01\x01\x12(\n" +
+	"\rplayer_rating\x18\x03 \x01(\x03H\x02R\fplayerRating\x88\x01\x01\x12\x1a\n" +
+	"\x06reg_id\x18\x04 \x01(\tH\x03R\x05regId\x88\x01\x01B\f\n" +
 	"\n" +
-	"player2_id\x18\x02 \x01(\x04H\x01R\tplayer2Id\x88\x01\x01\x12\"\n" +
+	"_player_idB\x0e\n" +
+	"\f_player_nameB\x10\n" +
+	"\x0e_player_ratingB\t\n" +
+	"\a_reg_id\"\xbd\x01\n" +
 	"\n" +
-	"fleet_name\x18\x03 \x01(\tH\x02R\tfleetName\x88\x01\x01B\r\n" +
-	"\v_player1_idB\r\n" +
-	"\v_player2_idB\r\n" +
-	"\v_fleet_name\"\xa2\x01\n" +
-	"\x12StartMatchResponse\x12K\n" +
-	"\x0fconnection_info\x18\x01 \x01(\v2\x1d.fleet_manager.ConnectionInfoH\x00R\x0econnectionInfo\x88\x01\x01\x12\x1e\n" +
-	"\bmatch_id\x18\x02 \x01(\tH\x01R\amatchId\x88\x01\x01B\x12\n" +
-	"\x10_connection_infoB\v\n" +
-	"\t_match_id\">\n" +
-	"\x0fGetMatchRequest\x12\x1e\n" +
-	"\bmatch_id\x18\x01 \x01(\tH\x00R\amatchId\x88\x01\x01B\v\n" +
-	"\t_match_id\"s\n" +
+	"InputMatch\x128\n" +
+	"\aplayer1\x18\x01 \x01(\v2\x19.match_service.PlayerDataH\x00R\aplayer1\x88\x01\x01\x128\n" +
+	"\aplayer2\x18\x02 \x01(\v2\x19.match_service.PlayerDataH\x01R\aplayer2\x88\x01\x01\x12\x19\n" +
+	"\x05fleet\x18\x03 \x01(\tH\x02R\x05fleet\x88\x01\x01B\n" +
+	"\n" +
+	"\b_player1B\n" +
+	"\n" +
+	"\b_player2B\b\n" +
+	"\x06_fleet\"H\n" +
+	"\x11StartMatchRequest\x123\n" +
+	"\amatches\x18\x01 \x03(\v2\x19.match_service.InputMatchR\amatches\"\xf0\x01\n" +
+	"\x13MatchCreationResult\x12\x1e\n" +
+	"\bmatch_id\x18\x01 \x01(\tH\x00R\amatchId\x88\x01\x01\x12U\n" +
+	"\x15player1_fail_response\x18\x02 \x01(\x0e2!.match_service.PlayerFailResponseR\x13player1FailResponse\x12U\n" +
+	"\x15player2_fail_response\x18\x03 \x01(\x0e2!.match_service.PlayerFailResponseR\x13player2FailResponseB\v\n" +
+	"\t_match_id\"R\n" +
+	"\x12StartMatchResponse\x12<\n" +
+	"\aresults\x18\x01 \x03(\v2\".match_service.MatchCreationResultR\aresults\"A\n" +
+	"\x0fGetMatchRequest\x12 \n" +
+	"\tplayer_id\x18\x01 \x01(\x03H\x00R\bplayerId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_player_id\"s\n" +
 	"\x10GetMatchResponse\x12K\n" +
 	"\x0fconnection_info\x18\x01 \x01(\v2\x1d.fleet_manager.ConnectionInfoH\x00R\x0econnectionInfo\x88\x01\x01B\x12\n" +
-	"\x10_connection_info\"\x9b\x01\n" +
+	"\x10_connection_info\"n\n" +
 	"\x0fEndMatchRequest\x12\x1e\n" +
 	"\bmatch_id\x18\x01 \x01(\tH\x00R\amatchId\x88\x01\x01\x12 \n" +
-	"\twinner_id\x18\x02 \x01(\x04H\x01R\bwinnerId\x88\x01\x01\x12\x1e\n" +
-	"\bloser_id\x18\x03 \x01(\x04H\x02R\aloserId\x88\x01\x01B\v\n" +
+	"\twinner_id\x18\x02 \x01(\x03H\x01R\bwinnerId\x88\x01\x01B\v\n" +
 	"\t_match_idB\f\n" +
 	"\n" +
-	"_winner_idB\v\n" +
-	"\t_loser_id\"A\n" +
+	"_winner_id\"\x12\n" +
+	"\x10EndMatchResponse\"A\n" +
 	"\x12CancelMatchRequest\x12\x1e\n" +
 	"\bmatch_id\x18\x01 \x01(\tH\x00R\amatchId\x88\x01\x01B\v\n" +
-	"\t_match_id\"\x12\n" +
-	"\x10EndMatchResponse\"\x15\n" +
-	"\x13CancelMatchResponse2\xd1\x02\n" +
+	"\t_match_id\"\x85\x01\n" +
+	"\x13CancelMatchResponse\x12%\n" +
+	"\fnew_rating_1\x18\x01 \x01(\x03H\x00R\n" +
+	"newRating1\x88\x01\x01\x12%\n" +
+	"\fnew_rating_2\x18\x02 \x01(\x03H\x01R\n" +
+	"newRating2\x88\x01\x01B\x0f\n" +
+	"\r_new_rating_1B\x0f\n" +
+	"\r_new_rating_2\"@\n" +
+	"\x11RenewMatchRequest\x12\x1e\n" +
+	"\bmatch_id\x18\x01 \x01(\tH\x00R\amatchId\x88\x01\x01B\v\n" +
+	"\t_match_id\"\x14\n" +
+	"\x12RenewMatchResponse*}\n" +
+	"\x12PlayerFailResponse\x12$\n" +
+	" PLAYER_FAIL_RESPONSE_UNSPECIFIED\x10\x00\x12 \n" +
+	"\x1cPLAYER_FAIL_RESPONSE_REENTER\x10\x01\x12\x1f\n" +
+	"\x1bPLAYER_FAIL_RESPONSE_REMOVE\x10\x022\xa4\x03\n" +
 	"\fMatchService\x12Q\n" +
 	"\n" +
 	"StartMatch\x12 .match_service.StartMatchRequest\x1a!.match_service.StartMatchResponse\x12K\n" +
 	"\bGetMatch\x12\x1e.match_service.GetMatchRequest\x1a\x1f.match_service.GetMatchResponse\x12K\n" +
 	"\bEndMatch\x12\x1e.match_service.EndMatchRequest\x1a\x1f.match_service.EndMatchResponse\x12T\n" +
-	"\vCancelMatch\x12!.match_service.CancelMatchRequest\x1a\".match_service.CancelMatchResponseB'Z%team_dynamics/api/proto/match_serviceb\x06proto3"
+	"\vCancelMatch\x12!.match_service.CancelMatchRequest\x1a\".match_service.CancelMatchResponse\x12Q\n" +
+	"\n" +
+	"RenewMatch\x12 .match_service.RenewMatchRequest\x1a!.match_service.RenewMatchResponseB'Z%team_dynamics/api/proto/match_serviceb\x06proto3"
 
 var (
 	file_match_service_match_service_proto_rawDescOnce sync.Once
@@ -456,34 +788,48 @@ func file_match_service_match_service_proto_rawDescGZIP() []byte {
 	return file_match_service_match_service_proto_rawDescData
 }
 
-var file_match_service_match_service_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_match_service_match_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_match_service_match_service_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_match_service_match_service_proto_goTypes = []any{
-	(*StartMatchRequest)(nil),            // 0: match_service.StartMatchRequest
-	(*StartMatchResponse)(nil),           // 1: match_service.StartMatchResponse
-	(*GetMatchRequest)(nil),              // 2: match_service.GetMatchRequest
-	(*GetMatchResponse)(nil),             // 3: match_service.GetMatchResponse
-	(*EndMatchRequest)(nil),              // 4: match_service.EndMatchRequest
-	(*CancelMatchRequest)(nil),           // 5: match_service.CancelMatchRequest
-	(*EndMatchResponse)(nil),             // 6: match_service.EndMatchResponse
-	(*CancelMatchResponse)(nil),          // 7: match_service.CancelMatchResponse
-	(*fleet_manager.ConnectionInfo)(nil), // 8: fleet_manager.ConnectionInfo
+	(PlayerFailResponse)(0),              // 0: match_service.PlayerFailResponse
+	(*PlayerData)(nil),                   // 1: match_service.PlayerData
+	(*InputMatch)(nil),                   // 2: match_service.InputMatch
+	(*StartMatchRequest)(nil),            // 3: match_service.StartMatchRequest
+	(*MatchCreationResult)(nil),          // 4: match_service.MatchCreationResult
+	(*StartMatchResponse)(nil),           // 5: match_service.StartMatchResponse
+	(*GetMatchRequest)(nil),              // 6: match_service.GetMatchRequest
+	(*GetMatchResponse)(nil),             // 7: match_service.GetMatchResponse
+	(*EndMatchRequest)(nil),              // 8: match_service.EndMatchRequest
+	(*EndMatchResponse)(nil),             // 9: match_service.EndMatchResponse
+	(*CancelMatchRequest)(nil),           // 10: match_service.CancelMatchRequest
+	(*CancelMatchResponse)(nil),          // 11: match_service.CancelMatchResponse
+	(*RenewMatchRequest)(nil),            // 12: match_service.RenewMatchRequest
+	(*RenewMatchResponse)(nil),           // 13: match_service.RenewMatchResponse
+	(*fleet_manager.ConnectionInfo)(nil), // 14: fleet_manager.ConnectionInfo
 }
 var file_match_service_match_service_proto_depIdxs = []int32{
-	8, // 0: match_service.StartMatchResponse.connection_info:type_name -> fleet_manager.ConnectionInfo
-	8, // 1: match_service.GetMatchResponse.connection_info:type_name -> fleet_manager.ConnectionInfo
-	0, // 2: match_service.MatchService.StartMatch:input_type -> match_service.StartMatchRequest
-	2, // 3: match_service.MatchService.GetMatch:input_type -> match_service.GetMatchRequest
-	4, // 4: match_service.MatchService.EndMatch:input_type -> match_service.EndMatchRequest
-	5, // 5: match_service.MatchService.CancelMatch:input_type -> match_service.CancelMatchRequest
-	1, // 6: match_service.MatchService.StartMatch:output_type -> match_service.StartMatchResponse
-	3, // 7: match_service.MatchService.GetMatch:output_type -> match_service.GetMatchResponse
-	6, // 8: match_service.MatchService.EndMatch:output_type -> match_service.EndMatchResponse
-	7, // 9: match_service.MatchService.CancelMatch:output_type -> match_service.CancelMatchResponse
-	6, // [6:10] is the sub-list for method output_type
-	2, // [2:6] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	1,  // 0: match_service.InputMatch.player1:type_name -> match_service.PlayerData
+	1,  // 1: match_service.InputMatch.player2:type_name -> match_service.PlayerData
+	2,  // 2: match_service.StartMatchRequest.matches:type_name -> match_service.InputMatch
+	0,  // 3: match_service.MatchCreationResult.player1_fail_response:type_name -> match_service.PlayerFailResponse
+	0,  // 4: match_service.MatchCreationResult.player2_fail_response:type_name -> match_service.PlayerFailResponse
+	4,  // 5: match_service.StartMatchResponse.results:type_name -> match_service.MatchCreationResult
+	14, // 6: match_service.GetMatchResponse.connection_info:type_name -> fleet_manager.ConnectionInfo
+	3,  // 7: match_service.MatchService.StartMatch:input_type -> match_service.StartMatchRequest
+	6,  // 8: match_service.MatchService.GetMatch:input_type -> match_service.GetMatchRequest
+	8,  // 9: match_service.MatchService.EndMatch:input_type -> match_service.EndMatchRequest
+	10, // 10: match_service.MatchService.CancelMatch:input_type -> match_service.CancelMatchRequest
+	12, // 11: match_service.MatchService.RenewMatch:input_type -> match_service.RenewMatchRequest
+	5,  // 12: match_service.MatchService.StartMatch:output_type -> match_service.StartMatchResponse
+	7,  // 13: match_service.MatchService.GetMatch:output_type -> match_service.GetMatchResponse
+	9,  // 14: match_service.MatchService.EndMatch:output_type -> match_service.EndMatchResponse
+	11, // 15: match_service.MatchService.CancelMatch:output_type -> match_service.CancelMatchResponse
+	13, // 16: match_service.MatchService.RenewMatch:output_type -> match_service.RenewMatchResponse
+	12, // [12:17] is the sub-list for method output_type
+	7,  // [7:12] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_match_service_match_service_proto_init() }
@@ -493,22 +839,26 @@ func file_match_service_match_service_proto_init() {
 	}
 	file_match_service_match_service_proto_msgTypes[0].OneofWrappers = []any{}
 	file_match_service_match_service_proto_msgTypes[1].OneofWrappers = []any{}
-	file_match_service_match_service_proto_msgTypes[2].OneofWrappers = []any{}
 	file_match_service_match_service_proto_msgTypes[3].OneofWrappers = []any{}
-	file_match_service_match_service_proto_msgTypes[4].OneofWrappers = []any{}
 	file_match_service_match_service_proto_msgTypes[5].OneofWrappers = []any{}
+	file_match_service_match_service_proto_msgTypes[6].OneofWrappers = []any{}
+	file_match_service_match_service_proto_msgTypes[7].OneofWrappers = []any{}
+	file_match_service_match_service_proto_msgTypes[9].OneofWrappers = []any{}
+	file_match_service_match_service_proto_msgTypes[10].OneofWrappers = []any{}
+	file_match_service_match_service_proto_msgTypes[11].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_match_service_match_service_proto_rawDesc), len(file_match_service_match_service_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   8,
+			NumEnums:      1,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_match_service_match_service_proto_goTypes,
 		DependencyIndexes: file_match_service_match_service_proto_depIdxs,
+		EnumInfos:         file_match_service_match_service_proto_enumTypes,
 		MessageInfos:      file_match_service_match_service_proto_msgTypes,
 	}.Build()
 	File_match_service_match_service_proto = out.File

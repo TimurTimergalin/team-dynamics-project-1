@@ -5,19 +5,19 @@ import (
 	"agones.dev/agones/pkg/client/clientset/versioned"
 	"context"
 	"errors"
-	"fleet_manager/config"
-	pb "fleet_manager/fleet_manager/proto"
-	"fleet_manager/k8s"
 	"log"
 	"strconv"
+	pb "team_dynamics/api/proto/fleet_manager"
+	"team_dynamics/fleet_manager/config"
+	"team_dynamics/fleet_manager/k8s"
 )
 
-type FleetManagerService struct {
+type FleetManagerServiceDep struct {
 	K8sClient *versioned.Clientset
 	FmConfig  *config.FleetManagerConfig
 }
 
-func (s *FleetManagerService) Allocate(ctx context.Context, request *pb.AllocateRequest) (*pb.AllocateResponse, error) {
+func (s *FleetManagerServiceDep) Allocate(ctx context.Context, request *pb.AllocateRequest) (*pb.AllocateResponse, error) {
 	if request.Player1 == nil || request.Player2 == nil {
 		return nil, errors.New("one of players is nil")
 	}
@@ -52,7 +52,7 @@ func (s *FleetManagerService) Allocate(ctx context.Context, request *pb.Allocate
 	}
 }
 
-func (s *FleetManagerService) GetServer(ctx context.Context, request *pb.GetServerRequest) (*pb.GetServerResponse, error) {
+func (s *FleetManagerServiceDep) GetServer(ctx context.Context, request *pb.GetServerRequest) (*pb.GetServerResponse, error) {
 	res, err := k8s.GetServer(s.K8sClient, s.FmConfig, request.GetName(), ctx)
 	if err != nil {
 		log.Printf("K8s error: %s", err.Error())
