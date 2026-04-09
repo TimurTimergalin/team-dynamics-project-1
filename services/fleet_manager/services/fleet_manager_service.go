@@ -110,6 +110,8 @@ func (s *fleetManagerServiceImpl) Allocate(ctx context.Context, request *pb.Allo
 			ConnectionInfo: makeConnectionInfo(address),
 		}, nil
 	}
+
+	tryGettingAgain := false
 	switch err.Type {
 	case k8s.FleetFullError:
 		if request.FleetName != nil {
@@ -119,8 +121,21 @@ func (s *fleetManagerServiceImpl) Allocate(ctx context.Context, request *pb.Allo
 					ConnectionInfo: makeConnectionInfo(address),
 				}, nil
 			}
+			if err.Type == k8s.ContentionError {
+				tryGettingAgain = true
+			}
 		}
+	case k8s.ContentionError:
+		tryGettingAgain = true
 	default:
+	}
+	if tryGettingAgain {
+		address, err = s.k8sOps.GetServerByMatchId(ctx, request.GetMatchId())
+		if err == nil {
+			return &pb.AllocateResponse{
+				ConnectionInfo: makeConnectionInfo(address),
+			}, nil
+		}
 	}
 	return nil, convertError(err)
 }
