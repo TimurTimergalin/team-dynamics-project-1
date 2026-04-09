@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"google.golang.org/grpc"
-	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
 	"log"
 	"net"
@@ -143,16 +142,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error while getting agones client: %v", versionedClient)
 	}
-	dynamicClient, err := dynamic.NewForConfig(k8sConfig)
-	if err != nil {
-		log.Fatalf("Error while getting dynamic client: %v", err)
-	}
 
 	controller := &controllers.FleetManagerController{
 		Service: services.MakeFleetManagerService(
 			k8s.MakeOps(
 				versionedClient,
-				dynamicClient,
 				opsConfig,
 			),
 		),

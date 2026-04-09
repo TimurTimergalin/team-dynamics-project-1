@@ -9,7 +9,6 @@ import (
 	"fmt"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/dynamic"
 	"time"
 )
 
@@ -37,13 +36,12 @@ type Ops interface {
 }
 
 type opsImpl struct {
-	client        *versioned.Clientset
-	dynamicClient dynamic.Interface
-	config        *OpsConfig
+	client *versioned.Clientset
+	config *OpsConfig
 }
 
-func MakeOps(client *versioned.Clientset, dynamicClient dynamic.Interface, config *OpsConfig) Ops {
-	return &opsImpl{client, dynamicClient, config}
+func MakeOps(client *versioned.Clientset, config *OpsConfig) Ops {
+	return &opsImpl{client, config}
 }
 
 func makeAddress(address string, ports []v1.GameServerStatusPort) string {
@@ -61,7 +59,7 @@ func makeFleetLabelSelector(commonFleetLabelKey, commonFleetLabelValue string, f
 		commonFleetLabelKey: commonFleetLabelValue,
 	}
 	if fleet != nil {
-		res["agones.dev/fleet"] = *fleet
+		res["location"] = *fleet
 	}
 	return res
 }

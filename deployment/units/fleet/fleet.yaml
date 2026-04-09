@@ -1,10 +1,8 @@
 apiVersion: agones.dev/v1
 kind: Fleet
 metadata:
-  name: simple-game-server
+  name: fleet1
   namespace: fleet
-  labels:
-    is-fleet: "true"
 spec:
   replicas: 2
   template:
@@ -13,6 +11,10 @@ spec:
         - name: default
           containerPort: 7654
       template:
+        metadata:
+          labels:
+            is-game-server: "true"
+            location: Moscow
         spec:
           containers:
             - name: simple-game-server
