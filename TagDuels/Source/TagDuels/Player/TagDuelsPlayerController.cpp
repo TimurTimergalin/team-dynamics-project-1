@@ -14,3 +14,14 @@ void ATagDuelsPlayerController::SetViewTarget(AActor* NewViewTarget, FViewTarget
 		//  PlayerCameraManager->SetManualCameraFade(1.0f, FColor::Black, false);
 	}
 }
+
+void ATagDuelsPlayerController::BeginPlayingState()
+{
+	Super::BeginPlayingState();
+	OnBeginPlayingState();
+}
+
+void ATagDuelsPlayerController::OnBeginPlayingState_Implementation()
+{
+	// Можно что-нибудь добавить
+}
