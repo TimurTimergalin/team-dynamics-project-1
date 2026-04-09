@@ -1,0 +1,12 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: fleet-manager-role
+  namespace: fleet
+rules:
+- apiGroups: ["allocation.agones.dev"]
+  resources: ["gameserverallocations"]
+  verbs: ["create"]
+- apiGroups: ["agones.dev"]
+  resources: ["gameservers"]
+  verbs: ["get", "list", "watch"]

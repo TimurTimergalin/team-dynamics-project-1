@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: fleet-manager
+  namespace: fleet
+  labels:
+    app: fleet-manager
+spec:
+  serviceAccountName: fleet-manager-sa
+  containers:
+    - name: fleet-manager
+      image: fleet-manager-server:latest
+      imagePullPolicy: IfNotPresent
+      ports:
+        - containerPort: 50001
+          name: grpc
+      envFrom:
+        - configMapRef:
+            name: fleet-manager-env
+      resources:
+        requests:
+          memory: "64Mi"
+          cpu: "100m"
+        limits:
+          memory: "128Mi"
+          cpu: "200m"
+      livenessProbe:
+        tcpSocket:
+          port: 50001
+        initialDelaySeconds: 10
+        periodSeconds: 30
+      readinessProbe:
+        tcpSocket:
+          port: 50001
+        initialDelaySeconds: 5
+        periodSeconds: 10
+  restartPolicy: Always
