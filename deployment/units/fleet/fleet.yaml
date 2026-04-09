@@ -6,15 +6,15 @@ metadata:
 spec:
   replicas: 2
   template:
+    metadata:
+      labels:
+        is-game-server: "true"
+        location: Moscow
     spec:
       ports:
         - name: default
           containerPort: 7654
       template:
-        metadata:
-          labels:
-            is-game-server: "true"
-            location: Moscow
         spec:
           containers:
             - name: simple-game-server
