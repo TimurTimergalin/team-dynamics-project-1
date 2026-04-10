@@ -6,7 +6,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"logging"
+	"team_dynamics/logging"
 	pglib "team_dynamics/pg_lib/include"
 	"team_dynamics/rating_service/models"
 	"time"

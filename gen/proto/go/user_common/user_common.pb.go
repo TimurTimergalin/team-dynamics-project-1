@@ -26,7 +26,6 @@ type ExternalKey struct {
 	// Types that are valid to be assigned to Key:
 	//
 	//	*ExternalKey_SteamId
-	//	*ExternalKey_EgsId
 	Key           isExternalKey_Key `protobuf_oneof:"key"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -69,22 +68,13 @@ func (x *ExternalKey) GetKey() isExternalKey_Key {
 	return nil
 }
 
-func (x *ExternalKey) GetSteamId() string {
+func (x *ExternalKey) GetSteamId() int64 {
 	if x != nil {
 		if x, ok := x.Key.(*ExternalKey_SteamId); ok {
 			return x.SteamId
 		}
 	}
-	return ""
-}
-
-func (x *ExternalKey) GetEgsId() string {
-	if x != nil {
-		if x, ok := x.Key.(*ExternalKey_EgsId); ok {
-			return x.EgsId
-		}
-	}
-	return ""
+	return 0
 }
 
 type isExternalKey_Key interface {
@@ -92,25 +82,18 @@ type isExternalKey_Key interface {
 }
 
 type ExternalKey_SteamId struct {
-	SteamId string `protobuf:"bytes,1,opt,name=steam_id,json=steamId,proto3,oneof"`
-}
-
-type ExternalKey_EgsId struct {
-	EgsId string `protobuf:"bytes,2,opt,name=egs_id,json=egsId,proto3,oneof"`
+	SteamId int64 `protobuf:"varint,1,opt,name=steam_id,json=steamId,proto3,oneof"`
 }
 
 func (*ExternalKey_SteamId) isExternalKey_Key() {}
-
-func (*ExternalKey_EgsId) isExternalKey_Key() {}
 
 var File_user_common_user_common_proto protoreflect.FileDescriptor
 
 const file_user_common_user_common_proto_rawDesc = "" +
 	"\n" +
-	"\x1duser_common/user_common.proto\x12\vuser_common\"J\n" +
+	"\x1duser_common/user_common.proto\x12\vuser_common\"1\n" +
 	"\vExternalKey\x12\x1b\n" +
-	"\bsteam_id\x18\x01 \x01(\tH\x00R\asteamId\x12\x17\n" +
-	"\x06egs_id\x18\x02 \x01(\tH\x00R\x05egsIdB\x05\n" +
+	"\bsteam_id\x18\x01 \x01(\x03H\x00R\asteamIdB\x05\n" +
 	"\x03keyB%Z#team_dynamics/api/proto/user_commonb\x06proto3"
 
 var (
@@ -144,7 +127,6 @@ func file_user_common_user_common_proto_init() {
 	}
 	file_user_common_user_common_proto_msgTypes[0].OneofWrappers = []any{
 		(*ExternalKey_SteamId)(nil),
-		(*ExternalKey_EgsId)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

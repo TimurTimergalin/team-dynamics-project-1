@@ -8,5 +8,6 @@ use (
 	./services/match_history_service
 	./services/match_service
 	./services/rating_service
+	./services/user_service
 	gen/proto/go
 )

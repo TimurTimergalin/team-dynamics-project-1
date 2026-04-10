@@ -8,11 +8,11 @@ import (
 	"net"
 	"os"
 	"strconv"
-	pb "team_dynamics/api/proto/match_history_service"
-	"team_dynamics/match_history_service/controllers"
-	"team_dynamics/match_history_service/pg"
-	"team_dynamics/match_history_service/services"
+	pb "team_dynamics/api/proto/user_service"
 	pglib "team_dynamics/pg_lib/include"
+	"team_dynamics/user_service/controllers"
+	"team_dynamics/user_service/pg"
+	"team_dynamics/user_service/services"
 	"time"
 )
 
@@ -173,10 +173,9 @@ func main() {
 		panic(fmt.Sprintf("Unable to get listen address: %v", err))
 	}
 
-	controller := &controllers.MatchHistoryServiceController{
-		Service: services.MakeMatchHistoryService(
-			services.MakePageKeyService(),
-			pg.MakeMatchHistoryRepo(pool),
+	controller := &controllers.UserServiceController{
+		Service: services.MakeUserService(
+			pg.MakeUserStorageRepo(pool),
 		),
 	}
 
@@ -186,7 +185,7 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	pb.RegisterMatchHistoryServiceServer(s, controller)
+	pb.RegisterUserServiceServer(s, controller)
 
 	if err := s.Serve(lis); err != nil {
 		panic(fmt.Sprintf("Unable to serve: %v", err))

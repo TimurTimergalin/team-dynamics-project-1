@@ -5,7 +5,6 @@ option go_package = "team_dynamics/api/proto/user_common";
 
 message ExternalKey {
     oneof key {
-        string steam_id = 1;
-        string egs_id = 2;
+        int64 steam_id = 1;
     }
 }

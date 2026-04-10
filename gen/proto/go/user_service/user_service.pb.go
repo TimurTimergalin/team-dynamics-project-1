@@ -22,79 +22,17 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type Avatars struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Small         *string                `protobuf:"bytes,1,opt,name=small,proto3,oneof" json:"small,omitempty"`
-	Medium        *string                `protobuf:"bytes,2,opt,name=medium,proto3,oneof" json:"medium,omitempty"`
-	Large         *string                `protobuf:"bytes,3,opt,name=large,proto3,oneof" json:"large,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Avatars) Reset() {
-	*x = Avatars{}
-	mi := &file_user_service_user_service_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Avatars) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Avatars) ProtoMessage() {}
-
-func (x *Avatars) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_user_service_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Avatars.ProtoReflect.Descriptor instead.
-func (*Avatars) Descriptor() ([]byte, []int) {
-	return file_user_service_user_service_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *Avatars) GetSmall() string {
-	if x != nil && x.Small != nil {
-		return *x.Small
-	}
-	return ""
-}
-
-func (x *Avatars) GetMedium() string {
-	if x != nil && x.Medium != nil {
-		return *x.Medium
-	}
-	return ""
-}
-
-func (x *Avatars) GetLarge() string {
-	if x != nil && x.Large != nil {
-		return *x.Large
-	}
-	return ""
-}
-
 type UserData struct {
-	state         protoimpl.MessageState   `protogen:"open.v1"`
-	Id            *uint64                  `protobuf:"varint,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
-	Name          *string                  `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
-	Avatars       *Avatars                 `protobuf:"bytes,3,opt,name=avatars,proto3,oneof" json:"avatars,omitempty"`
-	ExternalKey   *user_common.ExternalKey `protobuf:"bytes,4,opt,name=external_key,json=externalKey,proto3,oneof" json:"external_key,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            *int64                 `protobuf:"varint,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	Name          *string                `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UserData) Reset() {
 	*x = UserData{}
-	mi := &file_user_service_user_service_proto_msgTypes[1]
+	mi := &file_user_service_user_service_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -106,7 +44,7 @@ func (x *UserData) String() string {
 func (*UserData) ProtoMessage() {}
 
 func (x *UserData) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_user_service_proto_msgTypes[1]
+	mi := &file_user_service_user_service_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -119,10 +57,10 @@ func (x *UserData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserData.ProtoReflect.Descriptor instead.
 func (*UserData) Descriptor() ([]byte, []int) {
-	return file_user_service_user_service_proto_rawDescGZIP(), []int{1}
+	return file_user_service_user_service_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *UserData) GetId() uint64 {
+func (x *UserData) GetId() int64 {
 	if x != nil && x.Id != nil {
 		return *x.Id
 	}
@@ -136,20 +74,6 @@ func (x *UserData) GetName() string {
 	return ""
 }
 
-func (x *UserData) GetAvatars() *Avatars {
-	if x != nil {
-		return x.Avatars
-	}
-	return nil
-}
-
-func (x *UserData) GetExternalKey() *user_common.ExternalKey {
-	if x != nil {
-		return x.ExternalKey
-	}
-	return nil
-}
-
 type Friend struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	User          *UserData              `protobuf:"bytes,1,opt,name=user,proto3,oneof" json:"user,omitempty"`
@@ -160,7 +84,7 @@ type Friend struct {
 
 func (x *Friend) Reset() {
 	*x = Friend{}
-	mi := &file_user_service_user_service_proto_msgTypes[2]
+	mi := &file_user_service_user_service_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -172,7 +96,7 @@ func (x *Friend) String() string {
 func (*Friend) ProtoMessage() {}
 
 func (x *Friend) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_user_service_proto_msgTypes[2]
+	mi := &file_user_service_user_service_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -185,7 +109,7 @@ func (x *Friend) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Friend.ProtoReflect.Descriptor instead.
 func (*Friend) Descriptor() ([]byte, []int) {
-	return file_user_service_user_service_proto_rawDescGZIP(), []int{2}
+	return file_user_service_user_service_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Friend) GetUser() *UserData {
@@ -211,7 +135,7 @@ type GetSelfDataRequest struct {
 
 func (x *GetSelfDataRequest) Reset() {
 	*x = GetSelfDataRequest{}
-	mi := &file_user_service_user_service_proto_msgTypes[3]
+	mi := &file_user_service_user_service_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -223,7 +147,7 @@ func (x *GetSelfDataRequest) String() string {
 func (*GetSelfDataRequest) ProtoMessage() {}
 
 func (x *GetSelfDataRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_user_service_proto_msgTypes[3]
+	mi := &file_user_service_user_service_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -236,7 +160,7 @@ func (x *GetSelfDataRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSelfDataRequest.ProtoReflect.Descriptor instead.
 func (*GetSelfDataRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_user_service_proto_rawDescGZIP(), []int{3}
+	return file_user_service_user_service_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *GetSelfDataRequest) GetKey() *user_common.ExternalKey {
@@ -255,7 +179,7 @@ type GetSelfDataResponse struct {
 
 func (x *GetSelfDataResponse) Reset() {
 	*x = GetSelfDataResponse{}
-	mi := &file_user_service_user_service_proto_msgTypes[4]
+	mi := &file_user_service_user_service_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -267,7 +191,7 @@ func (x *GetSelfDataResponse) String() string {
 func (*GetSelfDataResponse) ProtoMessage() {}
 
 func (x *GetSelfDataResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_user_service_proto_msgTypes[4]
+	mi := &file_user_service_user_service_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -280,7 +204,7 @@ func (x *GetSelfDataResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSelfDataResponse.ProtoReflect.Descriptor instead.
 func (*GetSelfDataResponse) Descriptor() ([]byte, []int) {
-	return file_user_service_user_service_proto_rawDescGZIP(), []int{4}
+	return file_user_service_user_service_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetSelfDataResponse) GetUserData() *UserData {
@@ -292,14 +216,14 @@ func (x *GetSelfDataResponse) GetUserData() *UserData {
 
 type GetUserDataRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            *uint64                `protobuf:"varint,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	Id            *int64                 `protobuf:"varint,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetUserDataRequest) Reset() {
 	*x = GetUserDataRequest{}
-	mi := &file_user_service_user_service_proto_msgTypes[5]
+	mi := &file_user_service_user_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -311,7 +235,7 @@ func (x *GetUserDataRequest) String() string {
 func (*GetUserDataRequest) ProtoMessage() {}
 
 func (x *GetUserDataRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_user_service_proto_msgTypes[5]
+	mi := &file_user_service_user_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -324,10 +248,10 @@ func (x *GetUserDataRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserDataRequest.ProtoReflect.Descriptor instead.
 func (*GetUserDataRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_user_service_proto_rawDescGZIP(), []int{5}
+	return file_user_service_user_service_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *GetUserDataRequest) GetId() uint64 {
+func (x *GetUserDataRequest) GetId() int64 {
 	if x != nil && x.Id != nil {
 		return *x.Id
 	}
@@ -343,7 +267,7 @@ type GetUserDataResponse struct {
 
 func (x *GetUserDataResponse) Reset() {
 	*x = GetUserDataResponse{}
-	mi := &file_user_service_user_service_proto_msgTypes[6]
+	mi := &file_user_service_user_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -355,7 +279,7 @@ func (x *GetUserDataResponse) String() string {
 func (*GetUserDataResponse) ProtoMessage() {}
 
 func (x *GetUserDataResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_user_service_proto_msgTypes[6]
+	mi := &file_user_service_user_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -368,7 +292,7 @@ func (x *GetUserDataResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserDataResponse.ProtoReflect.Descriptor instead.
 func (*GetUserDataResponse) Descriptor() ([]byte, []int) {
-	return file_user_service_user_service_proto_rawDescGZIP(), []int{6}
+	return file_user_service_user_service_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetUserDataResponse) GetUserData() *UserData {
@@ -387,7 +311,7 @@ type GetFriendsRequest struct {
 
 func (x *GetFriendsRequest) Reset() {
 	*x = GetFriendsRequest{}
-	mi := &file_user_service_user_service_proto_msgTypes[7]
+	mi := &file_user_service_user_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -399,7 +323,7 @@ func (x *GetFriendsRequest) String() string {
 func (*GetFriendsRequest) ProtoMessage() {}
 
 func (x *GetFriendsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_user_service_proto_msgTypes[7]
+	mi := &file_user_service_user_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -412,7 +336,7 @@ func (x *GetFriendsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFriendsRequest.ProtoReflect.Descriptor instead.
 func (*GetFriendsRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_user_service_proto_rawDescGZIP(), []int{7}
+	return file_user_service_user_service_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetFriendsRequest) GetPagekey() string {
@@ -432,7 +356,7 @@ type GetFriendsResponse struct {
 
 func (x *GetFriendsResponse) Reset() {
 	*x = GetFriendsResponse{}
-	mi := &file_user_service_user_service_proto_msgTypes[8]
+	mi := &file_user_service_user_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -444,7 +368,7 @@ func (x *GetFriendsResponse) String() string {
 func (*GetFriendsResponse) ProtoMessage() {}
 
 func (x *GetFriendsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_user_service_proto_msgTypes[8]
+	mi := &file_user_service_user_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -457,7 +381,7 @@ func (x *GetFriendsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFriendsResponse.ProtoReflect.Descriptor instead.
 func (*GetFriendsResponse) Descriptor() ([]byte, []int) {
-	return file_user_service_user_service_proto_rawDescGZIP(), []int{8}
+	return file_user_service_user_service_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetFriendsResponse) GetFriends() []*Friend {
@@ -483,7 +407,7 @@ type GetIncomingRequestsRequest struct {
 
 func (x *GetIncomingRequestsRequest) Reset() {
 	*x = GetIncomingRequestsRequest{}
-	mi := &file_user_service_user_service_proto_msgTypes[9]
+	mi := &file_user_service_user_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -495,7 +419,7 @@ func (x *GetIncomingRequestsRequest) String() string {
 func (*GetIncomingRequestsRequest) ProtoMessage() {}
 
 func (x *GetIncomingRequestsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_user_service_proto_msgTypes[9]
+	mi := &file_user_service_user_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -508,7 +432,7 @@ func (x *GetIncomingRequestsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIncomingRequestsRequest.ProtoReflect.Descriptor instead.
 func (*GetIncomingRequestsRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_user_service_proto_rawDescGZIP(), []int{9}
+	return file_user_service_user_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetIncomingRequestsRequest) GetPagekey() string {
@@ -528,7 +452,7 @@ type GetIncomingRequestsResponse struct {
 
 func (x *GetIncomingRequestsResponse) Reset() {
 	*x = GetIncomingRequestsResponse{}
-	mi := &file_user_service_user_service_proto_msgTypes[10]
+	mi := &file_user_service_user_service_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -540,7 +464,7 @@ func (x *GetIncomingRequestsResponse) String() string {
 func (*GetIncomingRequestsResponse) ProtoMessage() {}
 
 func (x *GetIncomingRequestsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_user_service_proto_msgTypes[10]
+	mi := &file_user_service_user_service_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -553,7 +477,7 @@ func (x *GetIncomingRequestsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIncomingRequestsResponse.ProtoReflect.Descriptor instead.
 func (*GetIncomingRequestsResponse) Descriptor() ([]byte, []int) {
-	return file_user_service_user_service_proto_rawDescGZIP(), []int{10}
+	return file_user_service_user_service_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetIncomingRequestsResponse) GetFriends() []*Friend {
@@ -579,7 +503,7 @@ type GetOutgoingRequestsRequest struct {
 
 func (x *GetOutgoingRequestsRequest) Reset() {
 	*x = GetOutgoingRequestsRequest{}
-	mi := &file_user_service_user_service_proto_msgTypes[11]
+	mi := &file_user_service_user_service_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -591,7 +515,7 @@ func (x *GetOutgoingRequestsRequest) String() string {
 func (*GetOutgoingRequestsRequest) ProtoMessage() {}
 
 func (x *GetOutgoingRequestsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_user_service_proto_msgTypes[11]
+	mi := &file_user_service_user_service_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -604,7 +528,7 @@ func (x *GetOutgoingRequestsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOutgoingRequestsRequest.ProtoReflect.Descriptor instead.
 func (*GetOutgoingRequestsRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_user_service_proto_rawDescGZIP(), []int{11}
+	return file_user_service_user_service_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetOutgoingRequestsRequest) GetPagekey() string {
@@ -624,7 +548,7 @@ type GetOutgoingRequestsResponse struct {
 
 func (x *GetOutgoingRequestsResponse) Reset() {
 	*x = GetOutgoingRequestsResponse{}
-	mi := &file_user_service_user_service_proto_msgTypes[12]
+	mi := &file_user_service_user_service_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -636,7 +560,7 @@ func (x *GetOutgoingRequestsResponse) String() string {
 func (*GetOutgoingRequestsResponse) ProtoMessage() {}
 
 func (x *GetOutgoingRequestsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_user_service_proto_msgTypes[12]
+	mi := &file_user_service_user_service_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -649,7 +573,7 @@ func (x *GetOutgoingRequestsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOutgoingRequestsResponse.ProtoReflect.Descriptor instead.
 func (*GetOutgoingRequestsResponse) Descriptor() ([]byte, []int) {
-	return file_user_service_user_service_proto_rawDescGZIP(), []int{12}
+	return file_user_service_user_service_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GetOutgoingRequestsResponse) GetFriends() []*Friend {
@@ -668,14 +592,14 @@ func (x *GetOutgoingRequestsResponse) GetPagekey() string {
 
 type AddFriendRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        *uint64                `protobuf:"varint,1,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
+	UserId        *int64                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AddFriendRequest) Reset() {
 	*x = AddFriendRequest{}
-	mi := &file_user_service_user_service_proto_msgTypes[13]
+	mi := &file_user_service_user_service_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -687,7 +611,7 @@ func (x *AddFriendRequest) String() string {
 func (*AddFriendRequest) ProtoMessage() {}
 
 func (x *AddFriendRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_user_service_proto_msgTypes[13]
+	mi := &file_user_service_user_service_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -700,10 +624,10 @@ func (x *AddFriendRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddFriendRequest.ProtoReflect.Descriptor instead.
 func (*AddFriendRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_user_service_proto_rawDescGZIP(), []int{13}
+	return file_user_service_user_service_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *AddFriendRequest) GetUserId() uint64 {
+func (x *AddFriendRequest) GetUserId() int64 {
 	if x != nil && x.UserId != nil {
 		return *x.UserId
 	}
@@ -719,7 +643,7 @@ type AddFriendResponse struct {
 
 func (x *AddFriendResponse) Reset() {
 	*x = AddFriendResponse{}
-	mi := &file_user_service_user_service_proto_msgTypes[14]
+	mi := &file_user_service_user_service_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -731,7 +655,7 @@ func (x *AddFriendResponse) String() string {
 func (*AddFriendResponse) ProtoMessage() {}
 
 func (x *AddFriendResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_user_service_proto_msgTypes[14]
+	mi := &file_user_service_user_service_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -744,7 +668,7 @@ func (x *AddFriendResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddFriendResponse.ProtoReflect.Descriptor instead.
 func (*AddFriendResponse) Descriptor() ([]byte, []int) {
-	return file_user_service_user_service_proto_rawDescGZIP(), []int{14}
+	return file_user_service_user_service_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *AddFriendResponse) GetFriend() *Friend {
@@ -758,24 +682,12 @@ var File_user_service_user_service_proto protoreflect.FileDescriptor
 
 const file_user_service_user_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1fuser_service/user_service.proto\x12\fuser_service\x1a\x1duser_common/user_common.proto\"{\n" +
-	"\aAvatars\x12\x19\n" +
-	"\x05small\x18\x01 \x01(\tH\x00R\x05small\x88\x01\x01\x12\x1b\n" +
-	"\x06medium\x18\x02 \x01(\tH\x01R\x06medium\x88\x01\x01\x12\x19\n" +
-	"\x05large\x18\x03 \x01(\tH\x02R\x05large\x88\x01\x01B\b\n" +
-	"\x06_smallB\t\n" +
-	"\a_mediumB\b\n" +
-	"\x06_large\"\xdd\x01\n" +
+	"\x1fuser_service/user_service.proto\x12\fuser_service\x1a\x1duser_common/user_common.proto\"H\n" +
 	"\bUserData\x12\x13\n" +
-	"\x02id\x18\x01 \x01(\x04H\x00R\x02id\x88\x01\x01\x12\x17\n" +
-	"\x04name\x18\x02 \x01(\tH\x01R\x04name\x88\x01\x01\x124\n" +
-	"\aavatars\x18\x03 \x01(\v2\x15.user_service.AvatarsH\x02R\aavatars\x88\x01\x01\x12@\n" +
-	"\fexternal_key\x18\x04 \x01(\v2\x18.user_common.ExternalKeyH\x03R\vexternalKey\x88\x01\x01B\x05\n" +
+	"\x02id\x18\x01 \x01(\x03H\x00R\x02id\x88\x01\x01\x12\x17\n" +
+	"\x04name\x18\x02 \x01(\tH\x01R\x04name\x88\x01\x01B\x05\n" +
 	"\x03_idB\a\n" +
-	"\x05_nameB\n" +
-	"\n" +
-	"\b_avatarsB\x0f\n" +
-	"\r_external_key\"j\n" +
+	"\x05_name\"j\n" +
 	"\x06Friend\x12/\n" +
 	"\x04user\x18\x01 \x01(\v2\x16.user_service.UserDataH\x00R\x04user\x88\x01\x01\x12\x1b\n" +
 	"\x06source\x18\x02 \x01(\tH\x01R\x06source\x88\x01\x01B\a\n" +
@@ -789,7 +701,7 @@ const file_user_service_user_service_proto_rawDesc = "" +
 	"\n" +
 	"_user_data\"0\n" +
 	"\x12GetUserDataRequest\x12\x13\n" +
-	"\x02id\x18\x01 \x01(\x04H\x00R\x02id\x88\x01\x01B\x05\n" +
+	"\x02id\x18\x01 \x01(\x03H\x00R\x02id\x88\x01\x01B\x05\n" +
 	"\x03_id\"]\n" +
 	"\x13GetUserDataResponse\x128\n" +
 	"\tuser_data\x18\x01 \x01(\v2\x16.user_service.UserDataH\x00R\buserData\x88\x01\x01B\f\n" +
@@ -823,7 +735,7 @@ const file_user_service_user_service_proto_rawDesc = "" +
 	"\n" +
 	"\b_pagekey\"<\n" +
 	"\x10AddFriendRequest\x12\x1c\n" +
-	"\auser_id\x18\x01 \x01(\x04H\x00R\x06userId\x88\x01\x01B\n" +
+	"\auser_id\x18\x01 \x01(\x03H\x00R\x06userId\x88\x01\x01B\n" +
 	"\n" +
 	"\b_user_id\"Q\n" +
 	"\x11AddFriendResponse\x121\n" +
@@ -849,51 +761,48 @@ func file_user_service_user_service_proto_rawDescGZIP() []byte {
 	return file_user_service_user_service_proto_rawDescData
 }
 
-var file_user_service_user_service_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_user_service_user_service_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_user_service_user_service_proto_goTypes = []any{
-	(*Avatars)(nil),                     // 0: user_service.Avatars
-	(*UserData)(nil),                    // 1: user_service.UserData
-	(*Friend)(nil),                      // 2: user_service.Friend
-	(*GetSelfDataRequest)(nil),          // 3: user_service.GetSelfDataRequest
-	(*GetSelfDataResponse)(nil),         // 4: user_service.GetSelfDataResponse
-	(*GetUserDataRequest)(nil),          // 5: user_service.GetUserDataRequest
-	(*GetUserDataResponse)(nil),         // 6: user_service.GetUserDataResponse
-	(*GetFriendsRequest)(nil),           // 7: user_service.GetFriendsRequest
-	(*GetFriendsResponse)(nil),          // 8: user_service.GetFriendsResponse
-	(*GetIncomingRequestsRequest)(nil),  // 9: user_service.GetIncomingRequestsRequest
-	(*GetIncomingRequestsResponse)(nil), // 10: user_service.GetIncomingRequestsResponse
-	(*GetOutgoingRequestsRequest)(nil),  // 11: user_service.GetOutgoingRequestsRequest
-	(*GetOutgoingRequestsResponse)(nil), // 12: user_service.GetOutgoingRequestsResponse
-	(*AddFriendRequest)(nil),            // 13: user_service.AddFriendRequest
-	(*AddFriendResponse)(nil),           // 14: user_service.AddFriendResponse
-	(*user_common.ExternalKey)(nil),     // 15: user_common.ExternalKey
+	(*UserData)(nil),                    // 0: user_service.UserData
+	(*Friend)(nil),                      // 1: user_service.Friend
+	(*GetSelfDataRequest)(nil),          // 2: user_service.GetSelfDataRequest
+	(*GetSelfDataResponse)(nil),         // 3: user_service.GetSelfDataResponse
+	(*GetUserDataRequest)(nil),          // 4: user_service.GetUserDataRequest
+	(*GetUserDataResponse)(nil),         // 5: user_service.GetUserDataResponse
+	(*GetFriendsRequest)(nil),           // 6: user_service.GetFriendsRequest
+	(*GetFriendsResponse)(nil),          // 7: user_service.GetFriendsResponse
+	(*GetIncomingRequestsRequest)(nil),  // 8: user_service.GetIncomingRequestsRequest
+	(*GetIncomingRequestsResponse)(nil), // 9: user_service.GetIncomingRequestsResponse
+	(*GetOutgoingRequestsRequest)(nil),  // 10: user_service.GetOutgoingRequestsRequest
+	(*GetOutgoingRequestsResponse)(nil), // 11: user_service.GetOutgoingRequestsResponse
+	(*AddFriendRequest)(nil),            // 12: user_service.AddFriendRequest
+	(*AddFriendResponse)(nil),           // 13: user_service.AddFriendResponse
+	(*user_common.ExternalKey)(nil),     // 14: user_common.ExternalKey
 }
 var file_user_service_user_service_proto_depIdxs = []int32{
-	0,  // 0: user_service.UserData.avatars:type_name -> user_service.Avatars
-	15, // 1: user_service.UserData.external_key:type_name -> user_common.ExternalKey
-	1,  // 2: user_service.Friend.user:type_name -> user_service.UserData
-	15, // 3: user_service.GetSelfDataRequest.key:type_name -> user_common.ExternalKey
-	1,  // 4: user_service.GetSelfDataResponse.user_data:type_name -> user_service.UserData
-	1,  // 5: user_service.GetUserDataResponse.user_data:type_name -> user_service.UserData
-	2,  // 6: user_service.GetFriendsResponse.friends:type_name -> user_service.Friend
-	2,  // 7: user_service.GetIncomingRequestsResponse.friends:type_name -> user_service.Friend
-	2,  // 8: user_service.GetOutgoingRequestsResponse.friends:type_name -> user_service.Friend
-	2,  // 9: user_service.AddFriendResponse.friend:type_name -> user_service.Friend
-	3,  // 10: user_service.UserService.GetSelfData:input_type -> user_service.GetSelfDataRequest
-	5,  // 11: user_service.UserService.GetUserData:input_type -> user_service.GetUserDataRequest
-	7,  // 12: user_service.UserService.GetFriends:input_type -> user_service.GetFriendsRequest
-	9,  // 13: user_service.UserService.GetIncomingRequests:input_type -> user_service.GetIncomingRequestsRequest
-	11, // 14: user_service.UserService.GetOutgoingRequests:input_type -> user_service.GetOutgoingRequestsRequest
-	4,  // 15: user_service.UserService.GetSelfData:output_type -> user_service.GetSelfDataResponse
-	6,  // 16: user_service.UserService.GetUserData:output_type -> user_service.GetUserDataResponse
-	8,  // 17: user_service.UserService.GetFriends:output_type -> user_service.GetFriendsResponse
-	10, // 18: user_service.UserService.GetIncomingRequests:output_type -> user_service.GetIncomingRequestsResponse
-	12, // 19: user_service.UserService.GetOutgoingRequests:output_type -> user_service.GetOutgoingRequestsResponse
-	15, // [15:20] is the sub-list for method output_type
-	10, // [10:15] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	0,  // 0: user_service.Friend.user:type_name -> user_service.UserData
+	14, // 1: user_service.GetSelfDataRequest.key:type_name -> user_common.ExternalKey
+	0,  // 2: user_service.GetSelfDataResponse.user_data:type_name -> user_service.UserData
+	0,  // 3: user_service.GetUserDataResponse.user_data:type_name -> user_service.UserData
+	1,  // 4: user_service.GetFriendsResponse.friends:type_name -> user_service.Friend
+	1,  // 5: user_service.GetIncomingRequestsResponse.friends:type_name -> user_service.Friend
+	1,  // 6: user_service.GetOutgoingRequestsResponse.friends:type_name -> user_service.Friend
+	1,  // 7: user_service.AddFriendResponse.friend:type_name -> user_service.Friend
+	2,  // 8: user_service.UserService.GetSelfData:input_type -> user_service.GetSelfDataRequest
+	4,  // 9: user_service.UserService.GetUserData:input_type -> user_service.GetUserDataRequest
+	6,  // 10: user_service.UserService.GetFriends:input_type -> user_service.GetFriendsRequest
+	8,  // 11: user_service.UserService.GetIncomingRequests:input_type -> user_service.GetIncomingRequestsRequest
+	10, // 12: user_service.UserService.GetOutgoingRequests:input_type -> user_service.GetOutgoingRequestsRequest
+	3,  // 13: user_service.UserService.GetSelfData:output_type -> user_service.GetSelfDataResponse
+	5,  // 14: user_service.UserService.GetUserData:output_type -> user_service.GetUserDataResponse
+	7,  // 15: user_service.UserService.GetFriends:output_type -> user_service.GetFriendsResponse
+	9,  // 16: user_service.UserService.GetIncomingRequests:output_type -> user_service.GetIncomingRequestsResponse
+	11, // 17: user_service.UserService.GetOutgoingRequests:output_type -> user_service.GetOutgoingRequestsResponse
+	13, // [13:18] is the sub-list for method output_type
+	8,  // [8:13] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_user_service_user_service_proto_init() }
@@ -915,14 +824,13 @@ func file_user_service_user_service_proto_init() {
 	file_user_service_user_service_proto_msgTypes[11].OneofWrappers = []any{}
 	file_user_service_user_service_proto_msgTypes[12].OneofWrappers = []any{}
 	file_user_service_user_service_proto_msgTypes[13].OneofWrappers = []any{}
-	file_user_service_user_service_proto_msgTypes[14].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_service_user_service_proto_rawDesc), len(file_user_service_user_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
