@@ -35,7 +35,7 @@ void UMainMenuWidget::OnConnectClicked()
 	ConnectButton->SetIsEnabled(false);
 	AddressLine->SetIsEnabled(false);
 
-	FText address = AddressLine->GetText();
+	FText address = AddressLine->GetText();  
 
 	if (address.IsEmpty())
 	{

@@ -6,11 +6,17 @@
 #include "GameFramework/PlayerController.h"
 #include "TagDuelsPlayerController.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class TAGDUELS_API ATagDuelsPlayerController : public APlayerController
 {
 	GENERATED_BODY()
+	
+public:
+    virtual void SetViewTarget(class AActor* NewViewTarget, FViewTargetTransitionParams TransitionParams = FViewTargetTransitionParams()) override;
+
+	virtual void BeginPlayingState() override;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlayerController")
+	void OnBeginPlayingState();
 };
