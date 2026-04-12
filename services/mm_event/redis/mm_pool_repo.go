@@ -56,6 +56,7 @@ return "1"
 const (
 	ConnectionsSetKey = "mmeventconnections"
 	LockKey           = "mmlock"
+	PoolKey           = "mmpool"
 	RemoversCountKey  = "removers_count"
 )
 
@@ -105,7 +106,7 @@ func (m *mmPoolRepoImpl) AddToPool(ctx context.Context, player *models.Player) e
 		if err != nil {
 			return err
 		}
-		if n == 0 {
+		if n == 1 {
 			return nil
 		}
 		_, err = tx.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
@@ -116,6 +117,7 @@ func (m *mmPoolRepoImpl) AddToPool(ctx context.Context, player *models.Player) e
 				pKeys.regId(), player.RegId,
 				pKeys.displayedRating(), player.DisplayedRating,
 			})
+			pipe.RPush(ctx, PoolKey, player.Id)
 			return nil
 		})
 		return err

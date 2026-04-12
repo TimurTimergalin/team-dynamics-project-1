@@ -16,6 +16,7 @@ import (
 	rsPb "team_dynamics/api/proto/rating_service"
 	usPb "team_dynamics/api/proto/user_service"
 	"team_dynamics/mm_event/client"
+	"team_dynamics/mm_event/controllers"
 	mmeRedis "team_dynamics/mm_event/redis"
 	"time"
 )
@@ -268,22 +269,10 @@ func main() {
 	hub := client.NewHub(disconnectCh, registerCh, logger, clientConfig)
 	factory := client.NewClientFactory(msClient, rsClient, usClient, mmPoolRepo, disconnectCh, logger, clientConfig, upgrader)
 
-	http.HandleFunc("/events", func(w http.ResponseWriter, r *http.Request) {
-		cl, _ := factory.MakeClient(w, r)
-		if cl != nil {
-			hub.Register(cl)
-		}
-	})
-	srv := &http.Server{
-		Addr:    mmeCfg.ListenAddress,
-		Handler: nil, // use default mux
-	}
-	go func() {
-		err := srv.ListenAndServe()
-		if err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Fatalf("listen error: %v", err)
-		}
-	}()
-	defer hub.Close()
-	go hub.Run()
+	controller := controllers.NewMMEventController(
+		hub,
+		factory,
+		mmeCfg.ListenAddress,
+	)
+	controller.Run()
 }
