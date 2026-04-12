@@ -1,21 +1,30 @@
-import redis
 import time
-import uuid
+
+import redis
+
+CLIENT_OWNER_ID = "mmevent"
 
 
-def acquire(conn: redis.Redis, k_lock: str, lock_timeout_millis: int, acquire_timeout_millis: int) -> str | None:
-    owner_id = str(uuid.uuid4())
+def acquire(
+        conn: redis.Redis,
+        k_lock: str,
+        lock_timeout_millis: int,
+        acquire_timeout_millis: int,
+        owner_id: str
+) -> bool:
     end = time.time() + acquire_timeout_millis / 1000
 
     while time.time() < end:
-        if conn.setnx(k_lock, owner_id):
-            conn.expire(k_lock, lock_timeout_millis // 1000)
-            return owner_id
-        elif not conn.ttl(k_lock):
+        prev_owner_id = conn.set(k_lock, owner_id, nx=True, get=True)
+        if prev_owner_id is None or prev_owner_id == owner_id:
+            return True
+        if prev_owner_id != CLIENT_OWNER_ID:
+            return False
+        if not conn.ttl(k_lock):
             conn.expire(k_lock, lock_timeout_millis // 1000)
         time.sleep(0.01)
 
-    return None
+    return False
 
 
 def release(conn: redis.Redis, k_lock: str, owner_id: str) -> bool:

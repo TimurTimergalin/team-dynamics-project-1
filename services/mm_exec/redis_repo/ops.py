@@ -1,13 +1,15 @@
-import redis
-import models
-import config as config_py
-from . import lock
-from . import keys
+import time
+import uuid
+from contextlib import contextmanager
 from itertools import pairwise, groupby
 from typing import Iterable
-from contextlib import contextmanager
-import time
 
+import config as config_py
+import models
+import redis
+
+from . import keys
+from . import lock
 
 MM_LOCK = "mmlock"
 MM_POOL = "mmpool"
@@ -29,10 +31,19 @@ class Ops:
         self.lock_owner_id = None
 
     def acquire(self) -> bool:
+        owner_id = str(uuid.uuid4())
         if self.lock_owner_id:
             return False
-        self.lock_owner_id = lock.acquire(self.pool, MM_LOCK, self.config.lock_timeout_millis, self.config.lock_acquire_timeout_millis)
-        return self.lock_owner_id is not None
+        if not lock.acquire(
+            self.pool,
+            MM_LOCK,
+            self.config.lock_timeout_millis,
+            self.config.lock_acquire_timeout_millis,
+            owner_id
+        ):
+            return False
+        self.lock_owner_id = owner_id
+        return True
 
     def verify_time(self) -> bool:
         last_update = self.pool.get(LAST_UPDATE)
