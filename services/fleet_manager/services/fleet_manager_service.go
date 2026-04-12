@@ -97,7 +97,7 @@ func (s *fleetManagerServiceImpl) Allocate(ctx context.Context, request *pb.Allo
 	if err := validateAllocateRequest(request); err != nil {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid request: %v", err))
 	}
-	address, err := s.k8sOps.GetServerByMatchId(ctx, request.GetMatchId())
+	address, _, err := s.k8sOps.GetServerByMatchId(ctx, request.GetMatchId())
 	if err == nil {
 		return &pb.AllocateResponse{
 			ConnectionInfo: makeConnectionInfo(address),
@@ -130,7 +130,7 @@ func (s *fleetManagerServiceImpl) Allocate(ctx context.Context, request *pb.Allo
 	default:
 	}
 	if tryGettingAgain {
-		address, err = s.k8sOps.GetServerByMatchId(ctx, request.GetMatchId())
+		address, _, err = s.k8sOps.GetServerByMatchId(ctx, request.GetMatchId())
 		if err == nil {
 			return &pb.AllocateResponse{
 				ConnectionInfo: makeConnectionInfo(address),
@@ -144,11 +144,12 @@ func (s *fleetManagerServiceImpl) GetServer(ctx context.Context, request *pb.Get
 	if err := validateGetServerRequest(request); err != nil {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid request: %v", err))
 	}
-	address, err := s.k8sOps.GetServerByMatchId(ctx, request.GetMatchId())
+	address, fleet, err := s.k8sOps.GetServerByMatchId(ctx, request.GetMatchId())
 	if err != nil {
 		return nil, convertError(err)
 	}
 	return &pb.GetServerResponse{
 		ConnectionInfo: makeConnectionInfo(address),
+		Fleet:          fleet,
 	}, nil
 }

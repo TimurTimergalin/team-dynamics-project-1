@@ -32,7 +32,7 @@ func ptr[T any](v T) *T {
 
 type Ops interface {
 	Allocate(ctx context.Context, matchId string, fleet *string, annotations map[string]string) (string, *OpsError)
-	GetServerByMatchId(ctx context.Context, matchId string) (string, *OpsError)
+	GetServerByMatchId(ctx context.Context, matchId string) (string, *string, *OpsError)
 }
 
 type opsImpl struct {
@@ -64,14 +64,14 @@ func makeFleetLabelSelector(commonFleetLabelKey, commonFleetLabelValue string, f
 	return res
 }
 
-func withRetry[T any](ctx context.Context, cfg *OpsConfig, op func(context.Context) (T, *OpsError), defaultValue T) (T, *OpsError) {
+func withRetry[T any](ctx context.Context, cfg *OpsConfig, op func(context.Context) (T, *OpsError)) (T, *OpsError) {
 	connectionRetries := cfg.ConnectionRetries
 	contentionRetries := cfg.ContentionRetries
 	unknownRetries := cfg.UnknownRetries
 	for {
 		select {
 		case <-ctx.Done():
-			return defaultValue, ConnectionError.MakeF("Context cancelled")
+			return *new(T), ConnectionError.MakeF("Context cancelled")
 		default:
 		}
 		res, err := op(ctx)
@@ -152,8 +152,14 @@ func (o *opsImpl) allocateOnce(ctx context.Context, matchId string, fleet *strin
 	}
 }
 
-func (o *opsImpl) getServerByMatchIdOnce(ctx context.Context, matchId string) (string, *OpsError) {
+type addressFleetPair struct {
+	address string
+	fleet   *string
+}
+
+func (o *opsImpl) getServerByMatchIdOnce(ctx context.Context, matchId string) (addressFleetPair, *OpsError) {
 	tCtx, cancel := context.WithTimeout(ctx, o.config.ReadTimeout)
+	var emptyRes addressFleetPair
 	defer cancel()
 
 	allocation := &allocv1.GameServerAllocation{
@@ -176,28 +182,39 @@ func (o *opsImpl) getServerByMatchIdOnce(ctx context.Context, matchId string) (s
 	result, err := o.client.AllocationV1().GameServerAllocations(o.config.Namespace).Create(tCtx, allocation, metav1.CreateOptions{})
 	if err != nil {
 		if k8sErrors.IsTimeout(err) || k8sErrors.IsServerTimeout(err) {
-			return "", ConnectionError.Wrap(err)
+			return emptyRes, ConnectionError.Wrap(err)
 		}
-		return "", UnknownError.Wrap(err)
+		return emptyRes, UnknownError.Wrap(err)
 	}
 	switch result.Status.State {
 	case allocv1.GameServerAllocationContention:
-		return "", ContentionError.MakeF("contention while getting server")
+		return emptyRes, ContentionError.MakeF("contention while getting server")
 	case allocv1.GameServerAllocationUnAllocated:
-		return "", NotFoundError.MakeF("couldn't find game server")
+		return emptyRes, NotFoundError.MakeF("couldn't find game server")
 	default:
 	}
-	return makeAddress(result.Status.Address, result.Status.Ports), nil
+	fleet, ok := result.Status.Metadata.Labels["location"]
+	fleetPtr := &fleet
+	if !ok {
+		fleetPtr = nil
+	}
+	res := addressFleetPair{
+		address: makeAddress(result.Status.Address, result.Status.Ports),
+		fleet:   fleetPtr,
+	}
+
+	return res, nil
 }
 
 func (o *opsImpl) Allocate(ctx context.Context, matchId string, fleet *string, annotations map[string]string) (string, *OpsError) {
 	return withRetry(ctx, o.config, func(ctx context.Context) (string, *OpsError) {
 		return o.allocateOnce(ctx, matchId, fleet, annotations)
-	}, "")
+	})
 }
 
-func (o *opsImpl) GetServerByMatchId(ctx context.Context, matchId string) (string, *OpsError) {
-	return withRetry(ctx, o.config, func(ctx context.Context) (string, *OpsError) {
+func (o *opsImpl) GetServerByMatchId(ctx context.Context, matchId string) (string, *string, *OpsError) {
+	pair, err := withRetry(ctx, o.config, func(ctx context.Context) (addressFleetPair, *OpsError) {
 		return o.getServerByMatchIdOnce(ctx, matchId)
-	}, "")
+	})
+	return pair.address, pair.fleet, err
 }

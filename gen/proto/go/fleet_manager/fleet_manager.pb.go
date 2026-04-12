@@ -284,6 +284,7 @@ func (x *AllocateResponse) GetConnectionInfo() *ConnectionInfo {
 type GetServerResponse struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	ConnectionInfo *ConnectionInfo        `protobuf:"bytes,1,opt,name=connection_info,json=connectionInfo,proto3,oneof" json:"connection_info,omitempty"`
+	Fleet          *string                `protobuf:"bytes,2,opt,name=fleet,proto3,oneof" json:"fleet,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -325,6 +326,13 @@ func (x *GetServerResponse) GetConnectionInfo() *ConnectionInfo {
 	return nil
 }
 
+func (x *GetServerResponse) GetFleet() string {
+	if x != nil && x.Fleet != nil {
+		return *x.Fleet
+	}
+	return ""
+}
+
 var File_fleet_manager_fleet_manager_proto protoreflect.FileDescriptor
 
 const file_fleet_manager_fleet_manager_proto_rawDesc = "" +
@@ -358,10 +366,12 @@ const file_fleet_manager_fleet_manager_proto_rawDesc = "" +
 	"\b_address\"s\n" +
 	"\x10AllocateResponse\x12K\n" +
 	"\x0fconnection_info\x18\x01 \x01(\v2\x1d.fleet_manager.ConnectionInfoH\x00R\x0econnectionInfo\x88\x01\x01B\x12\n" +
-	"\x10_connection_info\"t\n" +
+	"\x10_connection_info\"\x99\x01\n" +
 	"\x11GetServerResponse\x12K\n" +
-	"\x0fconnection_info\x18\x01 \x01(\v2\x1d.fleet_manager.ConnectionInfoH\x00R\x0econnectionInfo\x88\x01\x01B\x12\n" +
-	"\x10_connection_info2\xab\x01\n" +
+	"\x0fconnection_info\x18\x01 \x01(\v2\x1d.fleet_manager.ConnectionInfoH\x00R\x0econnectionInfo\x88\x01\x01\x12\x19\n" +
+	"\x05fleet\x18\x02 \x01(\tH\x01R\x05fleet\x88\x01\x01B\x12\n" +
+	"\x10_connection_infoB\b\n" +
+	"\x06_fleet2\xab\x01\n" +
 	"\fFleetManager\x12K\n" +
 	"\bAllocate\x12\x1e.fleet_manager.AllocateRequest\x1a\x1f.fleet_manager.AllocateResponse\x12N\n" +
 	"\tGetServer\x12\x1f.fleet_manager.GetServerRequest\x1a .fleet_manager.GetServerResponseB'Z%team_dynamics/api/proto/fleet_managerb\x06proto3"

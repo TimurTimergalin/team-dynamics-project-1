@@ -30,6 +30,7 @@ message AllocateResponse {
 
 message GetServerResponse {
   optional ConnectionInfo connection_info = 1;
+  optional string fleet = 2;
 }
 
 service FleetManager {
