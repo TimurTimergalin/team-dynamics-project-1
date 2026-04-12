@@ -221,8 +221,15 @@ func (s *matchServiceImpl) GetMatch(ctx context.Context, request *pb.GetMatchReq
 			MatchId: &match.MatchId,
 		}
 		resp, err := s.fmClient.GetServer(ctx, req)
-		if err != nil || resp == nil || resp.ConnectionInfo == nil {
+		if err != nil {
 			logger.Debug("GetMatch: GetServer failed or no connection info", "matchId", match.MatchId, "error", err)
+			return &pb.GetMatchResponse{}, nil
+		}
+		if resp == nil || resp.ConnectionInfo == nil {
+			logger.Warn("GetMatch: server for ongoing match not found - clearing")
+			if err := s.repo.RemoveMatch(ctx, match.MatchId); err != nil {
+				logger.Warn("GetMatch: unable to remove absent ongoing match from redis", "error", err)
+			}
 			return &pb.GetMatchResponse{}, nil
 		}
 		return &pb.GetMatchResponse{
