@@ -1,4 +1,4 @@
-cd $ROOT/deployment/units/match_history_service
+cd $ROOT/deployment/units/fleet_manager
 docker build --build-arg PROJECT_DIR=services/fleet_manager -t fleet-manager-server:latest -f Dockerfile $ROOT
 minikube image load fleet-manager-server:latest
 kubectl apply -f env.yaml
