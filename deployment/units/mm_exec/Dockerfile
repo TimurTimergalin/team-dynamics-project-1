@@ -11,7 +11,7 @@ COPY ./gen ./gen
 COPY ./services ./services
 
 # Set Python path to find modules in /app
-ENV PYTHONPATH=/app:/app/gen/api/proto/python
+ENV PYTHONPATH=/app:/app/gen/proto/python
 WORKDIR /app/${PROJECT_DIR}
 
 # Install dependencies
