@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mm-exec
+  namespace: matchmaking
+  labels:
+    app: mm-exec
+spec:
+  containers:
+    - name: mm-exec
+      image: mm-exec:latest
+      imagePullPolicy: IfNotPresent
+      ports:
+        - containerPort: 50001
+          name: grpc
+      envFrom:
+        - configMapRef:
+            name: mm-exec-env
+      env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mm-pool-credentials
+              key: REDIS_PASSWORD
+      resources:
+        requests:
+          memory: "64Mi"
+          cpu: "100m"
+        limits:
+          memory: "128Mi"
+          cpu: "200m"
+      livenessProbe:
+        tcpSocket:
+          port: 50001
+        initialDelaySeconds: 10
+        periodSeconds: 30
+      readinessProbe:
+        tcpSocket:
+          port: 50001
+        initialDelaySeconds: 5
+        periodSeconds: 10
+  restartPolicy: Always

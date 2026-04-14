@@ -15,7 +15,6 @@ def get_mm_exec_config() -> config_py.MMExecConfig:
         lock_timeout = int(os.environ["MM_LOCK_TIMEOUT_MILLIS"])
         lock_acquire_timeout = int(os.environ["MM_LOCK_ACQUIRE_TIMEOUT_MILLIS"])
         scheduling_period = int(os.environ["MM_SCHEDULING_PERIOD_MILLIS"])
-        listen_address = os.environ["MM_LISTEN_ADDRESS"]
         match_service_address = os.environ["MM_MATCH_SERVICE_ADDRESS"]
     except KeyError as e:
         raise RuntimeError(f"Missing required environment variable: {e.args[0]}") from None
@@ -26,7 +25,6 @@ def get_mm_exec_config() -> config_py.MMExecConfig:
         lock_timeout_millis=lock_timeout,
         lock_acquire_timeout_millis=lock_acquire_timeout,
         scheduling_period_millis=scheduling_period,
-        listen_address=listen_address,
         match_service_address=match_service_address,
     )
 
@@ -35,6 +33,7 @@ def get_redis_config() -> config_py.RedisConfig:
     try:
         host = os.environ["REDIS_HOST"]
         port = int(os.environ["REDIS_PORT"])
+        password = os.environ["REDIS_PASSWORD"]
         db = int(os.environ["REDIS_DB"])
         max_connections = int(os.environ["REDIS_MAX_CONNECTIONS"])
         socket_connect_timeout = float(os.environ["REDIS_SOCKET_CONNECT_TIMEOUT"])
@@ -49,6 +48,7 @@ def get_redis_config() -> config_py.RedisConfig:
         host=host,
         port=port,
         db=db,
+        password=password,
         max_connections=max_connections,
         socket_connect_timeout=socket_connect_timeout,
         socket_timeout=socket_timeout,
