@@ -1,4 +1,4 @@
-cd $ROOT/deployment/units/match_kv
+cd $ROOT/deployment/units/mm_pool
 kubectl apply -f configmap.yaml
 kubectl apply -f pvc.yaml
 kubectl apply -f deployment.yaml
