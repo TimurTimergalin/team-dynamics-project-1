@@ -187,11 +187,21 @@ func getClientConfig() (*client.Config, error) {
 		return nil, err
 	}
 
+	connectionTtlString := os.Getenv("CONNECTION_TTL")
+	if connectionTtlString == "" {
+		return nil, errors.New("CONNECTION_TTL env is not set")
+	}
+	connectionTtl, err := time.ParseDuration(connectionTtlString)
+	if err != nil {
+		return nil, err
+	}
+
 	return &client.Config{
 		MessageReceivedTimeout: msgTimeout,
 		CheckMatchPeriod:       checkMatch,
 		CheckInPoolPeriod:      checkInPool,
 		HubRegisterTimeout:     hubTimeout,
+		ConnectionTTL:          connectionTtl,
 	}, nil
 }
 
