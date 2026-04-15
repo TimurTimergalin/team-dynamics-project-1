@@ -104,7 +104,5 @@ class Ops:
     def lock(self):
         if not self.acquire():
             raise NoAcquireException()
-        try:
-            yield
-        finally:
-            self.release()
+        yield
+        self.release()

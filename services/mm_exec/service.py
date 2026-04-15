@@ -1,3 +1,4 @@
+import traceback
 from itertools import chain
 
 import gen.proto.python.match_service.match_service_pb2 as ms_pb2
@@ -43,12 +44,15 @@ class MMExecService:
             to_return = set(str(p.id) for p in players) - set(
                 chain.from_iterable((str(m.player1.id), str(m.player2.id)) for m in matches))
             ms_request = self.make_request(matches)
-            response = self.ms_client.StartMatch(ms_request)
-            for inp_match, out_match in zip(matches, response.results):
-                if out_match.player1_fail_response == ms_pb2.PLAYER_FAIL_RESPONSE_REENTER:
-                    to_return.add(str(inp_match.player1.id))
-                if out_match.player2_fail_response == ms_pb2.PLAYER_FAIL_RESPONSE_REENTER:
-                    to_return.add(str(inp_match.player2.id))
-            self.redis_ops.remove_players(p.id for p in players if str(p.id) not in to_return)
-            self.redis_ops.return_players(len(players), to_return)
+            try:
+                response = self.ms_client.StartMatch(ms_request)
+                for inp_match, out_match in zip(matches, response.results):
+                    if out_match.player1_fail_response == ms_pb2.PLAYER_FAIL_RESPONSE_REENTER:
+                        to_return.add(str(inp_match.player1.id))
+                    if out_match.player2_fail_response == ms_pb2.PLAYER_FAIL_RESPONSE_REENTER:
+                        to_return.add(str(inp_match.player2.id))
+                self.redis_ops.remove_players(p.id for p in players if str(p.id) not in to_return)
+                self.redis_ops.return_players(len(players), to_return)
+            except Exception:
+                print("failed to request matches", traceback.format_exc())
             self.redis_ops.update_time()

@@ -15,13 +15,13 @@ def acquire(
     end = time.time() + acquire_timeout_millis / 1000
 
     while time.time() < end:
-        prev_owner_id = conn.set(k_lock, owner_id, nx=True, get=True)
+        prev_owner_id = conn.set(k_lock, owner_id, nx=True, get=True, px=lock_timeout_millis)
         if prev_owner_id is None or prev_owner_id == owner_id:
             return True
-        if prev_owner_id != CLIENT_OWNER_ID:
-            return False
         if not conn.ttl(k_lock):
             conn.expire(k_lock, lock_timeout_millis // 1000)
+        if prev_owner_id != CLIENT_OWNER_ID:
+            return False
         time.sleep(0.01)
 
     return False
