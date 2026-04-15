@@ -8,6 +8,8 @@ import scheduler as scheduler_py
 import redis_repo
 import gen.proto.python.match_service.match_service_pb2_grpc as ms_grpc_pb2
 import grpc
+import sys
+from contextlib import redirect_stdout
 
 
 def get_mm_exec_config() -> config_py.MMExecConfig:
@@ -77,7 +79,8 @@ def main():
     )
     job = service.execute
     scheduler = scheduler_py.Scheduler(job, mme_cfg.scheduling_period_millis)
-    scheduler.run()
+    with redirect_stdout(sys.stderr):
+        scheduler.run()
 
 
 if __name__ == '__main__':
