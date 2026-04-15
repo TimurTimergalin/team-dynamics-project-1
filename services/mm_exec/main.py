@@ -80,6 +80,7 @@ def main():
     job = service.execute
     scheduler = scheduler_py.Scheduler(job, mme_cfg.scheduling_period_millis)
     with redirect_stdout(sys.stderr):
+        print("STARTING")
         scheduler.run()
 
 
