@@ -37,6 +37,7 @@ func ptr[T any](v T) *T {
 func (c *Connection) readLoop() {
 	defer close(c.msgChan)
 	for {
+		_ = c.conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 		_, data, err := c.conn.ReadMessage()
 		if err != nil {
 			c.msgChan <- ReceivedMessage{Err: err}
