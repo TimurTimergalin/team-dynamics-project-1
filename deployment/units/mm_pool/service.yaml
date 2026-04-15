@@ -5,7 +5,7 @@ metadata:
   namespace: matchmaking
 spec:
   selector:
-    app: match-kv
+    app: mm-pool
   ports:
   - port: 6379
     targetPort: 6379
