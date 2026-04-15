@@ -33,6 +33,7 @@ type clientImpl struct {
 	cancel                  context.CancelFunc
 	checkPoolPresenceTicker *time.Ticker
 	checkMatchTicker        *time.Ticker
+	updateConnectionTicket  *time.Ticker
 	state                   clientState
 	mmPoolRepo              redis.MMPoolRepo
 	logger                  *slog.Logger
@@ -87,6 +88,14 @@ func (c *clientImpl) addToPool() error {
 	c.state = InQueue
 	c.logger.Debug("added player to pool, state changed to InQueue", "player_id", c.player.Id)
 	return nil
+}
+
+func (c *clientImpl) updateConnection() error {
+	if c.state == Done || c.state == Erroneous {
+		return nil
+	}
+	_, err := c.mmPoolRepo.AddConnection(c.ctx, c.player.Id, c.config.ConnectionTTL)
+	return err
 }
 
 func (c *clientImpl) checkInPool() error {
@@ -256,6 +265,15 @@ func (c *clientImpl) onCheckMatchTick() bool {
 	return false
 }
 
+func (c *clientImpl) onUpdateTick() bool {
+	err := c.updateConnection()
+	if err != nil {
+		c.logger.Error("cannot update connection in redis", "error", err)
+		return true
+	}
+	return false
+}
+
 func (c *clientImpl) handle() (shouldTerminate bool) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -272,6 +290,8 @@ func (c *clientImpl) handle() (shouldTerminate bool) {
 		return c.onCheckInPoolTick()
 	case <-c.checkMatchTicker.C:
 		return c.onCheckMatchTick()
+	case <-c.updateConnectionTicket.C:
+		return c.onUpdateTick()
 	case <-time.After(c.config.MessageReceivedTimeout):
 		return c.onCancel()
 	}

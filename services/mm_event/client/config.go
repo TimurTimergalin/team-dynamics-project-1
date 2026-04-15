@@ -7,4 +7,5 @@ type Config struct {
 	CheckMatchPeriod       time.Duration
 	CheckInPoolPeriod      time.Duration
 	HubRegisterTimeout     time.Duration
+	ConnectionTTL          time.Duration
 }

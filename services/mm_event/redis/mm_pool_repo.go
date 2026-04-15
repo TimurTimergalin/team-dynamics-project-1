@@ -9,7 +9,7 @@ import (
 )
 
 type MMPoolRepo interface {
-	AddConnection(ctx context.Context, playerId int64) (bool, error)
+	AddConnection(ctx context.Context, playerId int64, ttl time.Duration) (bool, error)
 	RemoveConnection(ctx context.Context, playerId int64) error
 	AddToPool(ctx context.Context, player *models.Player) error
 	RemoveFromPool(ctx context.Context, playerId int64) error
@@ -54,10 +54,9 @@ return "1"
 `
 
 const (
-	ConnectionsSetKey = "mmeventconnections"
-	LockKey           = "mmlock"
-	PoolKey           = "mmpool"
-	RemoversCountKey  = "removers_count"
+	LockKey          = "mmlock"
+	PoolKey          = "mmpool"
+	RemoversCountKey = "removers_count"
 )
 
 type MMPoolRepoConfig struct {
@@ -80,16 +79,21 @@ func MakeMMPoolRepo(rdb *redis.Client, config *MMPoolRepoConfig) MMPoolRepo {
 	}
 }
 
-func (m *mmPoolRepoImpl) AddConnection(ctx context.Context, playerId int64) (bool, error) {
-	added, err := m.rdb.SAdd(ctx, ConnectionsSetKey, playerId).Result()
+func (m *mmPoolRepoImpl) AddConnection(ctx context.Context, playerId int64, ttl time.Duration) (bool, error) {
+	pKeys := playerKeys{playerId}
+	added, err := m.rdb.SetNX(ctx, pKeys.connection(), "1", ttl).Result()
 	if err != nil {
 		return false, err
 	}
-	return added == 1, nil
+	if !added {
+		_ = m.rdb.Expire(ctx, pKeys.connection(), ttl)
+	}
+	return added, nil
 }
 
 func (m *mmPoolRepoImpl) RemoveConnection(ctx context.Context, playerId int64) error {
-	removed, err := m.rdb.SRem(ctx, ConnectionsSetKey, playerId).Result()
+	pKeys := playerKeys{playerId}
+	removed, err := m.rdb.Del(ctx, pKeys.connection()).Result()
 	if err != nil {
 		return err
 	}

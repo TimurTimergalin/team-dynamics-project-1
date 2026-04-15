@@ -176,6 +176,7 @@ func TestSimple(t *testing.T) {
 		CheckMatchPeriod:       1 * time.Second,
 		CheckInPoolPeriod:      1 * time.Second,
 		HubRegisterTimeout:     10 * time.Second,
+		ConnectionTTL:          5 * time.Second,
 	}
 
 	controller := controllers.NewMMEventController(

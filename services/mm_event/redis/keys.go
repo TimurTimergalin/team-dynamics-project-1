@@ -26,6 +26,10 @@ func (ks playerKeys) regId() string {
 	return fmt.Sprintf("reg_id:%d", ks.id)
 }
 
+func (ks playerKeys) connection() string {
+	return fmt.Sprintf("conenction:%d", ks.id)
+}
+
 func (ks playerKeys) keys() []string {
 	return []string{ks.rating(), ks.fleet(), ks.name(), ks.displayedRating(), ks.regId()}
 }

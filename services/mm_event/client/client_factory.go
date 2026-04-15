@@ -168,7 +168,7 @@ func (f *clientFactoryImpl) MakeClient(w http.ResponseWriter, r *http.Request) (
 	}
 
 	// 1b. Register connection
-	ok, err := f.mmPoolRepo.AddConnection(ctx, *playerID)
+	ok, err := f.mmPoolRepo.AddConnection(ctx, *playerID, f.config.ConnectionTTL)
 	if err != nil {
 		f.logger.Error("failed to add connection", "player_id", *playerID, "error", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -218,6 +218,7 @@ func (f *clientFactoryImpl) MakeClient(w http.ResponseWriter, r *http.Request) (
 		cancel:                  clientCancel,
 		checkPoolPresenceTicker: time.NewTicker(f.config.CheckInPoolPeriod),
 		checkMatchTicker:        time.NewTicker(f.config.CheckMatchPeriod),
+		updateConnectionTicket:  time.NewTicker(f.config.ConnectionTTL),
 		state:                   Stale,
 		mmPoolRepo:              f.mmPoolRepo,
 		logger:                  f.logger,
