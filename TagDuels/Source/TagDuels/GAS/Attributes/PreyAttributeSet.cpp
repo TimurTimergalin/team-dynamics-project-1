@@ -7,8 +7,8 @@
 
 UPreyAttributeSet::UPreyAttributeSet()
 {
-	PalletFastVaultDuration = 0.9f; //og 1.1
-	PalletSlowVaultDuration = 1.8f; //og = 2
+	PalletFastVaultDuration = 1.f; //og 1.1
+	PalletSlowVaultDuration = 1.9f; //og = 2
 	WindowFastVaultDuration = 0.5f;
 	WindowMediumVaultDuration = 0.9f;
 	WindowSlowVaultDuration = 1.5f;
