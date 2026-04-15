@@ -24,7 +24,7 @@ local MMEVENT_OWNER_ID = "mmevent"
 local lock_ttl_millis = tonumber(ARGV[1])
 
 local prev_owner_id = redis.call("GET", LOCK_KEY)
-if prev_owner_id and prev_owner_id != MMEVENT_OWNER_ID then
+if prev_owner_id and prev_owner_id ~= MMEVENT_OWNER_ID then
     return "0"
 end
 redis.call("SET", LOCK_KEY, MMEVENT_OWNER_ID, "PX", lock_ttl_millis)
