@@ -93,8 +93,10 @@ class Ops:
             self.pool.delete(*key_set.keys())
 
     def return_players(self, players_taken: int, to_return: Iterable[int | str]):
+        to_return = list(to_return)
         self.pool.lpop(MM_POOL, players_taken)
-        self.pool.lpush(MM_POOL, *to_return)
+        if len(to_return) > 0:
+            self.pool.lpush(MM_POOL, *to_return)
 
     def release(self):
         if not lock.release(self.pool, MM_LOCK, self.lock_owner_id):
@@ -106,3 +108,6 @@ class Ops:
             raise NoAcquireException()
         yield
         self.release()
+
+    def reset(self):
+        self.lock_owner_id = None

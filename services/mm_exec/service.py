@@ -36,6 +36,7 @@ class MMExecService:
         )
 
     def execute(self):
+        self.redis_ops.reset()
         with self.redis_ops.lock():
             if not self.redis_ops.verify_time():
                 return
