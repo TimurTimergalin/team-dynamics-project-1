@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: simple-test-client
+  namespace: rating
+spec:
+  containers:
+    - name: simple-test-client
+      image: rating-service-simple-test-client:latest
+      imagePullPolicy: IfNotPresent
+  restartPolicy: Never

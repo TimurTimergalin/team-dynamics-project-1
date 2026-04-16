@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package rate_limiter_sidecar;
+option go_package = "team_dynamics/api/proto/rate_limiter_sidecar";
+
+message CheckRateRequest {
+  optional uint64 user_id = 1;
+  optional uint32 max_rps = 2;
+  optional uint32 max_burst = 3;
+}
+
+message CheckRateResponse {
+  optional bool allow = 1;
+}
+
+service RateLimiterSidecar {
+  rpc CheckRate(CheckRateRequest) returns (CheckRateResponse);
+}

@@ -1,0 +1,119 @@
+package pg
+
+import (
+	"context"
+	"errors"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"team_dynamics/logging"
+	pglib "team_dynamics/pg_lib/include"
+	"team_dynamics/rating_service/models"
+	"time"
+)
+
+type RatingRepo interface {
+	GetUserRating(ctx context.Context, ratingInfo *models.RatingInfo) (*models.RatingInfo, *pglib.PgLibError)
+	UpdateUserRating(ctx context.Context, ratingInfo []*models.RatingInfo, matchId string) (bool, *pglib.PgLibError)
+}
+
+type ratingRepoImpl struct {
+	pool *pgxpool.Pool
+}
+
+func getUserRatingImpl(ctx context.Context, tx pgx.Tx, ratingInfo *models.RatingInfo) (*models.RatingInfo, error, pglib.ResponseStatus) {
+	logger := logging.GetLogger(ctx)
+	ratingInfoRes := models.RatingInfo{UserId: ratingInfo.UserId}
+	err := tx.QueryRow(ctx, "SELECT rating, rating_deviation, rating_volatility, last_updated FROM ratings WHERE user_id = $1", ratingInfo.UserId).Scan(&ratingInfoRes.Value, &ratingInfoRes.Deviation, &ratingInfoRes.Volatility, &ratingInfoRes.LastUpdate)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			_, err := tx.Exec(ctx, "INSERT INTO ratings (user_id, rating, rating_deviation, rating_volatility, last_updated) VALUES ($1, $2, $3, $4, $5)", ratingInfo.UserId, ratingInfo.Value, ratingInfo.Deviation, ratingInfo.Volatility, ratingInfo.LastUpdate)
+			if err != nil {
+				var pgErr *pgconn.PgError
+				if errors.As(err, &pgErr) {
+					if pglib.IsSerializationError(pgErr) {
+						logger.Debug("Serialization error while inserting default", "error", pgErr)
+						return nil, err, pglib.FreeRetry
+					}
+				}
+				logger.Warn("Pg error while inserting default", "error", pgErr)
+				return nil, err, pglib.NormalRetry
+			}
+			return ratingInfo, nil, pglib.NoRetry
+		}
+		logger.Warn("Error while getting rating", "error", err)
+		return nil, err, pglib.NormalRetry
+	}
+	return &ratingInfoRes, nil, pglib.NoRetry
+}
+
+func updateUserRatingImpl(ctx context.Context, tx pgx.Tx, ratingInfos []*models.RatingInfo, matchId string) (*bool, error, pglib.ResponseStatus) {
+	logger := logging.GetLogger(ctx)
+	_, err := tx.Exec(ctx, "INSERT INTO matches (match_id) VALUES ($1)", matchId)
+	res := false
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			if pglib.IsConstraintViolated(pgErr) {
+				logger.Info("Repeated handling of a match", "match", matchId, "error", pgErr)
+				return &res, nil, pglib.ForceRollback
+			}
+			if pglib.IsSerializationError(pgErr) {
+				logger.Debug("Serialization error while inserting match", "error", err)
+				return nil, err, pglib.FreeRetry
+			}
+		}
+		return nil, err, pglib.NormalRetry
+	}
+	for _, ratingInfo := range ratingInfos {
+		var foundUserId int64
+		err := tx.QueryRow(ctx, "UPDATE ratings SET (rating, rating_deviation, rating_volatility, last_updated) = ($2, $3, $4, $5) WHERE user_id = $1 RETURNING user_id", ratingInfo.UserId, ratingInfo.Value, ratingInfo.Deviation, ratingInfo.Volatility, ratingInfo.LastUpdate).Scan(&foundUserId)
+		if err != nil {
+			if pglib.IsNoRows(err) {
+				logger.Warn("No rating when updating", "error", err)
+				return nil, err, pglib.NoRetry
+			}
+			var pgErr *pgconn.PgError
+			if errors.As(err, &pgErr) {
+				if pglib.IsSerializationError(pgErr) {
+					logger.Debug("Serialization error while updating rating", "error", pgErr)
+					return nil, err, pglib.FreeRetry
+				}
+			}
+			logger.Warn("Pg error while updating rating", "error", pgErr)
+			return nil, err, pglib.NormalRetry
+		}
+	}
+	res = true
+	return &res, nil, pglib.NoRetry
+}
+
+func (repo ratingRepoImpl) GetUserRating(ctx context.Context, ratingInfo *models.RatingInfo) (*models.RatingInfo, *pglib.PgLibError) {
+	return pglib.PerformOperation(ctx, repo.pool, &pglib.QueryConfig{
+		Retries:        3,
+		Timeout:        200 * time.Millisecond,
+		IsolationLevel: pgx.RepeatableRead,
+		AccessMode:     pgx.ReadWrite,
+	}, func(ctx1 context.Context, tx pgx.Tx) (*models.RatingInfo, error, pglib.ResponseStatus) {
+		return getUserRatingImpl(ctx1, tx, ratingInfo)
+	})
+}
+
+func (repo ratingRepoImpl) UpdateUserRating(ctx context.Context, updateRequests []*models.RatingInfo, matchId string) (bool, *pglib.PgLibError) {
+	res, err := pglib.PerformOperation(ctx, repo.pool, &pglib.QueryConfig{
+		Retries:        3,
+		Timeout:        30000 * time.Millisecond,
+		IsolationLevel: pgx.RepeatableRead,
+		AccessMode:     pgx.ReadWrite,
+	}, func(ctx1 context.Context, tx pgx.Tx) (*bool, error, pglib.ResponseStatus) {
+		return updateUserRatingImpl(ctx1, tx, updateRequests, matchId)
+	})
+	if res == nil {
+		return false, err
+	}
+	return *res, err
+}
+
+func MakeRatingRepo(pool *pgxpool.Pool) RatingRepo {
+	return ratingRepoImpl{pool: pool}
+}

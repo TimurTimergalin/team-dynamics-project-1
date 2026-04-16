@@ -2,7 +2,12 @@
 <module type="WEB_MODULE" version="4">
   <component name="Go" enabled="true" />
   <component name="NewModuleRootManager">
-    <content url="file://$MODULE_DIR$" />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/gen/proto/python" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/TagDuels" />
+      <excludeFolder url="file://$MODULE_DIR$/ThirdPerson_BP_UE5_7" />
+      <excludeFolder url="file://$MODULE_DIR$/ThirdPerson_BP_UE5_7 5.7" />
+    </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>

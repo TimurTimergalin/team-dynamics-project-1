@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package fleet_manager;
+option go_package = "team_dynamics/api/proto/fleet_manager";
+
+message PlayerAnnotations {
+  optional string id = 1;
+  optional string name = 2;
+  optional string rating = 3;
+}
+
+message AllocateRequest {
+  optional PlayerAnnotations player1 = 1;
+  optional PlayerAnnotations player2 = 2;
+  optional string fleet_name = 3;
+  optional string match_id = 4;
+}
+
+message GetServerRequest {
+  optional string match_id = 1;
+}
+
+message ConnectionInfo {
+  optional string address = 1;
+}
+
+message AllocateResponse {
+  optional ConnectionInfo connection_info = 1;
+}
+
+message GetServerResponse {
+  optional ConnectionInfo connection_info = 1;
+  optional string fleet = 2;
+}
+
+service FleetManager {
+  rpc Allocate(AllocateRequest) returns (AllocateResponse);
+  rpc GetServer(GetServerRequest) returns (GetServerResponse);
+}

@@ -1,0 +1,9 @@
+releases
+.venv
+**/.venv
+.idea
+**/.idea
+**/__pycache__
+deployment/secrets/*.yaml
+testt
+.git/

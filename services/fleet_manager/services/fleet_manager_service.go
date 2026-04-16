@@ -1,67 +1,155 @@
 package services
 
 import (
-	allocv1 "agones.dev/agones/pkg/apis/allocation/v1"
-	"agones.dev/agones/pkg/client/clientset/versioned"
 	"context"
-	"errors"
-	"fleet_manager/config"
-	pb "fleet_manager/fleet_manager/proto"
-	"fleet_manager/k8s"
-	"log"
-	"strconv"
+	"fmt"
+	"github.com/pkg/errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	pb "team_dynamics/api/proto/fleet_manager"
+	"team_dynamics/fleet_manager/k8s"
 )
 
-type FleetManagerService struct {
-	K8sClient *versioned.Clientset
-	FmConfig  *config.FleetManagerConfig
+type FleetManagerService interface {
+	Allocate(ctx context.Context, request *pb.AllocateRequest) (*pb.AllocateResponse, error)
+	GetServer(ctx context.Context, request *pb.GetServerRequest) (*pb.GetServerResponse, error)
 }
 
-func (s *FleetManagerService) Allocate(ctx context.Context, request *pb.AllocateRequest) (*pb.AllocateResponse, error) {
-	if request.Player1 == nil || request.Player2 == nil {
-		return nil, errors.New("one of players is nil")
+type fleetManagerServiceImpl struct {
+	k8sOps k8s.Ops
+}
+
+func MakeFleetManagerService(k8sOps k8s.Ops) FleetManagerService {
+	return &fleetManagerServiceImpl{k8sOps}
+}
+
+func validatePlayerAnnotations(player *pb.PlayerAnnotations) error {
+	if player == nil {
+		return errors.New("no player")
 	}
-	for {
-		res, err := k8s.Allocate(
-			s.K8sClient,
-			s.FmConfig,
-			map[string]string{
-				"player1": strconv.FormatUint(request.GetPlayer1(), 10),
-				"player2": strconv.FormatUint(request.GetPlayer2(), 10)},
-			ctx,
-		)
-		if err != nil {
-			log.Printf("K8s error: %s", err.Error())
-			return nil, err
-		}
-		switch res.State {
-		case allocv1.GameServerAllocationContention:
-			log.Printf("Contention happened: retrying")
-			continue
-		case allocv1.GameServerAllocationUnAllocated:
-			log.Printf("Game servers are full")
-			return nil, errors.New("game servers are full")
-		}
-		address := k8s.GetAddress(res.Address, res.Ports)
-		if address == nil {
-			log.Printf("Unable to allocate game port")
-			return nil, errors.New("unable to allocate game port")
-		}
-		name := res.GameServerName
-		return &pb.AllocateResponse{Address: address, Name: &name}, nil
+	if player.Id == nil {
+		return errors.New("no player id")
+	}
+	if player.Name == nil {
+		return errors.New("no player name")
+	}
+	if player.Rating == nil {
+		return errors.New("no player rating")
+	}
+	return nil
+}
+
+func validateAllocateRequest(request *pb.AllocateRequest) error {
+	if err := validatePlayerAnnotations(request.Player1); err != nil {
+		return fmt.Errorf("while validating player1: %w", err)
+	}
+	if err := validatePlayerAnnotations(request.Player2); err != nil {
+		return fmt.Errorf("while validating player2: %w", err)
+	}
+	if request.MatchId == nil {
+		return errors.New("no match id")
+	}
+	return nil
+}
+
+func validateGetServerRequest(request *pb.GetServerRequest) error {
+	if request.MatchId == nil {
+		return fmt.Errorf("no match id")
+	}
+	return nil
+}
+
+func makeAnnotations(matchId string, player1, player2 *pb.PlayerAnnotations) map[string]string {
+	return map[string]string{
+		"player1_id":     player1.GetId(),
+		"player1_name":   player1.GetName(),
+		"player1_rating": player1.GetRating(),
+		"player2_id":     player2.GetId(),
+		"player2_name":   player2.GetName(),
+		"player2_rating": player2.GetRating(),
+		"match_id":       matchId,
 	}
 }
 
-func (s *FleetManagerService) GetServer(ctx context.Context, request *pb.GetServerRequest) (*pb.GetServerResponse, error) {
-	res, err := k8s.GetServer(s.K8sClient, s.FmConfig, request.GetName(), ctx)
+func convertError(opsErr *k8s.OpsError) error {
+	if opsErr == nil {
+		return nil
+	}
+	switch opsErr.Type {
+	case k8s.NotFoundError:
+		return status.Error(codes.NotFound, opsErr.Error())
+	case k8s.ContentionError:
+	case k8s.ConnectionError:
+	case k8s.FleetFullError:
+		return status.Error(codes.Unavailable, opsErr.Error())
+	default:
+	}
+	return status.Error(codes.Unknown, opsErr.Error())
+}
+
+func makeConnectionInfo(address string) *pb.ConnectionInfo {
+	return &pb.ConnectionInfo{
+		Address: &address,
+	}
+}
+
+func (s *fleetManagerServiceImpl) Allocate(ctx context.Context, request *pb.AllocateRequest) (*pb.AllocateResponse, error) {
+	if err := validateAllocateRequest(request); err != nil {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid request: %v", err))
+	}
+	address, _, err := s.k8sOps.GetServerByMatchId(ctx, request.GetMatchId())
+	if err == nil {
+		return &pb.AllocateResponse{
+			ConnectionInfo: makeConnectionInfo(address),
+		}, nil
+	}
+	annotations := makeAnnotations(request.GetMatchId(), request.Player1, request.GetPlayer2())
+	address, err = s.k8sOps.Allocate(ctx, request.GetMatchId(), request.FleetName, annotations)
+	if err == nil {
+		return &pb.AllocateResponse{
+			ConnectionInfo: makeConnectionInfo(address),
+		}, nil
+	}
+
+	tryGettingAgain := false
+	switch err.Type {
+	case k8s.FleetFullError:
+		if request.FleetName != nil {
+			address, err = s.k8sOps.Allocate(ctx, request.GetMatchId(), nil, annotations)
+			if err == nil {
+				return &pb.AllocateResponse{
+					ConnectionInfo: makeConnectionInfo(address),
+				}, nil
+			}
+			if err.Type == k8s.ContentionError {
+				tryGettingAgain = true
+			}
+		}
+	case k8s.ContentionError:
+		tryGettingAgain = true
+	default:
+	}
+	if tryGettingAgain {
+		address, _, err = s.k8sOps.GetServerByMatchId(ctx, request.GetMatchId())
+		if err == nil {
+			return &pb.AllocateResponse{
+				ConnectionInfo: makeConnectionInfo(address),
+			}, nil
+		}
+	}
+	return nil, convertError(err)
+}
+
+func (s *fleetManagerServiceImpl) GetServer(ctx context.Context, request *pb.GetServerRequest) (*pb.GetServerResponse, error) {
+	if err := validateGetServerRequest(request); err != nil {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid request: %v", err))
+	}
+	address, fleet, err := s.k8sOps.GetServerByMatchId(ctx, request.GetMatchId())
 	if err != nil {
-		log.Printf("K8s error: %s", err.Error())
-		return nil, err
+		return nil, convertError(err)
 	}
-	address := k8s.GetAddress(res.Status.Address, res.Status.Ports)
-	if address == nil {
-		log.Print("Unable to find game port")
-		return nil, errors.New("unable to find game port")
-	}
-	return &pb.GetServerResponse{Address: address}, nil
+	return &pb.GetServerResponse{
+		ConnectionInfo: makeConnectionInfo(address),
+		Fleet:          fleet,
+	}, nil
 }

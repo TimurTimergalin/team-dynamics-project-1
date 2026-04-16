@@ -1,0 +1,28 @@
+apiVersion: agones.dev/v1
+kind: Fleet
+metadata:
+  name: fleet1
+  namespace: fleet
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        is-game-server: "true"
+        location: Moscow
+    spec:
+      ports:
+        - name: default
+          containerPort: 7654
+      template:
+        spec:
+          containers:
+            - name: simple-game-server
+              image: us-docker.pkg.dev/agones-images/examples/simple-game-server:0.41
+              resources:
+                requests:
+                  memory: 64Mi
+                  cpu: 20m
+                limits:
+                  memory: 64Mi
+                  cpu: 20m

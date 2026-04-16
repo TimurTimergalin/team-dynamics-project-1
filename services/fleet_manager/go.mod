@@ -1,4 +1,4 @@
-module fleet_manager
+module team_dynamics/fleet_manager
 
 go 1.26.1
 

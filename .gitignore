@@ -1,5 +1,8 @@
 releases
 .venv
-*/.venv
+**/.venv
 .idea
-*/.idea
+**/.idea
+**/__pycache__
+testt
+deployment/secrets/*.yaml

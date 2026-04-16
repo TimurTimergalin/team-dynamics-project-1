@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package rating_service;
+option go_package = "team_dynamics/api/proto/rating_service";
+
+message RatingData {
+    optional double rating_value = 1;
+    optional int64 display_value = 3;
+}
+
+message GetRatingRequest {
+    optional int64 user_id = 1;
+}
+
+message GetRatingResponse {
+    optional RatingData rating = 1;
+}
+
+enum MatchResult {
+    MATCH_RESULT_UNSPECIFIED = 0;
+    MATCH_RESULT_WINNER = 1;
+    MATCH_RESULT_DRAW = 2;
+    MATCH_RESULT_LOSER = 3;
+}
+
+message UpdateRatingRequest {
+    optional int64 player1_id = 1;
+    optional int64 player2_id = 2;
+    MatchResult match_result = 3;
+    optional string match_id = 4;
+}
+
+message UpdateRatingResponse {
+    optional RatingData player1_rating = 1;
+    optional RatingData player2_rating = 2;
+}
+
+service RatingService {
+    rpc GetRating(GetRatingRequest) returns (GetRatingResponse);
+    rpc UpdateRating(UpdateRatingRequest) returns (UpdateRatingResponse);
+}

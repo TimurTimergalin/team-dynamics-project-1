@@ -1,0 +1,14 @@
+go 1.26.1
+
+use (
+	./gen/proto/go
+	./lib/pg_lib
+	./lib/logging
+	./lib/grpc_lib
+	./services/fleet_manager
+	./services/match_history_service
+	./services/match_service
+	./services/mm_event
+	./services/rating_service
+	./services/user_service
+)

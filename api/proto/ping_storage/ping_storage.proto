@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package ping_storage;
+option go_package = "team_dynamics/api/proto/ping_storage";
+
+message GetFleetsRequest {}
+
+message FleetAddress {
+  optional string fleet = 1;
+  optional string address = 2;
+}
+
+message GetFleetsResponse {
+  repeated FleetAddress servers = 1;
+}
+
+service PingStorage {
+  rpc GetFleets(GetFleetsRequest) returns (GetFleetsResponse);
+}

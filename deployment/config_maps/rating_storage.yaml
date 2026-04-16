@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rating-storage-config
+  namespace: rating
+data:
+  POSTGRES_DB: rating_storage

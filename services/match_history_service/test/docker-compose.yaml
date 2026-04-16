@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: match-history-storage
+    environment:
+      POSTGRES_USER: match_history_user
+      POSTGRES_PASSWORD: match_history_pass
+      POSTGRES_DB: match_history_storage
+    ports:
+      - "5432:5432"
+    volumes:
+      # Mount the init script (create a file named init.sql in the same directory)
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql

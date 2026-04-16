@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: match-history-storage-config
+  namespace: match-history
+data:
+  POSTGRES_DB: match_history_storage
