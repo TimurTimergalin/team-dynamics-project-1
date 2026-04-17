@@ -15,13 +15,13 @@ void ATagDuelsPlayerController::SetViewTarget(AActor* NewViewTarget, FViewTarget
 	}
 }
 
-void ATagDuelsPlayerController::BeginPlayingState()
-{
-	Super::BeginPlayingState();
-	OnBeginPlayingState();
-}
-
-void ATagDuelsPlayerController::OnBeginPlayingState_Implementation()
-{
-	// Можно что-нибудь добавить
-}
+// void ATagDuelsPlayerController::BeginPlayingState()
+// {
+// 	Super::BeginPlayingState();
+// 	OnBeginPlayingState();
+// }
+//
+// void ATagDuelsPlayerController::OnBeginPlayingState_Implementation()
+// {
+// 	// Можно что-нибудь добавить
+// }
