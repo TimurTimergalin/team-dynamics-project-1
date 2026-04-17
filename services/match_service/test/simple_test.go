@@ -20,27 +20,37 @@ import (
 	rsPb "team_dynamics/api/proto/rating_service"
 )
 
-type SimpleTestRsMockClient struct{}
+type SimpleTestRsMockClient struct {
+	updateRatingCalled int
+}
 
-func (SimpleTestRsMockClient) GetRating(ctx context.Context, in *rsPb.GetRatingRequest, opts ...grpc.CallOption) (*rsPb.GetRatingResponse, error) {
+func (*SimpleTestRsMockClient) GetRating(ctx context.Context, in *rsPb.GetRatingRequest, opts ...grpc.CallOption) (*rsPb.GetRatingResponse, error) {
 	panic("implement me")
 }
-func (SimpleTestRsMockClient) UpdateRating(ctx context.Context, in *rsPb.UpdateRatingRequest, opts ...grpc.CallOption) (*rsPb.UpdateRatingResponse, error) {
+func (s *SimpleTestRsMockClient) UpdateRating(ctx context.Context, in *rsPb.UpdateRatingRequest, opts ...grpc.CallOption) (*rsPb.UpdateRatingResponse, error) {
+	s.updateRatingCalled += 1
 	return &rsPb.UpdateRatingResponse{}, nil
 }
 
-type SimpleTestMhsMockClient struct{}
+type SimpleTestMhsMockClient struct {
+	saveMatchCalled int
+}
 
-func (s SimpleTestMhsMockClient) GetMatchHistory(ctx context.Context, in *mhsPb.GetMatchHistoryRequest, opts ...grpc.CallOption) (*mhsPb.GetMatchHistoryResponse, error) {
+func (s *SimpleTestMhsMockClient) GetMatchHistory(ctx context.Context, in *mhsPb.GetMatchHistoryRequest, opts ...grpc.CallOption) (*mhsPb.GetMatchHistoryResponse, error) {
 	panic("implement me")
 }
-func (s SimpleTestMhsMockClient) SaveMatch(ctx context.Context, in *mhsPb.SaveMatchRequest, opts ...grpc.CallOption) (*mhsPb.SaveMatchResponse, error) {
+func (s *SimpleTestMhsMockClient) SaveMatch(ctx context.Context, in *mhsPb.SaveMatchRequest, opts ...grpc.CallOption) (*mhsPb.SaveMatchResponse, error) {
+	s.saveMatchCalled += 1
 	return &mhsPb.SaveMatchResponse{}, nil
 }
 
-type SimpleTestFleetManagerMockClient struct{}
+type SimpleTestFleetManagerMockClient struct {
+	allocateCalled  int
+	getServerCalled int
+}
 
-func (s SimpleTestFleetManagerMockClient) Allocate(ctx context.Context, in *fmPb.AllocateRequest, opts ...grpc.CallOption) (*fmPb.AllocateResponse, error) {
+func (s *SimpleTestFleetManagerMockClient) Allocate(ctx context.Context, in *fmPb.AllocateRequest, opts ...grpc.CallOption) (*fmPb.AllocateResponse, error) {
+	s.allocateCalled += 1
 	return &fmPb.AllocateResponse{
 		ConnectionInfo: &fmPb.ConnectionInfo{
 			Address: in.MatchId,
@@ -48,7 +58,8 @@ func (s SimpleTestFleetManagerMockClient) Allocate(ctx context.Context, in *fmPb
 	}, nil
 }
 
-func (s SimpleTestFleetManagerMockClient) GetServer(ctx context.Context, in *fmPb.GetServerRequest, opts ...grpc.CallOption) (*fmPb.GetServerResponse, error) {
+func (s *SimpleTestFleetManagerMockClient) GetServer(ctx context.Context, in *fmPb.GetServerRequest, opts ...grpc.CallOption) (*fmPb.GetServerResponse, error) {
+	s.getServerCalled += 1
 	return &fmPb.GetServerResponse{
 		ConnectionInfo: &fmPb.ConnectionInfo{
 			Address: in.MatchId,
@@ -83,9 +94,9 @@ func TestSimple(t *testing.T) {
 		_ = rdb.Close()
 	}(rdb)
 
-	rsClient := SimpleTestRsMockClient{}
-	fmClient := SimpleTestFleetManagerMockClient{}
-	mhsClient := SimpleTestMhsMockClient{}
+	rsClient := &SimpleTestRsMockClient{}
+	fmClient := &SimpleTestFleetManagerMockClient{}
+	mhsClient := &SimpleTestMhsMockClient{}
 
 	controller := &controllers.MatchServiceController{
 		Service: services.MakeMatchService(
@@ -379,4 +390,8 @@ func TestSimple(t *testing.T) {
 		t.Log(mr.Dump())
 		t.Fatalf("Request 16 is incorrect: %v", response16)
 	}
+
+	t.Logf("%v", rsClient)
+	t.Logf("%v", fmClient)
+	t.Logf("%v", mhsClient)
 }

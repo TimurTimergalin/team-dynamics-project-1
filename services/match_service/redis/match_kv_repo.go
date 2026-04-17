@@ -194,73 +194,101 @@ func ParseFailResponse(raw string) (models.PlayerFailResponse, error) {
 }
 
 func (r *matchKvRepoImpl) readPlayer(ctx context.Context, keys playerKeys) (*models.Player, error) {
+	logger := logging.GetLogger(ctx)
+	logger.Debug("reading player", "player_id", keys.id)
 	resultSl, err := r.rdb.MGet(ctx, keys.keys()...).Result()
 	if err != nil {
+		logger.Error("failed to MGet player keys", "player_id", keys.id, "error", err)
 		return nil, err
 	}
 	if resultSl[0] == nil || resultSl[1] == nil || resultSl[2] == nil || resultSl[3] == nil {
+		logger.Warn("player data incomplete", "player_id", keys.id)
 		return nil, redis.Nil
 	}
 	rating, err := strconv.ParseInt(resultSl[2].(string), 10, 64)
 	if err != nil {
+		logger.Error("player rating not a number", "player_id", keys.id, "value", resultSl[2])
 		panic("player rating is not a number")
 	}
-	return &models.Player{
+	player := &models.Player{
 		Id:     keys.id,
 		Name:   resultSl[3].(string),
 		Rating: rating,
 		RegId:  resultSl[1].(string),
-	}, nil
+	}
+	logger.Debug("player read successfully", "player_id", keys.id, "name", player.Name)
+	return player, nil
 }
 
 func (r *matchKvRepoImpl) readMatch(ctx context.Context, keys realMatchKeys) (*models.Match, error) {
+	logger := logging.GetLogger(ctx)
+	logger.Debug("reading match", "match_id", keys.id)
 	resultSl, err := r.rdb.MGet(ctx, keys.keys()...).Result()
 	if err != nil {
+		logger.Error("failed to MGet match keys", "match_id", keys.id, "error", err)
 		return nil, err
 	}
 	if resultSl[0] == nil || resultSl[1] == nil || resultSl[2] == nil || resultSl[3] == nil {
+		logger.Warn("match data incomplete", "match_id", keys.id)
 		return nil, redis.Nil
 	}
 	status, err := ParseMatchStatus(resultSl[0].(string))
 	if err != nil {
+		logger.Error("match status parse error", "match_id", keys.id, "value", resultSl[0])
 		panic("match status is not a number")
 	}
 	player1Id, err := strconv.ParseInt(resultSl[2].(string), 10, 64)
 	if err != nil {
+		logger.Error("player1 id not a number", "match_id", keys.id, "value", resultSl[2])
 		panic("player1 id is not a number")
 	}
 	player2Id, err := strconv.ParseInt(resultSl[3].(string), 10, 64)
 	if err != nil {
+		logger.Error("player2 id not a number", "match_id", keys.id, "value", resultSl[3])
 		panic("player2 id is not a number")
 	}
-	return &models.Match{
+	match := &models.Match{
 		MatchId:   keys.id,
 		Player1Id: player1Id,
 		Player2Id: player2Id,
 		Status:    status,
 		Fleet:     resultSl[1].(string),
-	}, nil
+	}
+	logger.Debug("match read successfully", "match_id", keys.id, "status", status)
+	return match, nil
 }
 
 func (r *matchKvRepoImpl) SaveCreateMatch(ctx context.Context, match models.Match, player1, player2 models.Player) (CreateMatchResult, error) {
+	logger := logging.GetLogger(ctx)
+	logger.Info("SaveCreateMatch started", "player1_id", player1.Id, "player2_id", player2.Id)
 	var result CreateMatchResult
+
 	exists, err := r.rdb.ScriptExists(ctx, r.createMatchScript.Hash()).Result()
 	if err != nil {
+		logger.Error("failed to check script existence", "error", err)
 		return result, fmt.Errorf("cannot check script validity: %w", err)
 	}
 	if !exists[0] {
+		logger.Info("script not loaded, loading now")
 		_, err := r.createMatchScript.Load(ctx, r.rdb).Result()
 		if err != nil {
+			logger.Error("failed to load script", "error", err)
 			return result, fmt.Errorf("cannot load script: %w", err)
 		}
+		logger.Info("script loaded successfully")
 	}
+
 	match.MatchId = makeMatchId()
+	logger.Debug("generated new match_id", "match_id", match.MatchId)
 	p1Keys := playerKeys{player1.Id}
 	p2Keys := playerKeys{player2.Id}
 	mKeys := realMatchKeys{match.MatchId}
+
 	err = r.rdb.Watch(ctx, func(tx *redis.Tx) error {
+		logger.Debug("entering watch transaction")
 		p1cmId, err := tx.Get(ctx, p1Keys.matchId()).Result()
 		if err != nil && !errors.Is(err, redis.Nil) {
+			logger.Error("failed to get player1 current match", "player1_id", player1.Id, "error", err)
 			return err
 		}
 		if errors.Is(err, redis.Nil) {
@@ -268,6 +296,7 @@ func (r *matchKvRepoImpl) SaveCreateMatch(ctx context.Context, match models.Matc
 		}
 		p2cmId, err := tx.Get(ctx, p2Keys.matchId()).Result()
 		if err != nil && !errors.Is(err, redis.Nil) {
+			logger.Error("failed to get player2 current match", "player2_id", player2.Id, "error", err)
 			return err
 		}
 		if errors.Is(err, redis.Nil) {
@@ -322,83 +351,111 @@ func (r *matchKvRepoImpl) SaveCreateMatch(ctx context.Context, match models.Matc
 			match.Player1Id,
 			match.Player2Id,
 		}
+
 		var scriptRes *redis.Cmd
 		_, err = tx.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 			scriptRes = r.createMatchScript.Run(ctx, pipe, keys, args...)
 			return nil
 		})
 		if err != nil {
+			logger.Error("pipeline execution failed", "error", err)
 			return err
 		}
 		res, err := scriptRes.Result()
 		if err != nil {
+			logger.Error("script result error", "error", err)
 			return err
 		}
 		resSl := res.([]interface{})
 		if len(resSl) == 0 {
+			logger.Error("empty script response")
 			panic("Empty response from script")
 		}
 		scriptStatus := resSl[0].(int64)
 		if scriptStatus == 0 {
 			result.MatchId = &match.MatchId
+			logger.Info("match created successfully", "match_id", match.MatchId)
 		} else {
 			p1Resp, err := ParseFailResponse(resSl[1].(string))
 			if err != nil {
+				logger.Error("failed to parse player1 fail response", "value", resSl[1])
 				panic("Player1 fail resp is not a number")
 			}
 			p2Resp, err := ParseFailResponse(resSl[2].(string))
 			if err != nil {
+				logger.Error("failed to parse player2 fail response", "value", resSl[2])
 				panic("Player2 fail resp is not a number")
 			}
 			result.Fail1 = &p1Resp
 			result.Fail2 = &p2Resp
+			logger.Warn("match creation failed with script status", "status", scriptStatus, "p1_fail", p1Resp, "p2_fail", p2Resp)
 		}
 		return nil
 	}, p1Keys.matchId(), p2Keys.matchId())
+
+	if err != nil {
+		logger.Error("watch transaction failed", "error", err)
+	} else {
+		logger.Info("SaveCreateMatch completed successfully", "match_id", match.MatchId)
+	}
 	return result, err
 }
 
 func (r *matchKvRepoImpl) GetMatchById(ctx context.Context, matchId string) (*models.Match, *models.Player, *models.Player, error) {
+	logger := logging.GetLogger(ctx)
+	logger.Info("GetMatchById", "match_id", matchId)
 	mKeys := realMatchKeys{matchId}
 	player1Id, err := r.rdb.Get(ctx, mKeys.player1()).Int64()
 	if err != nil {
+		logger.Error("failed to get player1 id", "match_id", matchId, "error", err)
 		return nil, nil, nil, err
 	}
-	player2Id, err := r.rdb.Get(ctx, mKeys.player1()).Int64()
+	player2Id, err := r.rdb.Get(ctx, mKeys.player2()).Int64()
 	if err != nil {
+		logger.Error("failed to get player2 id", "match_id", matchId, "error", err)
 		return nil, nil, nil, err
 	}
 
 	player1, err := r.readPlayer(ctx, playerKeys{player1Id})
 	if err != nil {
+		logger.Error("failed to read player1", "player1_id", player1Id, "error", err)
 		return nil, nil, nil, err
 	}
 	player2, err := r.readPlayer(ctx, playerKeys{player2Id})
 	if err != nil {
+		logger.Error("failed to read player2", "player2_id", player2Id, "error", err)
 		return nil, nil, nil, err
 	}
 	match, err := r.readMatch(ctx, mKeys)
 	if err != nil {
+		logger.Error("failed to read match", "match_id", matchId, "error", err)
 		return nil, nil, nil, err
 	}
 
+	logger.Info("GetMatchById succeeded", "match_id", matchId, "status", match.Status)
 	return match, player1, player2, nil
 }
 
 func (r *matchKvRepoImpl) GetMatchByPlayerId(ctx context.Context, playerId int64) (*models.Match, *models.Player, *models.Player, error) {
+	logger := logging.GetLogger(ctx)
+	logger.Info("GetMatchByPlayerId", "player_id", playerId)
 	pKeys := playerKeys{playerId}
 	matchId, err := r.rdb.Get(ctx, pKeys.matchId()).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
+			logger.Debug("no match found for player", "player_id", playerId)
 			return nil, nil, nil, nil
 		}
+		logger.Error("failed to get match id for player", "player_id", playerId, "error", err)
 		return nil, nil, nil, err
 	}
+	logger.Debug("found match_id", "player_id", playerId, "match_id", matchId)
 	return r.GetMatchById(ctx, matchId)
 }
 
 func (r *matchKvRepoImpl) changeMatchStatus(ctx context.Context, matchId string, from models.MatchStatus, to models.MatchStatus) error {
 	logger := logging.GetLogger(ctx)
+	logger.Info("changeMatchStatus", "match_id", matchId, "from", from, "to", to)
 	mKeys := realMatchKeys{matchId}
 	err := r.rdb.Watch(ctx, func(tx *redis.Tx) error {
 		statusRaw, err := tx.Get(ctx, mKeys.status()).Int()
@@ -407,45 +464,64 @@ func (r *matchKvRepoImpl) changeMatchStatus(ctx context.Context, matchId string,
 			return nil
 		}
 		if err != nil {
+			logger.Error("failed to get status", "match_id", matchId, "error", err)
 			return err
 		}
 		status := models.MatchStatus(int32(statusRaw))
 		if status != from {
-			logger.Warn("Wrong status to change", "matchId", matchId)
+			logger.Warn("Wrong status to change", "match_id", matchId, "current", status, "expected", from)
 			return nil
 		}
 		_, err = tx.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
 			pipe.Set(ctx, mKeys.status(), strconv.FormatInt(int64(to), 10), 0)
 			return nil
 		})
+		if err != nil {
+			logger.Error("pipeline failed", "match_id", matchId, "error", err)
+		}
 		return err
 	}, mKeys.status())
+	if err != nil {
+		logger.Error("changeMatchStatus failed", "match_id", matchId, "error", err)
+	} else {
+		logger.Info("changeMatchStatus succeeded", "match_id", matchId)
+	}
 	return err
 }
 
 func (r *matchKvRepoImpl) SaveMatchStart(ctx context.Context, matchId string) error {
+	logger := logging.GetLogger(ctx)
+	logger.Info("SaveMatchStart", "match_id", matchId)
 	return r.changeMatchStatus(ctx, matchId, models.Requested, models.Ongoing)
 }
 
 func (r *matchKvRepoImpl) SaveMatchFinish(ctx context.Context, matchId string) error {
+	logger := logging.GetLogger(ctx)
+	logger.Info("SaveMatchFinish", "match_id", matchId)
 	return r.changeMatchStatus(ctx, matchId, models.Ongoing, models.Finished)
 }
 
 func (r *matchKvRepoImpl) RemoveMatch(ctx context.Context, matchId string) error {
+	logger := logging.GetLogger(ctx)
+	logger.Info("RemoveMatch", "match_id", matchId)
 	mKeys := realMatchKeys{matchId}
 	err := r.rdb.Watch(ctx, func(tx *redis.Tx) error {
 		player1, err := tx.Get(ctx, mKeys.player1()).Int64()
 		if err != nil {
 			if errors.Is(err, redis.Nil) {
+				logger.Warn("player1 not found, skipping", "match_id", matchId)
 				return nil
 			}
+			logger.Error("failed to get player1 id", "match_id", matchId, "error", err)
 			return fmt.Errorf("error while getting player1 id: %w", err)
 		}
 		player2, err := tx.Get(ctx, mKeys.player2()).Int64()
 		if err != nil {
 			if errors.Is(err, redis.Nil) {
+				logger.Warn("player2 not found, skipping", "match_id", matchId)
 				return nil
 			}
+			logger.Error("failed to get player2 id", "match_id", matchId, "error", err)
 			return fmt.Errorf("error while getting player2 id: %w", err)
 		}
 		p1Keys := playerKeys{player1}
@@ -455,25 +531,37 @@ func (r *matchKvRepoImpl) RemoveMatch(ctx context.Context, matchId string) error
 			pipe.Del(ctx, keysToDelete...)
 			return nil
 		})
+		if err != nil {
+			logger.Error("pipeline delete failed", "match_id", matchId, "error", err)
+		}
 		return err
 	}, mKeys.player1(), mKeys.player2())
+	if err != nil {
+		logger.Error("RemoveMatch failed", "match_id", matchId, "error", err)
+	} else {
+		logger.Info("RemoveMatch succeeded", "match_id", matchId)
+	}
 	return err
 }
 
 func (r *matchKvRepoImpl) RestartMatch(ctx context.Context, matchId string) error {
 	logger := logging.GetLogger(ctx)
+	logger.Info("RestartMatch", "match_id", matchId)
 	mKeys := realMatchKeys{matchId}
 	err := r.rdb.Watch(ctx, func(tx *redis.Tx) error {
 		player1, err := tx.Get(ctx, mKeys.player1()).Int64()
 		if err != nil {
+			logger.Error("failed to get player1 id", "match_id", matchId, "error", err)
 			return fmt.Errorf("error while getting player1 id: %w", err)
 		}
 		player2, err := tx.Get(ctx, mKeys.player2()).Int64()
 		if err != nil {
+			logger.Error("failed to get player2 id", "match_id", matchId, "error", err)
 			return fmt.Errorf("error while getting player2 id: %w", err)
 		}
 		status, err := tx.Get(ctx, mKeys.status()).Int()
 		if err != nil {
+			logger.Error("failed to get status", "match_id", matchId, "error", err)
 			return fmt.Errorf("error while getting status id: %w", err)
 		}
 		if status != int(models.Finished) {
@@ -483,6 +571,7 @@ func (r *matchKvRepoImpl) RestartMatch(ctx context.Context, matchId string) erro
 
 		fleet, err := tx.Get(ctx, mKeys.fleet()).Result()
 		if err != nil {
+			logger.Error("failed to get fleet", "match_id", matchId, "error", err)
 			return fmt.Errorf("error while getting fleet: %w", err)
 		}
 		p1Keys := playerKeys{player1}
@@ -501,7 +590,15 @@ func (r *matchKvRepoImpl) RestartMatch(ctx context.Context, matchId string) erro
 			})
 			return nil
 		})
+		if err != nil {
+			logger.Error("pipeline restart failed", "match_id", matchId, "error", err)
+		}
 		return err
 	}, mKeys.player1(), mKeys.player2(), mKeys.status(), mKeys.fleet())
+	if err != nil {
+		logger.Error("RestartMatch failed", "match_id", matchId, "error", err)
+	} else {
+		logger.Info("RestartMatch succeeded", "match_id", matchId)
+	}
 	return err
 }
