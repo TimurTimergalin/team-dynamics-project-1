@@ -3,6 +3,8 @@ syntax = "proto3";
 package rating_service;
 option go_package = "team_dynamics/api/proto/rating_service";
 
+import "google/api/annotations.proto";
+
 message RatingData {
     optional double rating_value = 1;
     optional int64 display_value = 3;
@@ -36,6 +38,16 @@ message UpdateRatingResponse {
 }
 
 service RatingService {
-    rpc GetRating(GetRatingRequest) returns (GetRatingResponse);
-    rpc UpdateRating(UpdateRatingRequest) returns (UpdateRatingResponse);
+    rpc GetRating(GetRatingRequest) returns (GetRatingResponse) {
+        option (google.api.http) = {
+            get: "/v1/ratings/{user_id}"
+        };
+    }
+
+    rpc UpdateRating(UpdateRatingRequest) returns (UpdateRatingResponse) {
+        option (google.api.http) = {
+            post: "/v1/ratings"
+            body: "*"
+        };
+    }
 }

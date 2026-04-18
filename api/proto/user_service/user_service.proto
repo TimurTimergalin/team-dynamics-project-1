@@ -3,6 +3,7 @@ syntax = "proto3";
 package user_service;
 option go_package = "team_dynamics/api/proto/user_service";
 
+import "google/api/annotations.proto";
 import "user_common/user_common.proto";
 
 message UserData {
@@ -66,10 +67,55 @@ message AddFriendResponse {
     optional Friend friend = 1;
 }
 
+message RemoveFriendRequest {
+    optional int64 user_id = 1;
+}
+
+message RemoveFriendResponse {
+    optional bool removed = 1;
+}
+
 service UserService {
-    rpc GetSelfData(GetSelfDataRequest) returns (GetSelfDataResponse);
-    rpc GetUserData(GetUserDataRequest) returns (GetUserDataResponse);
-    rpc GetFriends(GetFriendsRequest) returns (GetFriendsResponse);
-    rpc GetIncomingRequests(GetIncomingRequestsRequest) returns (GetIncomingRequestsResponse);
-    rpc GetOutgoingRequests(GetOutgoingRequestsRequest) returns (GetOutgoingRequestsResponse);
+    rpc GetSelfData(GetSelfDataRequest) returns (GetSelfDataResponse) {
+        option (google.api.http) = {
+            get: "/v1/users/self"
+        };
+    }
+
+    rpc GetUserData(GetUserDataRequest) returns (GetUserDataResponse) {
+        option (google.api.http) = {
+            get: "/v1/users/{id}"
+        };
+    }
+
+    rpc GetFriends(GetFriendsRequest) returns (GetFriendsResponse) {
+        option (google.api.http) = {
+            get: "/v1/friends"
+        };
+    }
+
+    rpc GetIncomingRequests(GetIncomingRequestsRequest) returns (GetIncomingRequestsResponse) {
+        option (google.api.http) = {
+            get: "/v1/friends/incoming"
+        };
+    }
+
+    rpc GetOutgoingRequests(GetOutgoingRequestsRequest) returns (GetOutgoingRequestsResponse) {
+        option (google.api.http) = {
+            get: "/v1/friends/outgoing"
+        };
+    }
+
+    rpc AddFriend(AddFriendRequest) returns (AddFriendResponse) {
+        option (google.api.http) = {
+            post: "/v1/friends"
+            body: "*"
+        };
+    }
+
+    rpc RemoveFriend(RemoveFriendRequest) returns (RemoveFriendResponse) {
+        option (google.api.http) = {
+            delete: "/v1/friends/{user_id}"
+        };
+    }
 }

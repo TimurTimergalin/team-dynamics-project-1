@@ -34,6 +34,8 @@ type UserService interface {
 	GetFriends(ctx context.Context, req *pb.GetFriendsRequest) (*pb.GetFriendsResponse, error)
 	GetIncomingRequests(ctx context.Context, req *pb.GetIncomingRequestsRequest) (*pb.GetIncomingRequestsResponse, error)
 	GetOutgoingRequests(ctx context.Context, req *pb.GetOutgoingRequestsRequest) (*pb.GetOutgoingRequestsResponse, error)
+	AddFriend(ctx context.Context, req *pb.AddFriendRequest) (*pb.AddFriendResponse, error)
+	RemoveFriend(ctx context.Context, req *pb.RemoveFriendRequest) (*pb.RemoveFriendResponse, error)
 }
 
 type userServiceImpl struct {
@@ -41,7 +43,7 @@ type userServiceImpl struct {
 }
 
 func MakeUserService(repo pg.UserStorageRepo) UserService {
-	return userServiceImpl{repo}
+	return &userServiceImpl{repo}
 }
 
 func convertUserData(model *models.UserData) *pb.UserData {
@@ -68,7 +70,7 @@ func validateGetUserDataRequest(req *pb.GetUserDataRequest) error {
 	return nil
 }
 
-func (s userServiceImpl) GetSelfData(ctx context.Context, req *pb.GetSelfDataRequest) (*pb.GetSelfDataResponse, error) {
+func (s *userServiceImpl) GetSelfData(ctx context.Context, req *pb.GetSelfDataRequest) (*pb.GetSelfDataResponse, error) {
 	if err := validateGetSelfDataRequest(req); err != nil {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid request: %v", err))
 	}
@@ -82,7 +84,7 @@ func (s userServiceImpl) GetSelfData(ctx context.Context, req *pb.GetSelfDataReq
 	}, nil
 }
 
-func (s userServiceImpl) GetUserData(ctx context.Context, req *pb.GetUserDataRequest) (*pb.GetUserDataResponse, error) {
+func (s *userServiceImpl) GetUserData(ctx context.Context, req *pb.GetUserDataRequest) (*pb.GetUserDataResponse, error) {
 	if err := validateGetUserDataRequest(req); err != nil {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid request: %v", err))
 	}
@@ -96,17 +98,27 @@ func (s userServiceImpl) GetUserData(ctx context.Context, req *pb.GetUserDataReq
 	}, nil
 }
 
-func (s userServiceImpl) GetFriends(ctx context.Context, req *pb.GetFriendsRequest) (*pb.GetFriendsResponse, error) {
+func (s *userServiceImpl) GetFriends(ctx context.Context, req *pb.GetFriendsRequest) (*pb.GetFriendsResponse, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s userServiceImpl) GetIncomingRequests(ctx context.Context, req *pb.GetIncomingRequestsRequest) (*pb.GetIncomingRequestsResponse, error) {
+func (s *userServiceImpl) GetIncomingRequests(ctx context.Context, req *pb.GetIncomingRequestsRequest) (*pb.GetIncomingRequestsResponse, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s userServiceImpl) GetOutgoingRequests(ctx context.Context, req *pb.GetOutgoingRequestsRequest) (*pb.GetOutgoingRequestsResponse, error) {
+func (s *userServiceImpl) GetOutgoingRequests(ctx context.Context, req *pb.GetOutgoingRequestsRequest) (*pb.GetOutgoingRequestsResponse, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *userServiceImpl) AddFriend(ctx context.Context, req *pb.AddFriendRequest) (*pb.AddFriendResponse, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *userServiceImpl) RemoveFriend(ctx context.Context, req *pb.RemoveFriendRequest) (*pb.RemoveFriendResponse, error) {
 	//TODO implement me
 	panic("implement me")
 }

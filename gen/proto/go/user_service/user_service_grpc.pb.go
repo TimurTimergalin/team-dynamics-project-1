@@ -24,6 +24,8 @@ const (
 	UserService_GetFriends_FullMethodName          = "/user_service.UserService/GetFriends"
 	UserService_GetIncomingRequests_FullMethodName = "/user_service.UserService/GetIncomingRequests"
 	UserService_GetOutgoingRequests_FullMethodName = "/user_service.UserService/GetOutgoingRequests"
+	UserService_AddFriend_FullMethodName           = "/user_service.UserService/AddFriend"
+	UserService_RemoveFriend_FullMethodName        = "/user_service.UserService/RemoveFriend"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -35,6 +37,8 @@ type UserServiceClient interface {
 	GetFriends(ctx context.Context, in *GetFriendsRequest, opts ...grpc.CallOption) (*GetFriendsResponse, error)
 	GetIncomingRequests(ctx context.Context, in *GetIncomingRequestsRequest, opts ...grpc.CallOption) (*GetIncomingRequestsResponse, error)
 	GetOutgoingRequests(ctx context.Context, in *GetOutgoingRequestsRequest, opts ...grpc.CallOption) (*GetOutgoingRequestsResponse, error)
+	AddFriend(ctx context.Context, in *AddFriendRequest, opts ...grpc.CallOption) (*AddFriendResponse, error)
+	RemoveFriend(ctx context.Context, in *RemoveFriendRequest, opts ...grpc.CallOption) (*RemoveFriendResponse, error)
 }
 
 type userServiceClient struct {
@@ -95,6 +99,26 @@ func (c *userServiceClient) GetOutgoingRequests(ctx context.Context, in *GetOutg
 	return out, nil
 }
 
+func (c *userServiceClient) AddFriend(ctx context.Context, in *AddFriendRequest, opts ...grpc.CallOption) (*AddFriendResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AddFriendResponse)
+	err := c.cc.Invoke(ctx, UserService_AddFriend_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) RemoveFriend(ctx context.Context, in *RemoveFriendRequest, opts ...grpc.CallOption) (*RemoveFriendResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RemoveFriendResponse)
+	err := c.cc.Invoke(ctx, UserService_RemoveFriend_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
@@ -104,6 +128,8 @@ type UserServiceServer interface {
 	GetFriends(context.Context, *GetFriendsRequest) (*GetFriendsResponse, error)
 	GetIncomingRequests(context.Context, *GetIncomingRequestsRequest) (*GetIncomingRequestsResponse, error)
 	GetOutgoingRequests(context.Context, *GetOutgoingRequestsRequest) (*GetOutgoingRequestsResponse, error)
+	AddFriend(context.Context, *AddFriendRequest) (*AddFriendResponse, error)
+	RemoveFriend(context.Context, *RemoveFriendRequest) (*RemoveFriendResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -128,6 +154,12 @@ func (UnimplementedUserServiceServer) GetIncomingRequests(context.Context, *GetI
 }
 func (UnimplementedUserServiceServer) GetOutgoingRequests(context.Context, *GetOutgoingRequestsRequest) (*GetOutgoingRequestsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetOutgoingRequests not implemented")
+}
+func (UnimplementedUserServiceServer) AddFriend(context.Context, *AddFriendRequest) (*AddFriendResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method AddFriend not implemented")
+}
+func (UnimplementedUserServiceServer) RemoveFriend(context.Context, *RemoveFriendRequest) (*RemoveFriendResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RemoveFriend not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -240,6 +272,42 @@ func _UserService_GetOutgoingRequests_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_AddFriend_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddFriendRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).AddFriend(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_AddFriend_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).AddFriend(ctx, req.(*AddFriendRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_RemoveFriend_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveFriendRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).RemoveFriend(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_RemoveFriend_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).RemoveFriend(ctx, req.(*RemoveFriendRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -266,6 +334,14 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetOutgoingRequests",
 			Handler:    _UserService_GetOutgoingRequests_Handler,
+		},
+		{
+			MethodName: "AddFriend",
+			Handler:    _UserService_AddFriend_Handler,
+		},
+		{
+			MethodName: "RemoveFriend",
+			Handler:    _UserService_RemoveFriend_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

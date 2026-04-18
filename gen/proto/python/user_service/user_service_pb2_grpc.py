@@ -59,6 +59,16 @@ class UserServiceStub(object):
                 request_serializer=user__service_dot_user__service__pb2.GetOutgoingRequestsRequest.SerializeToString,
                 response_deserializer=user__service_dot_user__service__pb2.GetOutgoingRequestsResponse.FromString,
                 _registered_method=True)
+        self.AddFriend = channel.unary_unary(
+                '/user_service.UserService/AddFriend',
+                request_serializer=user__service_dot_user__service__pb2.AddFriendRequest.SerializeToString,
+                response_deserializer=user__service_dot_user__service__pb2.AddFriendResponse.FromString,
+                _registered_method=True)
+        self.RemoveFriend = channel.unary_unary(
+                '/user_service.UserService/RemoveFriend',
+                request_serializer=user__service_dot_user__service__pb2.RemoveFriendRequest.SerializeToString,
+                response_deserializer=user__service_dot_user__service__pb2.RemoveFriendResponse.FromString,
+                _registered_method=True)
 
 
 class UserServiceServicer(object):
@@ -94,6 +104,18 @@ class UserServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def AddFriend(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def RemoveFriend(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_UserServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -121,6 +143,16 @@ def add_UserServiceServicer_to_server(servicer, server):
                     servicer.GetOutgoingRequests,
                     request_deserializer=user__service_dot_user__service__pb2.GetOutgoingRequestsRequest.FromString,
                     response_serializer=user__service_dot_user__service__pb2.GetOutgoingRequestsResponse.SerializeToString,
+            ),
+            'AddFriend': grpc.unary_unary_rpc_method_handler(
+                    servicer.AddFriend,
+                    request_deserializer=user__service_dot_user__service__pb2.AddFriendRequest.FromString,
+                    response_serializer=user__service_dot_user__service__pb2.AddFriendResponse.SerializeToString,
+            ),
+            'RemoveFriend': grpc.unary_unary_rpc_method_handler(
+                    servicer.RemoveFriend,
+                    request_deserializer=user__service_dot_user__service__pb2.RemoveFriendRequest.FromString,
+                    response_serializer=user__service_dot_user__service__pb2.RemoveFriendResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -258,6 +290,60 @@ class UserService(object):
             '/user_service.UserService/GetOutgoingRequests',
             user__service_dot_user__service__pb2.GetOutgoingRequestsRequest.SerializeToString,
             user__service_dot_user__service__pb2.GetOutgoingRequestsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def AddFriend(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/user_service.UserService/AddFriend',
+            user__service_dot_user__service__pb2.AddFriendRequest.SerializeToString,
+            user__service_dot_user__service__pb2.AddFriendResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def RemoveFriend(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/user_service.UserService/RemoveFriend',
+            user__service_dot_user__service__pb2.RemoveFriendRequest.SerializeToString,
+            user__service_dot_user__service__pb2.RemoveFriendResponse.FromString,
             options,
             channel_credentials,
             insecure,

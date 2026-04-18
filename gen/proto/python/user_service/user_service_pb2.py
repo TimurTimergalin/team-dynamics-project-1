@@ -22,10 +22,11 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
+from google.api import annotations_pb2 as google_dot_api_dot_annotations__pb2
 from user_common import user_common_pb2 as user__common_dot_user__common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1fuser_service/user_service.proto\x12\x0cuser_service\x1a\x1duser_common/user_common.proto\">\n\x08UserData\x12\x0f\n\x02id\x18\x01 \x01(\x03H\x00\x88\x01\x01\x12\x11\n\x04name\x18\x02 \x01(\tH\x01\x88\x01\x01\x42\x05\n\x03_idB\x07\n\x05_name\"\\\n\x06\x46riend\x12)\n\x04user\x18\x01 \x01(\x0b\x32\x16.user_service.UserDataH\x00\x88\x01\x01\x12\x13\n\x06source\x18\x02 \x01(\tH\x01\x88\x01\x01\x42\x07\n\x05_userB\t\n\x07_source\"H\n\x12GetSelfDataRequest\x12*\n\x03key\x18\x01 \x01(\x0b\x32\x18.user_common.ExternalKeyH\x00\x88\x01\x01\x42\x06\n\x04_key\"S\n\x13GetSelfDataResponse\x12.\n\tuser_data\x18\x01 \x01(\x0b\x32\x16.user_service.UserDataH\x00\x88\x01\x01\x42\x0c\n\n_user_data\",\n\x12GetUserDataRequest\x12\x0f\n\x02id\x18\x01 \x01(\x03H\x00\x88\x01\x01\x42\x05\n\x03_id\"S\n\x13GetUserDataResponse\x12.\n\tuser_data\x18\x01 \x01(\x0b\x32\x16.user_service.UserDataH\x00\x88\x01\x01\x42\x0c\n\n_user_data\"5\n\x11GetFriendsRequest\x12\x14\n\x07pagekey\x18\x01 \x01(\tH\x00\x88\x01\x01\x42\n\n\x08_pagekey\"]\n\x12GetFriendsResponse\x12%\n\x07\x66riends\x18\x01 \x03(\x0b\x32\x14.user_service.Friend\x12\x14\n\x07pagekey\x18\x02 \x01(\tH\x00\x88\x01\x01\x42\n\n\x08_pagekey\">\n\x1aGetIncomingRequestsRequest\x12\x14\n\x07pagekey\x18\x01 \x01(\tH\x00\x88\x01\x01\x42\n\n\x08_pagekey\"f\n\x1bGetIncomingRequestsResponse\x12%\n\x07\x66riends\x18\x01 \x03(\x0b\x32\x14.user_service.Friend\x12\x14\n\x07pagekey\x18\x02 \x01(\tH\x00\x88\x01\x01\x42\n\n\x08_pagekey\">\n\x1aGetOutgoingRequestsRequest\x12\x14\n\x07pagekey\x18\x01 \x01(\tH\x00\x88\x01\x01\x42\n\n\x08_pagekey\"f\n\x1bGetOutgoingRequestsResponse\x12%\n\x07\x66riends\x18\x01 \x03(\x0b\x32\x14.user_service.Friend\x12\x14\n\x07pagekey\x18\x02 \x01(\tH\x00\x88\x01\x01\x42\n\n\x08_pagekey\"4\n\x10\x41\x64\x64\x46riendRequest\x12\x14\n\x07user_id\x18\x01 \x01(\x03H\x00\x88\x01\x01\x42\n\n\x08_user_id\"I\n\x11\x41\x64\x64\x46riendResponse\x12)\n\x06\x66riend\x18\x01 \x01(\x0b\x32\x14.user_service.FriendH\x00\x88\x01\x01\x42\t\n\x07_friend2\xde\x03\n\x0bUserService\x12R\n\x0bGetSelfData\x12 .user_service.GetSelfDataRequest\x1a!.user_service.GetSelfDataResponse\x12R\n\x0bGetUserData\x12 .user_service.GetUserDataRequest\x1a!.user_service.GetUserDataResponse\x12O\n\nGetFriends\x12\x1f.user_service.GetFriendsRequest\x1a .user_service.GetFriendsResponse\x12j\n\x13GetIncomingRequests\x12(.user_service.GetIncomingRequestsRequest\x1a).user_service.GetIncomingRequestsResponse\x12j\n\x13GetOutgoingRequests\x12(.user_service.GetOutgoingRequestsRequest\x1a).user_service.GetOutgoingRequestsResponseB&Z$team_dynamics/api/proto/user_serviceb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1fuser_service/user_service.proto\x12\x0cuser_service\x1a\x1cgoogle/api/annotations.proto\x1a\x1duser_common/user_common.proto\">\n\x08UserData\x12\x0f\n\x02id\x18\x01 \x01(\x03H\x00\x88\x01\x01\x12\x11\n\x04name\x18\x02 \x01(\tH\x01\x88\x01\x01\x42\x05\n\x03_idB\x07\n\x05_name\"\\\n\x06\x46riend\x12)\n\x04user\x18\x01 \x01(\x0b\x32\x16.user_service.UserDataH\x00\x88\x01\x01\x12\x13\n\x06source\x18\x02 \x01(\tH\x01\x88\x01\x01\x42\x07\n\x05_userB\t\n\x07_source\"H\n\x12GetSelfDataRequest\x12*\n\x03key\x18\x01 \x01(\x0b\x32\x18.user_common.ExternalKeyH\x00\x88\x01\x01\x42\x06\n\x04_key\"S\n\x13GetSelfDataResponse\x12.\n\tuser_data\x18\x01 \x01(\x0b\x32\x16.user_service.UserDataH\x00\x88\x01\x01\x42\x0c\n\n_user_data\",\n\x12GetUserDataRequest\x12\x0f\n\x02id\x18\x01 \x01(\x03H\x00\x88\x01\x01\x42\x05\n\x03_id\"S\n\x13GetUserDataResponse\x12.\n\tuser_data\x18\x01 \x01(\x0b\x32\x16.user_service.UserDataH\x00\x88\x01\x01\x42\x0c\n\n_user_data\"5\n\x11GetFriendsRequest\x12\x14\n\x07pagekey\x18\x01 \x01(\tH\x00\x88\x01\x01\x42\n\n\x08_pagekey\"]\n\x12GetFriendsResponse\x12%\n\x07\x66riends\x18\x01 \x03(\x0b\x32\x14.user_service.Friend\x12\x14\n\x07pagekey\x18\x02 \x01(\tH\x00\x88\x01\x01\x42\n\n\x08_pagekey\">\n\x1aGetIncomingRequestsRequest\x12\x14\n\x07pagekey\x18\x01 \x01(\tH\x00\x88\x01\x01\x42\n\n\x08_pagekey\"f\n\x1bGetIncomingRequestsResponse\x12%\n\x07\x66riends\x18\x01 \x03(\x0b\x32\x14.user_service.Friend\x12\x14\n\x07pagekey\x18\x02 \x01(\tH\x00\x88\x01\x01\x42\n\n\x08_pagekey\">\n\x1aGetOutgoingRequestsRequest\x12\x14\n\x07pagekey\x18\x01 \x01(\tH\x00\x88\x01\x01\x42\n\n\x08_pagekey\"f\n\x1bGetOutgoingRequestsResponse\x12%\n\x07\x66riends\x18\x01 \x03(\x0b\x32\x14.user_service.Friend\x12\x14\n\x07pagekey\x18\x02 \x01(\tH\x00\x88\x01\x01\x42\n\n\x08_pagekey\"4\n\x10\x41\x64\x64\x46riendRequest\x12\x14\n\x07user_id\x18\x01 \x01(\x03H\x00\x88\x01\x01\x42\n\n\x08_user_id\"I\n\x11\x41\x64\x64\x46riendResponse\x12)\n\x06\x66riend\x18\x01 \x01(\x0b\x32\x14.user_service.FriendH\x00\x88\x01\x01\x42\t\n\x07_friend\"7\n\x13RemoveFriendRequest\x12\x14\n\x07user_id\x18\x01 \x01(\x03H\x00\x88\x01\x01\x42\n\n\x08_user_id\"8\n\x14RemoveFriendResponse\x12\x14\n\x07removed\x18\x01 \x01(\x08H\x00\x88\x01\x01\x42\n\n\x08_removed2\xbd\x06\n\x0bUserService\x12j\n\x0bGetSelfData\x12 .user_service.GetSelfDataRequest\x1a!.user_service.GetSelfDataResponse\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/users/self\x12j\n\x0bGetUserData\x12 .user_service.GetUserDataRequest\x1a!.user_service.GetUserDataResponse\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/users/{id}\x12\x64\n\nGetFriends\x12\x1f.user_service.GetFriendsRequest\x1a .user_service.GetFriendsResponse\"\x13\x82\xd3\xe4\x93\x02\r\x12\x0b/v1/friends\x12\x88\x01\n\x13GetIncomingRequests\x12(.user_service.GetIncomingRequestsRequest\x1a).user_service.GetIncomingRequestsResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/v1/friends/incoming\x12\x88\x01\n\x13GetOutgoingRequests\x12(.user_service.GetOutgoingRequestsRequest\x1a).user_service.GetOutgoingRequestsResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/v1/friends/outgoing\x12\x64\n\tAddFriend\x12\x1e.user_service.AddFriendRequest\x1a\x1f.user_service.AddFriendResponse\"\x16\x82\xd3\xe4\x93\x02\x10\"\x0b/v1/friends:\x01*\x12t\n\x0cRemoveFriend\x12!.user_service.RemoveFriendRequest\x1a\".user_service.RemoveFriendResponse\"\x1d\x82\xd3\xe4\x93\x02\x17*\x15/v1/friends/{user_id}B&Z$team_dynamics/api/proto/user_serviceb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,34 +34,52 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'user_service.user_service_p
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'Z$team_dynamics/api/proto/user_service'
-  _globals['_USERDATA']._serialized_start=80
-  _globals['_USERDATA']._serialized_end=142
-  _globals['_FRIEND']._serialized_start=144
-  _globals['_FRIEND']._serialized_end=236
-  _globals['_GETSELFDATAREQUEST']._serialized_start=238
-  _globals['_GETSELFDATAREQUEST']._serialized_end=310
-  _globals['_GETSELFDATARESPONSE']._serialized_start=312
-  _globals['_GETSELFDATARESPONSE']._serialized_end=395
-  _globals['_GETUSERDATAREQUEST']._serialized_start=397
-  _globals['_GETUSERDATAREQUEST']._serialized_end=441
-  _globals['_GETUSERDATARESPONSE']._serialized_start=443
-  _globals['_GETUSERDATARESPONSE']._serialized_end=526
-  _globals['_GETFRIENDSREQUEST']._serialized_start=528
-  _globals['_GETFRIENDSREQUEST']._serialized_end=581
-  _globals['_GETFRIENDSRESPONSE']._serialized_start=583
-  _globals['_GETFRIENDSRESPONSE']._serialized_end=676
-  _globals['_GETINCOMINGREQUESTSREQUEST']._serialized_start=678
-  _globals['_GETINCOMINGREQUESTSREQUEST']._serialized_end=740
-  _globals['_GETINCOMINGREQUESTSRESPONSE']._serialized_start=742
-  _globals['_GETINCOMINGREQUESTSRESPONSE']._serialized_end=844
-  _globals['_GETOUTGOINGREQUESTSREQUEST']._serialized_start=846
-  _globals['_GETOUTGOINGREQUESTSREQUEST']._serialized_end=908
-  _globals['_GETOUTGOINGREQUESTSRESPONSE']._serialized_start=910
-  _globals['_GETOUTGOINGREQUESTSRESPONSE']._serialized_end=1012
-  _globals['_ADDFRIENDREQUEST']._serialized_start=1014
-  _globals['_ADDFRIENDREQUEST']._serialized_end=1066
-  _globals['_ADDFRIENDRESPONSE']._serialized_start=1068
-  _globals['_ADDFRIENDRESPONSE']._serialized_end=1141
-  _globals['_USERSERVICE']._serialized_start=1144
-  _globals['_USERSERVICE']._serialized_end=1622
+  _globals['_USERSERVICE'].methods_by_name['GetSelfData']._loaded_options = None
+  _globals['_USERSERVICE'].methods_by_name['GetSelfData']._serialized_options = b'\202\323\344\223\002\020\022\016/v1/users/self'
+  _globals['_USERSERVICE'].methods_by_name['GetUserData']._loaded_options = None
+  _globals['_USERSERVICE'].methods_by_name['GetUserData']._serialized_options = b'\202\323\344\223\002\020\022\016/v1/users/{id}'
+  _globals['_USERSERVICE'].methods_by_name['GetFriends']._loaded_options = None
+  _globals['_USERSERVICE'].methods_by_name['GetFriends']._serialized_options = b'\202\323\344\223\002\r\022\013/v1/friends'
+  _globals['_USERSERVICE'].methods_by_name['GetIncomingRequests']._loaded_options = None
+  _globals['_USERSERVICE'].methods_by_name['GetIncomingRequests']._serialized_options = b'\202\323\344\223\002\026\022\024/v1/friends/incoming'
+  _globals['_USERSERVICE'].methods_by_name['GetOutgoingRequests']._loaded_options = None
+  _globals['_USERSERVICE'].methods_by_name['GetOutgoingRequests']._serialized_options = b'\202\323\344\223\002\026\022\024/v1/friends/outgoing'
+  _globals['_USERSERVICE'].methods_by_name['AddFriend']._loaded_options = None
+  _globals['_USERSERVICE'].methods_by_name['AddFriend']._serialized_options = b'\202\323\344\223\002\020\"\013/v1/friends:\001*'
+  _globals['_USERSERVICE'].methods_by_name['RemoveFriend']._loaded_options = None
+  _globals['_USERSERVICE'].methods_by_name['RemoveFriend']._serialized_options = b'\202\323\344\223\002\027*\025/v1/friends/{user_id}'
+  _globals['_USERDATA']._serialized_start=110
+  _globals['_USERDATA']._serialized_end=172
+  _globals['_FRIEND']._serialized_start=174
+  _globals['_FRIEND']._serialized_end=266
+  _globals['_GETSELFDATAREQUEST']._serialized_start=268
+  _globals['_GETSELFDATAREQUEST']._serialized_end=340
+  _globals['_GETSELFDATARESPONSE']._serialized_start=342
+  _globals['_GETSELFDATARESPONSE']._serialized_end=425
+  _globals['_GETUSERDATAREQUEST']._serialized_start=427
+  _globals['_GETUSERDATAREQUEST']._serialized_end=471
+  _globals['_GETUSERDATARESPONSE']._serialized_start=473
+  _globals['_GETUSERDATARESPONSE']._serialized_end=556
+  _globals['_GETFRIENDSREQUEST']._serialized_start=558
+  _globals['_GETFRIENDSREQUEST']._serialized_end=611
+  _globals['_GETFRIENDSRESPONSE']._serialized_start=613
+  _globals['_GETFRIENDSRESPONSE']._serialized_end=706
+  _globals['_GETINCOMINGREQUESTSREQUEST']._serialized_start=708
+  _globals['_GETINCOMINGREQUESTSREQUEST']._serialized_end=770
+  _globals['_GETINCOMINGREQUESTSRESPONSE']._serialized_start=772
+  _globals['_GETINCOMINGREQUESTSRESPONSE']._serialized_end=874
+  _globals['_GETOUTGOINGREQUESTSREQUEST']._serialized_start=876
+  _globals['_GETOUTGOINGREQUESTSREQUEST']._serialized_end=938
+  _globals['_GETOUTGOINGREQUESTSRESPONSE']._serialized_start=940
+  _globals['_GETOUTGOINGREQUESTSRESPONSE']._serialized_end=1042
+  _globals['_ADDFRIENDREQUEST']._serialized_start=1044
+  _globals['_ADDFRIENDREQUEST']._serialized_end=1096
+  _globals['_ADDFRIENDRESPONSE']._serialized_start=1098
+  _globals['_ADDFRIENDRESPONSE']._serialized_end=1171
+  _globals['_REMOVEFRIENDREQUEST']._serialized_start=1173
+  _globals['_REMOVEFRIENDREQUEST']._serialized_end=1228
+  _globals['_REMOVEFRIENDRESPONSE']._serialized_start=1230
+  _globals['_REMOVEFRIENDRESPONSE']._serialized_end=1286
+  _globals['_USERSERVICE']._serialized_start=1289
+  _globals['_USERSERVICE']._serialized_end=2118
 # @@protoc_insertion_point(module_scope)

@@ -37,3 +37,15 @@ func (s *UserServiceController) GetOutgoingRequests(ctx context.Context, req *pb
 	defer grpc_lib.HandlePanic(ctx, &err)
 	return s.Service.GetOutgoingRequests(ctx, req)
 }
+
+func (s *UserServiceController) AddFriend(ctx context.Context, req *pb.AddFriendRequest) (resp *pb.AddFriendResponse, err error) {
+	ctx = grpc_lib.WithLogger(ctx, "GetOutgoingRequests")
+	defer grpc_lib.HandlePanic(ctx, &err)
+	return s.Service.AddFriend(ctx, req)
+}
+
+func (s *UserServiceController) RemoveFriend(ctx context.Context, req *pb.RemoveFriendRequest) (resp *pb.RemoveFriendResponse, err error) {
+	ctx = grpc_lib.WithLogger(ctx, "GetOutgoingRequests")
+	defer grpc_lib.HandlePanic(ctx, &err)
+	return s.Service.RemoveFriend(ctx, req)
+}

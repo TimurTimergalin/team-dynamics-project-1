@@ -4,8 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"log"
 	"net"
+	"net/http"
 	"os"
 	"strconv"
 	pb "team_dynamics/api/proto/user_service"
@@ -149,6 +153,14 @@ func getListenAddress() (string, error) {
 	return listenAddress, nil
 }
 
+func getHttpListenAddress() (string, error) {
+	listenAddress := os.Getenv("HTTP_LISTEN_ADDRESS")
+	if listenAddress == "" {
+		return "", fmt.Errorf("HTTP_LISTEN_ADDRESS environment vaiable not set")
+	}
+	return listenAddress, nil
+}
+
 func main() {
 	pgConnCfg, err := getPgConnectionConfig()
 	if err != nil {
@@ -173,6 +185,11 @@ func main() {
 		panic(fmt.Sprintf("Unable to get listen address: %v", err))
 	}
 
+	httpListenAddress, err := getHttpListenAddress()
+	if err != nil {
+		panic(fmt.Sprintf("Unable to get http listen address: %v", err))
+	}
+
 	controller := &controllers.UserServiceController{
 		Service: services.MakeUserService(
 			pg.MakeUserStorageRepo(pool),
@@ -187,7 +204,19 @@ func main() {
 	s := grpc.NewServer()
 	pb.RegisterUserServiceServer(s, controller)
 
-	if err := s.Serve(lis); err != nil {
-		panic(fmt.Sprintf("Unable to serve: %v", err))
+	go func() {
+		if err := s.Serve(lis); err != nil {
+			panic(fmt.Sprintf("Unable to serve: %v", err))
+		}
+	}()
+	ctx := context.Background()
+	mux := runtime.NewServeMux()
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	err = pb.RegisterUserServiceHandlerFromEndpoint(ctx, mux, listenAddress, opts)
+	if err != nil {
+		log.Fatalf("error while running grpc gateway, %v", err)
+	}
+	if err := http.ListenAndServe(httpListenAddress, mux); err != nil {
+		log.Fatalf("error on listening")
 	}
 }

@@ -3,6 +3,8 @@ syntax = "proto3";
 package match_history_service;
 option go_package = "team_dynamics/api/proto/match_history_service";
 
+import "google/api/annotations.proto";
+
 message ParticipantData {
     optional int64 id = 1;
     optional string name = 2;
@@ -42,12 +44,21 @@ message GetMatchHistoryResponse {
 }
 
 message SaveMatchRequest {
-    optional MatchData match = 1; 
+    optional MatchData match = 1;
 }
 
 message SaveMatchResponse {}
 
 service MatchHistoryService {
-    rpc GetMatchHistory(GetMatchHistoryRequest) returns (GetMatchHistoryResponse);
-    rpc SaveMatch(SaveMatchRequest) returns (SaveMatchResponse);
+    rpc GetMatchHistory(GetMatchHistoryRequest) returns (GetMatchHistoryResponse) {
+        option (google.api.http) = {
+            get: "/v1/match_history"
+        };
+    }
+    rpc SaveMatch(SaveMatchRequest) returns (SaveMatchResponse) {
+        option (google.api.http) = {
+            post: "/v1/match_history"
+            body: "*"
+        };
+    }
 }

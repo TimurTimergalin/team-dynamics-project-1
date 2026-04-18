@@ -13,6 +13,8 @@ spec:
       ports:
         - containerPort: 50001
           name: grpc
+        - containerPort: 8080
+          name: http
       envFrom:
         - configMapRef:
             name: user-service-env

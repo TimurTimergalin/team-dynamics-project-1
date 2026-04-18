@@ -5,6 +5,10 @@ import monorepo_root
 
 __REPO_ROOT__ = monorepo_root.get_root()
 
+EXCLUDED_FOLDERS = [
+    "google",
+]
+
 
 def generate_proto(input_dir: str, output_dir_go: str, output_dir_python: str) -> None:
     for output_dir in output_dir_go, output_dir_python:
@@ -16,6 +20,9 @@ def generate_proto(input_dir: str, output_dir_go: str, output_dir_python: str) -
         if not os.path.isdir(sub_path):
             continue
 
+        if entry in EXCLUDED_FOLDERS:
+            continue
+
         for output_dir in output_dir_go, output_dir_python:
             target_subdir = os.path.join(output_dir, entry)
         os.makedirs(target_subdir, exist_ok=True)
@@ -25,9 +32,11 @@ def generate_proto(input_dir: str, output_dir_go: str, output_dir_python: str) -
             f"--proto_path={input_dir}",
             f"--go_out={output_dir_go}",
             f"--go_grpc_out={output_dir_go}",
+            f"--grpc-gateway_out={output_dir_go}",
             f"--go_opt=paths=source_relative",
             f"--go_grpc_opt=paths=source_relative",
-            f"{sub_path}/*.proto"
+            f"--grpc-gateway_opt=paths=source_relative",
+            os.path.join(sub_path, "*.proto"),
         ]
 
         python_cmd = [

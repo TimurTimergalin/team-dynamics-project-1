@@ -22,9 +22,10 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
+from google.api import annotations_pb2 as google_dot_api_dot_annotations__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#rating_service/rating_service.proto\x12\x0erating_service\"f\n\nRatingData\x12\x19\n\x0crating_value\x18\x01 \x01(\x01H\x00\x88\x01\x01\x12\x1a\n\rdisplay_value\x18\x03 \x01(\x03H\x01\x88\x01\x01\x42\x0f\n\r_rating_valueB\x10\n\x0e_display_value\"4\n\x10GetRatingRequest\x12\x14\n\x07user_id\x18\x01 \x01(\x03H\x00\x88\x01\x01\x42\n\n\x08_user_id\"O\n\x11GetRatingResponse\x12/\n\x06rating\x18\x01 \x01(\x0b\x32\x1a.rating_service.RatingDataH\x00\x88\x01\x01\x42\t\n\x07_rating\"\xbc\x01\n\x13UpdateRatingRequest\x12\x17\n\nplayer1_id\x18\x01 \x01(\x03H\x00\x88\x01\x01\x12\x17\n\nplayer2_id\x18\x02 \x01(\x03H\x01\x88\x01\x01\x12\x31\n\x0cmatch_result\x18\x03 \x01(\x0e\x32\x1b.rating_service.MatchResult\x12\x15\n\x08match_id\x18\x04 \x01(\tH\x02\x88\x01\x01\x42\r\n\x0b_player1_idB\r\n\x0b_player2_idB\x0b\n\t_match_id\"\xae\x01\n\x14UpdateRatingResponse\x12\x37\n\x0eplayer1_rating\x18\x01 \x01(\x0b\x32\x1a.rating_service.RatingDataH\x00\x88\x01\x01\x12\x37\n\x0eplayer2_rating\x18\x02 \x01(\x0b\x32\x1a.rating_service.RatingDataH\x01\x88\x01\x01\x42\x11\n\x0f_player1_ratingB\x11\n\x0f_player2_rating*s\n\x0bMatchResult\x12\x1c\n\x18MATCH_RESULT_UNSPECIFIED\x10\x00\x12\x17\n\x13MATCH_RESULT_WINNER\x10\x01\x12\x15\n\x11MATCH_RESULT_DRAW\x10\x02\x12\x16\n\x12MATCH_RESULT_LOSER\x10\x03\x32\xbc\x01\n\rRatingService\x12P\n\tGetRating\x12 .rating_service.GetRatingRequest\x1a!.rating_service.GetRatingResponse\x12Y\n\x0cUpdateRating\x12#.rating_service.UpdateRatingRequest\x1a$.rating_service.UpdateRatingResponseB(Z&team_dynamics/api/proto/rating_serviceb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#rating_service/rating_service.proto\x12\x0erating_service\x1a\x1cgoogle/api/annotations.proto\"f\n\nRatingData\x12\x19\n\x0crating_value\x18\x01 \x01(\x01H\x00\x88\x01\x01\x12\x1a\n\rdisplay_value\x18\x03 \x01(\x03H\x01\x88\x01\x01\x42\x0f\n\r_rating_valueB\x10\n\x0e_display_value\"4\n\x10GetRatingRequest\x12\x14\n\x07user_id\x18\x01 \x01(\x03H\x00\x88\x01\x01\x42\n\n\x08_user_id\"O\n\x11GetRatingResponse\x12/\n\x06rating\x18\x01 \x01(\x0b\x32\x1a.rating_service.RatingDataH\x00\x88\x01\x01\x42\t\n\x07_rating\"\xbc\x01\n\x13UpdateRatingRequest\x12\x17\n\nplayer1_id\x18\x01 \x01(\x03H\x00\x88\x01\x01\x12\x17\n\nplayer2_id\x18\x02 \x01(\x03H\x01\x88\x01\x01\x12\x31\n\x0cmatch_result\x18\x03 \x01(\x0e\x32\x1b.rating_service.MatchResult\x12\x15\n\x08match_id\x18\x04 \x01(\tH\x02\x88\x01\x01\x42\r\n\x0b_player1_idB\r\n\x0b_player2_idB\x0b\n\t_match_id\"\xae\x01\n\x14UpdateRatingResponse\x12\x37\n\x0eplayer1_rating\x18\x01 \x01(\x0b\x32\x1a.rating_service.RatingDataH\x00\x88\x01\x01\x12\x37\n\x0eplayer2_rating\x18\x02 \x01(\x0b\x32\x1a.rating_service.RatingDataH\x01\x88\x01\x01\x42\x11\n\x0f_player1_ratingB\x11\n\x0f_player2_rating*s\n\x0bMatchResult\x12\x1c\n\x18MATCH_RESULT_UNSPECIFIED\x10\x00\x12\x17\n\x13MATCH_RESULT_WINNER\x10\x01\x12\x15\n\x11MATCH_RESULT_DRAW\x10\x02\x12\x16\n\x12MATCH_RESULT_LOSER\x10\x03\x32\xf3\x01\n\rRatingService\x12o\n\tGetRating\x12 .rating_service.GetRatingRequest\x1a!.rating_service.GetRatingResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/v1/ratings/{user_id}\x12q\n\x0cUpdateRating\x12#.rating_service.UpdateRatingRequest\x1a$.rating_service.UpdateRatingResponse\"\x16\x82\xd3\xe4\x93\x02\x10\"\x0b/v1/ratings:\x01*B(Z&team_dynamics/api/proto/rating_serviceb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,18 +33,22 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'rating_service.rating_servi
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'Z&team_dynamics/api/proto/rating_service'
-  _globals['_MATCHRESULT']._serialized_start=662
-  _globals['_MATCHRESULT']._serialized_end=777
-  _globals['_RATINGDATA']._serialized_start=55
-  _globals['_RATINGDATA']._serialized_end=157
-  _globals['_GETRATINGREQUEST']._serialized_start=159
-  _globals['_GETRATINGREQUEST']._serialized_end=211
-  _globals['_GETRATINGRESPONSE']._serialized_start=213
-  _globals['_GETRATINGRESPONSE']._serialized_end=292
-  _globals['_UPDATERATINGREQUEST']._serialized_start=295
-  _globals['_UPDATERATINGREQUEST']._serialized_end=483
-  _globals['_UPDATERATINGRESPONSE']._serialized_start=486
-  _globals['_UPDATERATINGRESPONSE']._serialized_end=660
-  _globals['_RATINGSERVICE']._serialized_start=780
-  _globals['_RATINGSERVICE']._serialized_end=968
+  _globals['_RATINGSERVICE'].methods_by_name['GetRating']._loaded_options = None
+  _globals['_RATINGSERVICE'].methods_by_name['GetRating']._serialized_options = b'\202\323\344\223\002\027\022\025/v1/ratings/{user_id}'
+  _globals['_RATINGSERVICE'].methods_by_name['UpdateRating']._loaded_options = None
+  _globals['_RATINGSERVICE'].methods_by_name['UpdateRating']._serialized_options = b'\202\323\344\223\002\020\"\013/v1/ratings:\001*'
+  _globals['_MATCHRESULT']._serialized_start=692
+  _globals['_MATCHRESULT']._serialized_end=807
+  _globals['_RATINGDATA']._serialized_start=85
+  _globals['_RATINGDATA']._serialized_end=187
+  _globals['_GETRATINGREQUEST']._serialized_start=189
+  _globals['_GETRATINGREQUEST']._serialized_end=241
+  _globals['_GETRATINGRESPONSE']._serialized_start=243
+  _globals['_GETRATINGRESPONSE']._serialized_end=322
+  _globals['_UPDATERATINGREQUEST']._serialized_start=325
+  _globals['_UPDATERATINGREQUEST']._serialized_end=513
+  _globals['_UPDATERATINGRESPONSE']._serialized_start=516
+  _globals['_UPDATERATINGRESPONSE']._serialized_end=690
+  _globals['_RATINGSERVICE']._serialized_start=810
+  _globals['_RATINGSERVICE']._serialized_end=1053
 # @@protoc_insertion_point(module_scope)
