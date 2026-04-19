@@ -22,22 +22,30 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlayerController")
 	void BlStart();
 	
-	// Steam OSS
-	UFUNCTION(BlueprintCallable, Category = "SteamAuth")
-	FString GetSteamAuthToken();
-
-	UFUNCTION(BlueprintCallable, Category = "SteamAuth")
-	FString GetSteamID();
-
-	// EpicGames OSS
-	UFUNCTION(BlueprintCallable, Category = "EGSAuth")
+	// OSS
+	UFUNCTION(BlueprintCallable, Category = "OSS")
+	void LoginToSteam();
+	
+	UFUNCTION(BlueprintCallable, Category = "OSS")
 	void LoginToEOS();
 
-	// Online
-	UFUNCTION(BlueprintCallable, Category = "Online")
+	UFUNCTION(BlueprintImplementableEvent, Category = "OSS")
+	void OnSuccessfulLoginSteam(const FString& AccountID, const FString& AuthToken);
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "OSS")
+	void OnSuccessfulLoginEOS(const FString& AccountID, const FString& AuthToken);
+	
+	UFUNCTION(BlueprintCallable, Category = "OSS")
 	EOnlineSubsystemType GetActiveOnlineSubsystemType() const;
 
 private:
-	// EpicGames OSS
+	// OSS
+	void OnPersistentLoginComplete(int32 LocalUserNum, bool bWasSuccessful, const FUniqueNetId& UserId, const FString& Error);
+
 	void OnLoginComplete(int32 LocalUserNum, bool bWasSuccessful, const FUniqueNetId& UserId, const FString& Error);
+    
+	void HandleSuccessfulLogin(const FUniqueNetId& UserId, int32 LocalUserNum);
+
+	FDelegateHandle PersistentLoginDelegateHandle;
+	FDelegateHandle LoginDelegateHandle;
 };
