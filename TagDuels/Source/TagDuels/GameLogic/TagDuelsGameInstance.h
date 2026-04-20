@@ -37,9 +37,6 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "OSS")
 	EOnlineSubsystemType GetActiveOnlineSubsystemType() const;
-	
-	UFUNCTION(BlueprintCallable, Category = "OSS")
-	void DeletePersistentAuthEOS();
 
 private:
 	// OSS
