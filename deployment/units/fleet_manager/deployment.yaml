@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fleet-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fleet-manager
+  template:
+    metadata:
+      labels:
+        app: fleet-manager
+    spec:
+      serviceAccountName: fleet-manager-sa
+      imagePullSecrets:
+        - name: craas-4274eb52-inventive-macaw
+      containers:
+        - name: fleet-manager
+          image: 4274eb52-inventive-macaw.registry.twcstorage.ru/tag-duels/fleet-manager-server:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 50001
+              name: grpc
+          envFrom:
+            - configMapRef:
+                name: fleet-manager-env
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"
+          livenessProbe:
+            tcpSocket:
+              port: 50001
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            tcpSocket:
+              port: 50001
+            initialDelaySeconds: 5
+            periodSeconds: 10

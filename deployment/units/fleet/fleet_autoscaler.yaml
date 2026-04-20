@@ -2,7 +2,6 @@ apiVersion: autoscaling.agones.dev/v1
 kind: FleetAutoscaler
 metadata:
   name: simple-game-server-autoscaler
-  namespace: fleet
 spec:
   fleetName: fleet1
   policy:

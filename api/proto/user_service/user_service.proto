@@ -78,7 +78,7 @@ message RemoveFriendResponse {
 service UserService {
     rpc GetSelfData(GetSelfDataRequest) returns (GetSelfDataResponse) {
         option (google.api.http) = {
-            get: "/v1/users/self"
+            get: "/v1/self"
         };
     }
 

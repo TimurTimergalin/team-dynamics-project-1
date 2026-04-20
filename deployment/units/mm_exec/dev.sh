@@ -1,5 +1,6 @@
 cd $ROOT/deployment/units/mm_exec
 docker build --no-cache --build-arg PROJECT_DIR=services/mm_exec -t mm-exec:latest -f Dockerfile $ROOT
-minikube image load  mm-exec:latest
+docker tag mm-exec:latest 4274eb52-inventive-macaw.registry.twcstorage.ru/tag-duels/mm-exec:latest
+docker push 4274eb52-inventive-macaw.registry.twcstorage.ru/tag-duels/mm-exec:latest
 kubectl apply -f env.yaml
-kubectl apply -f pod.yaml
+kubectl apply -f deployment.yaml

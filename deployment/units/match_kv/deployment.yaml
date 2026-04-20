@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: match-kv
-  namespace: match
 spec:
   replicas: 1
   selector:

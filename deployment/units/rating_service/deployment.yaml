@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rating-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rating-service
+  template:
+    metadata:
+      labels:
+        app: rating-service
+    spec:
+      imagePullSecrets:
+        - name: craas-4274eb52-inventive-macaw
+      containers:
+        - name: rating-service
+          image: 4274eb52-inventive-macaw.registry.twcstorage.ru/tag-duels/rating-service-server:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 50001
+              name: grpc
+            - containerPort: 8080
+              name: http
+          envFrom:
+            - configMapRef:
+                name: rating-service-env
+          env:
+            - name: PG_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rating-storage-credentials
+                  key: POSTGRES_USER
+            - name: PG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rating-storage-credentials
+                  key: POSTGRES_PASSWORD
+            - name: PG_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: rating-storage-config
+                  key: POSTGRES_DB
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"
+          livenessProbe:
+            tcpSocket:
+              port: 50001
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            tcpSocket:
+              port: 50001
+            initialDelaySeconds: 5
+            periodSeconds: 10

@@ -135,6 +135,7 @@ func (f *clientFactoryImpl) getMatchAddress(ctx context.Context, playerID int64)
 		f.logger.Error("failed to get match address", "player_id", playerID, "error", err)
 		return nil
 	}
+	f.logger.Info("initial match address response", "resp", resp)
 	if resp.ConnectionInfo == nil || resp.ConnectionInfo.Address == nil {
 		return nil
 	}

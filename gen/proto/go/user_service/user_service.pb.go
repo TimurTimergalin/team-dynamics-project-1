@@ -837,9 +837,10 @@ const file_user_service_user_service_proto_rawDesc = "" +
 	"\x14RemoveFriendResponse\x12\x1d\n" +
 	"\aremoved\x18\x01 \x01(\bH\x00R\aremoved\x88\x01\x01B\n" +
 	"\n" +
-	"\b_removed2\xbd\x06\n" +
-	"\vUserService\x12j\n" +
-	"\vGetSelfData\x12 .user_service.GetSelfDataRequest\x1a!.user_service.GetSelfDataResponse\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/users/self\x12j\n" +
+	"\b_removed2\xb7\x06\n" +
+	"\vUserService\x12d\n" +
+	"\vGetSelfData\x12 .user_service.GetSelfDataRequest\x1a!.user_service.GetSelfDataResponse\"\x10\x82\xd3\xe4\x93\x02\n" +
+	"\x12\b/v1/self\x12j\n" +
 	"\vGetUserData\x12 .user_service.GetUserDataRequest\x1a!.user_service.GetUserDataResponse\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/users/{id}\x12d\n" +
 	"\n" +
 	"GetFriends\x12\x1f.user_service.GetFriendsRequest\x1a .user_service.GetFriendsResponse\"\x13\x82\xd3\xe4\x93\x02\r\x12\v/v1/friends\x12\x88\x01\n" +

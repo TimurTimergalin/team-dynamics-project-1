@@ -2,10 +2,9 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: user-storage-pvc
-  namespace: user
 spec:
   accessModes:
   - ReadWriteOnce
   resources:
     requests:
-      storage: 512Mi
+      storage: 1Gi

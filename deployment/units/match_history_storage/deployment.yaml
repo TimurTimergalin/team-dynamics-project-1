@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: match-history-storage
-  namespace: match-history
 spec:
   replicas: 1
   selector:

@@ -128,6 +128,7 @@ func (c *clientImpl) checkMatch() (*string, error) {
 		c.state = Erroneous
 		return nil, err
 	}
+	c.logger.Debug("MatchService response recieved", "response", resp)
 	if resp.ConnectionInfo != nil && resp.ConnectionInfo.Address != nil {
 		c.state = Done
 		c.logger.Debug("match found, state changed to Done", "player_id", c.player.Id, "address", *resp.ConnectionInfo.Address)
@@ -283,16 +284,22 @@ func (c *clientImpl) handle() (shouldTerminate bool) {
 	}()
 	select {
 	case msg := <-c.conn.Messages():
+		c.logger.Debug("message received", "message", msg)
 		return c.onMessage(msg)
 	case <-c.ctx.Done():
+		c.logger.Debug("context cancelled")
 		return c.onCancel()
 	case <-c.checkPoolPresenceTicker.C:
+		c.logger.Debug("ticker fired", "ticker", "checkPoolPresence")
 		return c.onCheckInPoolTick()
 	case <-c.checkMatchTicker.C:
+		c.logger.Debug("ticker fired", "ticker", "checkMatch")
 		return c.onCheckMatchTick()
 	case <-c.updateConnectionTicket.C:
+		c.logger.Debug("ticker fired", "ticker", "updateConnection")
 		return c.onUpdateTick()
 	case <-time.After(c.config.MessageReceivedTimeout):
+		c.logger.Debug("timeout")
 		return c.onCancel()
 	}
 }

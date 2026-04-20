@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: rating-storage
-  namespace: rating
 spec:
   replicas: 1
   selector:

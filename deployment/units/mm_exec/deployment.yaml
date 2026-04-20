@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mm-exec
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mm-exec
+  template:
+    metadata:
+      labels:
+        app: mm-exec
+    spec:
+      imagePullSecrets:
+        - name: craas-4274eb52-inventive-macaw
+      containers:
+        - name: mm-exec
+          image: 4274eb52-inventive-macaw.registry.twcstorage.ru/tag-duels/mm-exec:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 50001
+              name: grpc
+          envFrom:
+            - configMapRef:
+                name: mm-exec-env
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mm-pool-credentials
+                  key: REDIS_PASSWORD
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"

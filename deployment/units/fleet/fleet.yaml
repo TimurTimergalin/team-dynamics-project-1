@@ -2,7 +2,6 @@ apiVersion: agones.dev/v1
 kind: Fleet
 metadata:
   name: fleet1
-  namespace: fleet
 spec:
   replicas: 2
   template:
