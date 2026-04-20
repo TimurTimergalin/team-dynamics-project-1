@@ -44,10 +44,5 @@ service RatingService {
         };
     }
 
-    rpc UpdateRating(UpdateRatingRequest) returns (UpdateRatingResponse) {
-        option (google.api.http) = {
-            post: "/v1/ratings"
-            body: "*"
-        };
-    }
+    rpc UpdateRating(UpdateRatingRequest) returns (UpdateRatingResponse);
 }

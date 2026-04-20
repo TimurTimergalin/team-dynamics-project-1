@@ -3,22 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Contract/MatchHistory.h"
+#include "Delegates.h"
+#include "Clients/MatchHistoryServiceClient.h"
+#include "Clients/MMEventClient.h"
+#include "Clients/RatingServiceClient.h"
+#include "Clients/UserServiceClient.h"
 #include "Contract/UserData.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "ClientSideOnlineSubsystem.generated.h"
-
-DECLARE_DYNAMIC_DELEGATE(FOnEmptyResponse);
-
-DECLARE_DYNAMIC_DELEGATE_OneParam(FOnErroneousResponse, FString, ErrorMessage);
-
-DECLARE_DYNAMIC_DELEGATE_OneParam(FOnInt64Response, int64, Response);
-
-DECLARE_DYNAMIC_DELEGATE_OneParam(FOnMatchHistoryResponse, const FMatchHistoryPage&, Response);
-
-DECLARE_DYNAMIC_DELEGATE_OneParam(FOnUserListResponse, const FPlayersList&, Response);
-
-DECLARE_DYNAMIC_DELEGATE_OneParam(FOnMatch, FString, Address);
 
 UCLASS()
 class TAGDUELS_API UClientSideOnlineSubsystem : public UGameInstanceSubsystem
@@ -26,8 +18,13 @@ class TAGDUELS_API UClientSideOnlineSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
+	virtual void Initialize(FSubsystemCollectionBase&) override;
+	
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	void SteamAuthorize(FString AuthToken, int64 SteamId, FOnEmptyResponse OnResponse);
+	bool SteamAuthorize(FString AuthToken, int64 SteamId, FOnEmptyResponse OnResponse);
+
+	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
+	bool EgsAuthorize(FString AuthToken, int64 Id, FOnEmptyResponse OnResponse);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
 	bool GetPlayerData(FUserPlayerData& PlayerDataOut);
@@ -45,7 +42,7 @@ public:
 	bool GetIncomingRequests(FString PageToken, FOnUserListResponse OnResponse, FOnInt64Response OnError);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	bool GetRating(FOnInt64Response OnResponse, FOnInt64Response OnError);
+	bool GetRating(FOnInt64Response OnResponse, FOnErroneousResponse OnError);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
 	void SubscribeToMatchStart(FOnMatch Callback);
@@ -66,31 +63,28 @@ public:
 	void CancelChallenge(FOnEmptyResponse OnResponse, FOnEmptyResponse OnError);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	void StartMatchmaking(FOnEmptyResponse OnResponse, FOnEmptyResponse OnError);
+	bool ConnectToMMEvent(FOnMatch OnResponse, FOnErroneousResponse OnError);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	void SubscribeToMMEventError(FOnErroneousResponse OnError);
+	bool StartMatchMaking();
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	void ClearMMEventErrorCallback();
+	bool CancelMatchMaking();
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	void SubscribeToUserEventError(FOnErroneousResponse OnError);
-
-	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	void ClearUserEventErrorCallback();
-
-	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	void ConnectToMMEvent(FOnEmptyResponse OnResponse, FOnErroneousResponse OnError);
+	bool DisconnectFromMMEvent(FOnMatch OnResponse, FOnErroneousResponse OnError);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
 	void ConnectToUserEvent(FOnEmptyResponse OnResponse, FOnErroneousResponse OnError);
 
 private:
+	TOptional<UserServiceClient> UsClient{};
+	TOptional<MatchHistoryServiceClient> MhsClient{};
+	TOptional<RatingServiceClient> RsClient{};
+	TOptional<MMEventClient> MmeClient{};
+	
 	TOptional<FUserPlayerData> PlayerData{};
-	FOnMatch OnMatchCallback{};
 	TOptional<int64> ChallengedUserId{};
 	bool InMatchmaking = false;
-	FOnErroneousResponse OnMMEventErrorCallback{};
 	FOnErroneousResponse OnUserEventErrorCallback{};
 };

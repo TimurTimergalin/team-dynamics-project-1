@@ -1,21 +1,80 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "ClientSideOnlineSubsystem.h"
 
-void UClientSideOnlineSubsystem::SteamAuthorize(FString AuthToken, int64 SteamId, FOnEmptyResponse OnResponse)
+#include "utils.h"
+
+void UClientSideOnlineSubsystem::Initialize(FSubsystemCollectionBase&)
 {
+	UsClient = CreateUserServiceClient();
+	MhsClient = CreateMatchHistoryServiceClient();
+	RsClient = CreateRatingServiceClient();
+}
+
+bool UClientSideOnlineSubsystem::SteamAuthorize(FString /*AuthToken*/, int64 SteamId, FOnEmptyResponse OnResponse)
+{
+	if (!UsClient)
+	{
+		return false;
+	}
+	WithRetry<FUserPlayerData>([this, SteamId]()
+	{
+		return UsClient->GetSelfData(SteamId);
+	}, 3).Next([this, OnResponse](TOptional<FUserPlayerData> PlayerData) {
+		this->PlayerData = PlayerData;
+		if (!OnResponse.ExecuteIfBound())
+		{
+			UE_LOG(LogTemp, Error, TEXT("OnResponse for SteamAuthorize is not bound"));
+		}
+	});
+	return true;
+}
+
+bool UClientSideOnlineSubsystem::EgsAuthorize(FString AuthToken, int64 Id, FOnEmptyResponse OnResponse)
+{
+	return false;
 }
 
 bool UClientSideOnlineSubsystem::GetPlayerData(FUserPlayerData& PlayerDataOut)
 {
-	return true;
+	if (PlayerData.IsSet())
+	{
+		PlayerDataOut = PlayerData.GetValue();
+		return true;
+	}
+	return false;
 }
 
 bool UClientSideOnlineSubsystem::GetMatchHistoryPage(FString PageToken, FOnMatchHistoryResponse OnResponse,
                                                      FOnErroneousResponse OnError)
 {
-	return false;
+	if (!MhsClient)
+	{
+		return false;
+	}
+	if (!PlayerData.IsSet())
+	{
+		return false;
+	}
+
+	WithRetry<FMatchHistoryPage>([this, PageToken]()
+	{
+		return MhsClient->GetMatchHistory(PlayerData.GetValue().Id, PageToken);
+	}, 3).Next([this, OnResponse, OnError](TOptional<FMatchHistoryPage> Page)
+	{
+		if (!Page.IsSet())
+		{
+			if (!OnError.ExecuteIfBound("Failed to fetch match history after 3 attempts"))
+			{
+				UE_LOG(LogTemp, Error, TEXT("OnError for GetMatchHistoryPage is not bound"));
+			}
+		} else
+		{
+			if (!OnResponse.ExecuteIfBound(Page.GetValue()))
+			{
+				UE_LOG(LogTemp, Error, TEXT("OnResponse for GetMatchHistoryPage is not bound"));
+			}
+		}
+	});
+	return true;
 }
 
 bool UClientSideOnlineSubsystem::GetFriendsList(FString PageToken, FOnUserListResponse OnResponse,
@@ -36,9 +95,36 @@ bool UClientSideOnlineSubsystem::GetIncomingRequests(FString PageToken, FOnUserL
 	return false;
 }
 
-bool UClientSideOnlineSubsystem::GetRating(FOnInt64Response OnResponse, FOnInt64Response OnError)
+bool UClientSideOnlineSubsystem::GetRating(FOnInt64Response OnResponse, FOnErroneousResponse OnError)
 {
-	return false;
+	if (!RsClient)
+	{
+		return false;
+	}
+	if (!PlayerData.IsSet())
+	{
+		return false;
+	}
+	WithRetry<int64>([this]()
+	{
+		return RsClient->GetRating(PlayerData.GetValue().Id);
+	}, 3).Next([this, OnResponse, OnError](TOptional<int64> Rating)
+	{
+		if (!Rating.IsSet())
+		{
+			if (!OnError.ExecuteIfBound("Failed to fetch rating after 3 attempts"))
+			{
+				UE_LOG(LogTemp, Error, TEXT("OnError for GetRating is not bound"));
+			}
+		} else
+		{
+			if (!OnResponse.ExecuteIfBound(Rating.GetValue()))
+			{
+				UE_LOG(LogTemp, Error, TEXT("OnResponse for GetRating is not bound"));
+			}
+		}
+	});
+	return true;
 }
 
 void UClientSideOnlineSubsystem::SubscribeToMatchStart(FOnMatch Callback)
@@ -67,28 +153,54 @@ void UClientSideOnlineSubsystem::CancelChallenge(FOnEmptyResponse OnResponse, FO
 {
 }
 
-void UClientSideOnlineSubsystem::StartMatchmaking(FOnEmptyResponse OnResponse, FOnEmptyResponse OnError)
+bool UClientSideOnlineSubsystem::ConnectToMMEvent(FOnMatch OnResponse, FOnErroneousResponse OnError)
 {
+	if (!PlayerData.IsSet())
+	{
+		return false;
+	}
+	if (MmeClient.IsSet() && MmeClient->IsConnected())
+	{
+		return false;
+	}
+	MmeClient = CreateMMEventClient(PlayerData->Id, OnResponse, OnError);
+	return MmeClient.IsSet();
 }
 
-void UClientSideOnlineSubsystem::SubscribeToMMEventError(FOnErroneousResponse OnError)
+bool UClientSideOnlineSubsystem::StartMatchMaking()
 {
+	if (!MmeClient.IsSet())
+	{
+		return false;
+	}
+	if (!MmeClient->IsConnected())
+	{
+		return false;
+	}
+	return MmeClient->StartMatchmaking();;
 }
 
-void UClientSideOnlineSubsystem::ClearMMEventErrorCallback()
+bool UClientSideOnlineSubsystem::CancelMatchMaking()
 {
+	if (!MmeClient.IsSet())
+	{
+		return false;
+	}
+	if (!MmeClient->IsConnected())
+	{
+		return false;
+	}
+	return MmeClient->CancelMatchmaking();
 }
 
-void UClientSideOnlineSubsystem::SubscribeToUserEventError(FOnErroneousResponse OnError)
+bool UClientSideOnlineSubsystem::DisconnectFromMMEvent(FOnMatch OnResponse, FOnErroneousResponse OnError)
 {
-}
-
-void UClientSideOnlineSubsystem::ClearUserEventErrorCallback()
-{
-}
-
-void UClientSideOnlineSubsystem::ConnectToMMEvent(FOnEmptyResponse OnResponse, FOnErroneousResponse OnError)
-{
+	if (!MmeClient.IsSet())
+	{
+		return false;
+	}
+	MmeClient->Close();
+	return true;
 }
 
 void UClientSideOnlineSubsystem::ConnectToUserEvent(FOnEmptyResponse OnResponse, FOnErroneousResponse OnError)

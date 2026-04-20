@@ -55,10 +55,5 @@ service MatchHistoryService {
             get: "/v1/match_history"
         };
     }
-    rpc SaveMatch(SaveMatchRequest) returns (SaveMatchResponse) {
-        option (google.api.http) = {
-            post: "/v1/match_history"
-            body: "*"
-        };
-    }
+    rpc SaveMatch(SaveMatchRequest) returns (SaveMatchResponse);
 }
