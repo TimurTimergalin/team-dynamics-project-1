@@ -5,8 +5,11 @@
 #include "OnlineSubsystem.h"
 #include "Interfaces/OnlineIdentityInterface.h"
 #include "OnlineSubsystemUtils.h"
+// #include "EOSSubsystem.h"
+// #include "OnlineSubsystemEOS.h"
+// #include "eos_auth.h"
 
-// Base Methods
+// Basic Methods
 void UTagDuelsGameInstance::OnStart()
 {
 	Super::OnStart();
@@ -184,7 +187,6 @@ void UTagDuelsGameInstance::HandleSuccessfulLogin(const FUniqueNetId& UserId, in
 	OnSuccessfulLoginEOS(AccountId, AuthToken);
 }
 
-// Online
 EOnlineSubsystemType UTagDuelsGameInstance::GetActiveOnlineSubsystemType() const
 {
 	FName SubsystemName = GetOnlinePlatformName(); // "Steam", "EOS", "NULL" и т.д.
@@ -209,4 +211,55 @@ EOnlineSubsystemType UTagDuelsGameInstance::GetActiveOnlineSubsystemType() const
 	// На случай неизвестных подсистем
 	UE_LOG(LogTemp, Warning, TEXT("Unknown online subsystem: %s"), *SubsystemName.ToString());
 	return EOnlineSubsystemType::None;
+}
+
+void UTagDuelsGameInstance::DeletePersistentAuthEOS()
+{
+    // Получаем подсистему EOS
+    IOnlineSubsystem* OnlineSubsystem = Online::GetSubsystem(GetWorld());
+    if (!OnlineSubsystem || OnlineSubsystem->GetSubsystemName() != FName(TEXT("EOS")))
+    {
+        UE_LOG(LogTemp, Error, TEXT("EOS subsystem not available"));
+        return;
+    }
+
+	IOnlineIdentityPtr IdentityInterface = OnlineSubsystem->GetIdentityInterface();
+	if (IdentityInterface.IsValid())
+	{
+		// Завершаем сессию текущего пользователя
+		IdentityInterface->Logout(0);
+		UE_LOG(LogTemp, Display, TEXT("User logged out."));
+	}
+
+    // FOnlineSubsystemEOS* EOSSubsystem = static_cast<FOnlineSubsystemEOS*>(OnlineSubsystem);
+    // EOS_HAuth AuthHandle = EOSSubsystem->GetEOSAuthHandle();
+    //
+    // if (!AuthHandle)
+    // {
+    //     UE_LOG(LogTemp, Error, TEXT("EOS Auth handle not available"));
+    //     return;
+    // }
+    //
+    // // Настройки для удаления токена
+    // EOS_Auth_DeletePersistentAuthOptions DeleteOptions = {};
+    // DeleteOptions.ApiVersion = EOS_AUTH_DELETEPERSISTENTAUTH_API_LATEST;
+    // DeleteOptions.RefreshToken = nullptr;
+    //
+    // // Асинхронно удаляем токен
+    // EOS_Auth_DeletePersistentAuth(AuthHandle, &DeleteOptions, nullptr, 
+    //     [](const EOS_Auth_DeletePersistentAuthCallbackInfo* Data)
+    //     {
+    //         if (Data->ResultCode == EOS_EResult::EOS_Success)
+    //         {
+    //             UE_LOG(LogTemp, Display, TEXT("Persistent auth token successfully deleted"));
+    //         }
+    //         else
+    //         {
+    //             UE_LOG(LogTemp, Error, TEXT("Failed to delete persistent auth token. Error: %s"), 
+    //                 ANSI_TO_TCHAR(EOS_EResult_ToString(Data->ResultCode)));
+    //         }
+    //     });
+    //
+    // // При желании можно также сразу разлогиниться
+    // // IdentityInterface->Logout(0);
 }

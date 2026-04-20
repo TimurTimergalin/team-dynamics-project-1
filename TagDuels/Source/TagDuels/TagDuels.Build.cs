@@ -7,8 +7,9 @@ public class TagDuels : ModuleRules
 	public TagDuels(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-		
+
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+		PublicDependencyModuleNames.AddRange(new string[] { "OnlineSubsystemEOS" });
 		PublicDependencyModuleNames.AddRange(new string[] { "HTTP", "WebSockets", "Json", "JsonUtilities", "Agones" });
 		
 		PrivateDependencyModuleNames.AddRange(new string[] { "WebSockets" });

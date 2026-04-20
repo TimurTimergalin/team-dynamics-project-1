@@ -16,7 +16,7 @@ class TAGDUELS_API UTagDuelsGameInstance : public UGameInstance
 	GENERATED_BODY()
 
 public:
-	// Base Methods
+	// Basic Methods
 	virtual void OnStart() override;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlayerController")
@@ -37,6 +37,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "OSS")
 	EOnlineSubsystemType GetActiveOnlineSubsystemType() const;
+	
+	UFUNCTION(BlueprintCallable, Category = "OSS")
+	void DeletePersistentAuthEOS();
 
 private:
 	// OSS
