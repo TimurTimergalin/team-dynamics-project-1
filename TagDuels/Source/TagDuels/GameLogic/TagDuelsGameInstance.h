@@ -20,7 +20,7 @@ public:
 	virtual void OnStart() override;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlayerController")
-	void BlStart();
+	void Start();
 	
 	// OSS
 	UFUNCTION(BlueprintCallable, Category = "OSS")
@@ -38,14 +38,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "OSS")
 	EOnlineSubsystemType GetActiveOnlineSubsystemType() const;
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "OSS")
+	void OnFailedToLogin(const FString& ErrorMessage);
+
 private:
 	// OSS
-	void OnPersistentLoginComplete(int32 LocalUserNum, bool bWasSuccessful, const FUniqueNetId& UserId, const FString& Error);
+	void OnPersistentEOSLoginComplete(int32 LocalUserNum, bool bWasSuccessful, const FUniqueNetId& UserId, const FString& Error);
 
-	void OnLoginComplete(int32 LocalUserNum, bool bWasSuccessful, const FUniqueNetId& UserId, const FString& Error);
+	void OnEOSLoginComplete(int32 LocalUserNum, bool bWasSuccessful, const FUniqueNetId& UserId, const FString& Error);
     
-	void HandleSuccessfulLogin(const FUniqueNetId& UserId, int32 LocalUserNum);
+	void HandleSuccessfulEOSLogin(const FUniqueNetId& UserId, int32 LocalUserNum);
 
 	FDelegateHandle PersistentLoginDelegateHandle;
 	FDelegateHandle LoginDelegateHandle;
+	FString DebugMessage;
 };

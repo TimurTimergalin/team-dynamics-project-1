@@ -5,93 +5,103 @@
 #include "OnlineSubsystem.h"
 #include "Interfaces/OnlineIdentityInterface.h"
 #include "OnlineSubsystemUtils.h"
-// #include "EOSSubsystem.h"
-// #include "OnlineSubsystemEOS.h"
-// #include "eos_auth.h"
+
 
 // Basic Methods
 void UTagDuelsGameInstance::OnStart()
 {
 	Super::OnStart();
-	BlStart();
+	Start();
 }
-void UTagDuelsGameInstance::BlStart_Implementation()
+void UTagDuelsGameInstance::Start_Implementation()
 {
 }
 
-// OSS
+// Steam
 void UTagDuelsGameInstance::LoginToSteam()
 {
 	IOnlineSubsystem* OnlineSubsystem = Online::GetSubsystem(GetWorld());
 	if (!OnlineSubsystem)
 	{
-		UE_LOG(LogTemp, Error, TEXT("OnlineSubsystem not available"));
+		DebugMessage = FString::Printf(TEXT("OnlineSubsystem not available"));
+		UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
+		OnFailedToLogin(DebugMessage);
 		return;
 	}
-
+	
 	IOnlineIdentityPtr IdentityInterface = OnlineSubsystem->GetIdentityInterface();
 	if (!IdentityInterface.IsValid())
 	{
-		UE_LOG(LogTemp, Error, TEXT("Identity interface not available"));
+		DebugMessage = FString::Printf(TEXT("Identity interface not available"));
+		UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
+		OnFailedToLogin(DebugMessage);
 		return;
 	}
-
+	
 	FUniqueNetIdPtr UserId = IdentityInterface->GetUniquePlayerId(0);
 	if (!UserId.IsValid())
 	{
-		UE_LOG(LogTemp, Error, TEXT("UserId not available"));
+		DebugMessage = FString::Printf(TEXT("UserId not available"));
+		UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
+		OnFailedToLogin(DebugMessage);
 		return;
 	}
-
+	
 	// Get ID and Auth Token
 	FString AccountId = UserId->ToString();
-	FString AuthToken = OnlineSubsystem->GetIdentityInterface()->GetAuthToken(0);
-
+	FString AuthToken = IdentityInterface->GetAuthToken(0);
+	
 	// Print ID and Auth Token
-	UE_LOG(LogTemp, Display, TEXT("Ready to send to backend - Steam ID: %s, Token: %s"), *AccountId, *AuthToken);
-	FString DebugMessage = FString::Printf(TEXT("Ready to send to backend - ID: %s, Token: %s"), *AccountId, *AuthToken);
-	GEngine->AddOnScreenDebugMessage(-1,10.0f, FColor::Green, DebugMessage);
-
-	// Вызываем Blueprint событие
+	DebugMessage = FString::Printf(TEXT("Ready to send to backend - Steam ID: %s, Token: %s"), *AccountId, *AuthToken);
+	UE_LOG(LogTemp, Display, TEXT("%s"), *DebugMessage);
+	if (GEngine) GEngine->AddOnScreenDebugMessage(-1,10.0f, FColor::Green, DebugMessage);
+	
+	// Вызываем ивент в Blueprint GameInstance
 	OnSuccessfulLoginSteam(AccountId, AuthToken);
 }
 
+// EpicGames
 void UTagDuelsGameInstance::LoginToEOS()
 {
     IOnlineSubsystem* OnlineSubsystem = Online::GetSubsystem(GetWorld());
     if (!OnlineSubsystem)
     {
-        UE_LOG(LogTemp, Error, TEXT("OnlineSubsystem not available"));
+    	DebugMessage = FString::Printf(TEXT("OnlineSubsystem not available"));
+    	UE_LOG(LogTemp, Display, TEXT("%s"), *DebugMessage);
+    	OnFailedToLogin(DebugMessage);
         return;
     }
 
     IOnlineIdentityPtr IdentityInterface = OnlineSubsystem->GetIdentityInterface();
     if (!IdentityInterface.IsValid())
     {
-        UE_LOG(LogTemp, Error, TEXT("Identity interface not available"));
+    	DebugMessage = FString::Printf(TEXT("Identity interface not available"));
+    	UE_LOG(LogTemp, Display, TEXT("%s"), *DebugMessage);
+    	OnFailedToLogin(DebugMessage);
         return;
     }
 
-    UE_LOG(LogTemp, Display, TEXT("Attempting Persistent Auth (silent login)..."));
+    UE_LOG(LogTemp, Display, TEXT("Attempting Persistent Auth"));
 
     FOnlineAccountCredentials Credentials;
     Credentials.Type = FString("persistentauth");
 
     PersistentLoginDelegateHandle = IdentityInterface->AddOnLoginCompleteDelegate_Handle(0,
-        FOnLoginCompleteDelegate::CreateUObject(this, &UTagDuelsGameInstance::OnPersistentLoginComplete));
+        FOnLoginCompleteDelegate::CreateUObject(this, &UTagDuelsGameInstance::OnPersistentEOSLoginComplete));
 
     if (!IdentityInterface->Login(0, Credentials))
     {
-        UE_LOG(LogTemp, Error, TEXT("Persistent Auth Login() call failed immediately"));
+    	DebugMessage = FString::Printf(TEXT("Persistent Auth Login() call failed immediately"));
+    	UE_LOG(LogTemp, Display, TEXT("%s"), *DebugMessage);
+    	OnFailedToLogin(DebugMessage);
         IdentityInterface->ClearOnLoginCompleteDelegate_Handle(0, PersistentLoginDelegateHandle);
         PersistentLoginDelegateHandle.Reset();
-        // Fallback не вызываем здесь, так как Login() вернул false
     }
 }
 
-void UTagDuelsGameInstance::OnPersistentLoginComplete(int32 LocalUserNum, bool bWasSuccessful, const FUniqueNetId& UserId, const FString& Error)
+void UTagDuelsGameInstance::OnPersistentEOSLoginComplete(int32 LocalUserNum, bool bWasSuccessful, const FUniqueNetId& UserId, const FString& Error)
 {
-    UE_LOG(LogTemp, Warning, TEXT("=== Persistent Auth Result ==="));
+    UE_LOG(LogTemp, Warning, TEXT("Persistent Auth Result:"));
     UE_LOG(LogTemp, Warning, TEXT("LocalUserNum: %d, Success: %d, Error: %s"), LocalUserNum, bWasSuccessful, *Error);
 
     IOnlineSubsystem* OnlineSubsystem = Online::GetSubsystem(GetWorld());
@@ -107,31 +117,35 @@ void UTagDuelsGameInstance::OnPersistentLoginComplete(int32 LocalUserNum, bool b
 
     if (bWasSuccessful)
     {
-        // Автоматический вход сработал!
+        // Автоматический логин сработал
         UE_LOG(LogTemp, Display, TEXT("Silent login successful!"));
-        HandleSuccessfulLogin(UserId, LocalUserNum);
+        HandleSuccessfulEOSLogin(UserId, LocalUserNum);
         return;
     }
 
-    // Persistent Auth не сработал – запускаем AccountPortal
+    // Persistent Auth не сработал, запускаем AccountPortal
     UE_LOG(LogTemp, Warning, TEXT("Persistent Auth failed, falling back to AccountPortal. Error: %s"), *Error);
 
-    IOnlineIdentityPtr IdentityInterface = Online::GetSubsystem(GetWorld())->GetIdentityInterface();
-    if (!IdentityInterface.IsValid())
-    {
-        UE_LOG(LogTemp, Error, TEXT("Identity interface lost before fallback"));
-        return;
-    }
+	IOnlineIdentityPtr IdentityInterface = OnlineSubsystem->GetIdentityInterface();
+	if (!IdentityInterface.IsValid())
+	{
+		DebugMessage = FString::Printf(TEXT("Identity interface not available"));
+		UE_LOG(LogTemp, Display, TEXT("%s"), *DebugMessage);
+		OnFailedToLogin(DebugMessage);
+		return;
+	}
 
     FOnlineAccountCredentials PortalCredentials;
     PortalCredentials.Type = FString("accountportal");
 
     LoginDelegateHandle = IdentityInterface->AddOnLoginCompleteDelegate_Handle(0,
-        FOnLoginCompleteDelegate::CreateUObject(this, &UTagDuelsGameInstance::OnLoginComplete));
+        FOnLoginCompleteDelegate::CreateUObject(this, &UTagDuelsGameInstance::OnEOSLoginComplete));
 
     if (!IdentityInterface->Login(0, PortalCredentials))
     {
-        UE_LOG(LogTemp, Error, TEXT("Login() call failed immediately"));
+    	DebugMessage = FString::Printf(TEXT("Login() call failed immediately"));
+    	UE_LOG(LogTemp, Display, TEXT("%s"), *DebugMessage);
+    	OnFailedToLogin(DebugMessage);
         IdentityInterface->ClearOnLoginCompleteDelegate_Handle(0, LoginDelegateHandle);
         LoginDelegateHandle.Reset();
     }
@@ -141,8 +155,9 @@ void UTagDuelsGameInstance::OnPersistentLoginComplete(int32 LocalUserNum, bool b
     }
 }
 
-void UTagDuelsGameInstance::OnLoginComplete(int32 LocalUserNum, bool bWasSuccessful, const FUniqueNetId& UserId, const FString& Error)
+void UTagDuelsGameInstance::OnEOSLoginComplete(int32 LocalUserNum, bool bWasSuccessful, const FUniqueNetId& UserId, const FString& Error)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Portal Auth Result:"));
     UE_LOG(LogTemp, Warning, TEXT("LocalUserNum: %d, Success: %d, Error: %s"), LocalUserNum, bWasSuccessful, *Error);
 
     IOnlineSubsystem* OnlineSubsystem = Online::GetSubsystem(GetWorld());
@@ -159,7 +174,7 @@ void UTagDuelsGameInstance::OnLoginComplete(int32 LocalUserNum, bool bWasSuccess
     if (bWasSuccessful)
     {
         UE_LOG(LogTemp, Display, TEXT("Login successful!"));
-        HandleSuccessfulLogin(UserId, LocalUserNum);
+        HandleSuccessfulEOSLogin(UserId, LocalUserNum);
     }
     else
     {
@@ -167,29 +182,43 @@ void UTagDuelsGameInstance::OnLoginComplete(int32 LocalUserNum, bool bWasSuccess
     }
 }
 
-void UTagDuelsGameInstance::HandleSuccessfulLogin(const FUniqueNetId& UserId, int32 LocalUserNum)
+void UTagDuelsGameInstance::HandleSuccessfulEOSLogin(const FUniqueNetId& UserId, int32 LocalUserNum)
 {
-    IOnlineSubsystem* OnlineSubsystem = Online::GetSubsystem(GetWorld());
-    if (!OnlineSubsystem) return;
+	IOnlineSubsystem* OnlineSubsystem = Online::GetSubsystem(GetWorld());
+	if (!OnlineSubsystem)
+	{
+		DebugMessage = FString::Printf(TEXT("OnlineSubsystem not available"));
+		UE_LOG(LogTemp, Display, TEXT("%s"), *DebugMessage);
+		OnFailedToLogin(DebugMessage);
+		return;
+	}
 
-    IOnlineIdentityPtr IdentityInterface = OnlineSubsystem->GetIdentityInterface();
-    if (!IdentityInterface.IsValid()) return;
+	IOnlineIdentityPtr IdentityInterface = OnlineSubsystem->GetIdentityInterface();
+	if (!IdentityInterface.IsValid())
+	{
+		DebugMessage = FString::Printf(TEXT("Identity interface not available"));
+		UE_LOG(LogTemp, Display, TEXT("%s"), *DebugMessage);
+		OnFailedToLogin(DebugMessage);
+		return;
+	}
+
 
 	FString AccountId = UserId.ToString();
-	FString AuthToken = OnlineSubsystem->GetIdentityInterface()->GetAuthToken(LocalUserNum);
+	FString AuthToken = IdentityInterface->GetAuthToken(LocalUserNum);
 
 	// Print ID and Auth Token
-	UE_LOG(LogTemp, Display, TEXT("Ready to send to backend - Epic ID: %s, Token: %s"), *AccountId, *AuthToken);
-	FString DebugMessage = FString::Printf(TEXT("Ready to send to backend - ID: %s, Token: %s"), *AccountId, *AuthToken);
-	GEngine->AddOnScreenDebugMessage(-1,10.0f, FColor::Green, DebugMessage);
+	DebugMessage = FString::Printf(TEXT("Ready to send to backend - Epic ID: %s, Token: %s"), *AccountId, *AuthToken);
+	UE_LOG(LogTemp, Display, TEXT("%s"), *DebugMessage);
+	if (GEngine) GEngine->AddOnScreenDebugMessage(-1,10.0f, FColor::Green, DebugMessage);
 
-	// Вызываем Blueprint событие
+	// Вызываем ивент в Blueprint GameInstance
 	OnSuccessfulLoginEOS(AccountId, AuthToken);
 }
 
+// OSS
 EOnlineSubsystemType UTagDuelsGameInstance::GetActiveOnlineSubsystemType() const
 {
-	FName SubsystemName = GetOnlinePlatformName(); // "Steam", "EOS", "NULL" и т.д.
+	FName SubsystemName = GetOnlinePlatformName();
 
 	if (SubsystemName == FName(TEXT("Steam")))
 	{
