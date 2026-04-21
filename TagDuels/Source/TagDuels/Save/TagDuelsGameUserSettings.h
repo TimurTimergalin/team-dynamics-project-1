@@ -15,20 +15,23 @@ class TAGDUELS_API UTagDuelsGameUserSettings : public UGameUserSettings
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintCallable, Category = Settings)
+	static UTagDuelsGameUserSettings* GetTagDuelsGameUserSettings();
+	
 	UFUNCTION(BlueprintPure, Category=Settings)
-	float GetMasterVolume();
+	float GetMasterVolume() const;
 
 	UFUNCTION(BlueprintCallable, Category=Settings)
 	void SetMasterVolume(float Volume);
 
 	UFUNCTION(BlueprintPure, Category=Settings)
-	float GetMusicVolume();
+	float GetMusicVolume() const;
 
 	UFUNCTION(BlueprintCallable, Category=Settings)
 	void SetMusicVolume(float Volume);
 
 	UFUNCTION(BlueprintPure, Category=Settings)
-	float GetSFXVolume();
+	float GetSFXVolume() const;
 
 	UFUNCTION(BlueprintCallable, Category=Settings)
 	void SetSFXVolume(float Volume);
