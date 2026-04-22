@@ -45,12 +45,6 @@ public:
 	bool GetRating(FOnInt64Response OnResponse, FOnErroneousResponse OnError);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	void SubscribeToMatchStart(FOnMatch Callback);
-
-	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	void ClearMatchStartCallback();
-
-	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
 	void SendOrAcceptRequest(int64 OtherUserId, FOnEmptyResponse OnResponse, FOnErroneousResponse OnError);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
@@ -72,7 +66,7 @@ public:
 	bool CancelMatchMaking();
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	bool DisconnectFromMMEvent(FOnMatch OnResponse, FOnErroneousResponse OnError);
+	bool DisconnectFromMMEvent();
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
 	void ConnectToUserEvent(FOnEmptyResponse OnResponse, FOnErroneousResponse OnError);

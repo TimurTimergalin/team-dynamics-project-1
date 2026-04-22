@@ -11,4 +11,5 @@ use (
 	./services/mm_event
 	./services/rating_service
 	./services/user_service
+	./services/user_event
 )
