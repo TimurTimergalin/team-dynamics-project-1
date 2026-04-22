@@ -33,7 +33,8 @@ message GetUserDataResponse {
 }
 
 message GetFriendsRequest {
-    optional string pagekey = 1;
+    optional int64 user_id = 1;
+    optional string pagekey = 2;
 }
 
 message GetFriendsResponse {
@@ -42,7 +43,8 @@ message GetFriendsResponse {
 }
 
 message GetIncomingRequestsRequest {
-    optional string pagekey = 1;
+    optional int64 user_id = 1;
+    optional string pagekey = 2;
 }
 
 message GetIncomingRequestsResponse {
@@ -51,7 +53,8 @@ message GetIncomingRequestsResponse {
 }
 
 message GetOutgoingRequestsRequest {
-    optional string pagekey = 1;
+    optional int64 user_id = 1;
+    optional string pagekey = 2;
 }
 
 message GetOutgoingRequestsResponse {
@@ -59,20 +62,38 @@ message GetOutgoingRequestsResponse {
     optional string pagekey = 2;
 }
 
+enum AddFriendResult {
+    ADD_FRIEND_RESULT_UNSPECIFIED = 0;
+    ADD_FRIEND_RESULT_NOOP = 1;
+    ADD_FRIEND_RESULT_REQUEST_SENT = 2;
+    ADD_FRIEND_RESULT_ACCEPTED = 3;
+}
+
 message AddFriendRequest {
     optional int64 user_id = 1;
+    optional int64 other_user_id = 2;
 }
 
 message AddFriendResponse {
     optional Friend friend = 1;
+    AddFriendResult result = 2;
+}
+
+enum RemoveFriendResult {
+    REMOVE_FRIEND_RESULT_UNSPECIFIED = 0;
+    REMOVE_FRIEND_RESULT_NOOP = 1;
+    REMOVE_FRIEND_RESULT_REQUEST_CANCELLED = 2;
+    REMOVE_FRIEND_RESULT_REQUEST_DECLINED = 3;
+    REMOVE_FRIEND_RESULT_FRIEND_REMOVED = 4;
 }
 
 message RemoveFriendRequest {
     optional int64 user_id = 1;
+    optional int64 other_user_id = 2;
 }
 
 message RemoveFriendResponse {
-    optional bool removed = 1;
+    RemoveFriendResult result = 1;
 }
 
 service UserService {
@@ -106,16 +127,7 @@ service UserService {
         };
     }
 
-    rpc AddFriend(AddFriendRequest) returns (AddFriendResponse) {
-        option (google.api.http) = {
-            post: "/v1/friends"
-            body: "*"
-        };
-    }
+    rpc AddFriend(AddFriendRequest) returns (AddFriendResponse);
 
-    rpc RemoveFriend(RemoveFriendRequest) returns (RemoveFriendResponse) {
-        option (google.api.http) = {
-            delete: "/v1/friends/{user_id}"
-        };
-    }
+    rpc RemoveFriend(RemoveFriendRequest) returns (RemoveFriendResponse);
 }

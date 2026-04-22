@@ -35,6 +35,6 @@ const (
 	ConnectionError = pg_lib.ConnectionError
 )
 
-func PerformOperation[T any](ctx context.Context, pool *pgxpool.Pool, cfg *QueryConfig, op func(context.Context, pgx.Tx) (*T, error, ResponseStatus)) (*T, *PgLibError) {
+func PerformOperation[T any](ctx context.Context, pool *pgxpool.Pool, cfg *QueryConfig, op func(context.Context, pgx.Tx) (T, error, ResponseStatus)) (T, *PgLibError) {
 	return pg_lib.PerformOperation(ctx, pool, cfg, op)
 }

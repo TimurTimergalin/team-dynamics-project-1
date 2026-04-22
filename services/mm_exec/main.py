@@ -6,8 +6,7 @@ from redis.backoff import ExponentialBackoff
 import service as service_py
 import scheduler as scheduler_py
 import redis_repo
-import gen.proto.python.match_service.match_service_pb2_grpc as ms_grpc_pb2
-import grpc
+from downstream.match_service import GrpcMatchServiceClientFactory
 import sys
 from contextlib import redirect_stdout
 
@@ -70,12 +69,9 @@ def main():
         encoding='utf-8',
         retry=Retry(backoff=ExponentialBackoff(), retries=retry_number),
     )
-    channel = grpc.insecure_channel(mme_cfg.match_service_address)
-    stub = ms_grpc_pb2.MatchServiceStub(channel)
-
     service = service_py.MMExecService(
         redis_repo.Ops(rdb, mme_cfg),
-        stub
+        GrpcMatchServiceClientFactory(mme_cfg.match_service_address)
     )
     job = service.execute
     scheduler = scheduler_py.Scheduler(job, mme_cfg.scheduling_period_millis)

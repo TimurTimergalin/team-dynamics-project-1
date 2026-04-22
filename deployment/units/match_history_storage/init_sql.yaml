@@ -22,7 +22,7 @@ data:
         is_player1_killer BOOLEAN,
         time_millis BIGINT,
         PRIMARY KEY (match_id, round_number),
-        FOREIGN KEY (match_id) REFERENCES matches(match_id)
+          FOREIGN KEY (match_id) REFERENCES matches(match_id)
     );
     
     CREATE INDEX IF NOT EXISTS idx_matches_player1_timestamp ON matches (player1_id, end_timestamp DESC);

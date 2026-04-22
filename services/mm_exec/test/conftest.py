@@ -1,41 +1,34 @@
 import pytest
 import services.mm_exec.config as config_py
+import services.mm_exec.downstream.match_service as ms_downstream
 import fakeredis
 
 
 @pytest.fixture
-def _start_match():
-    def base_impl(*args, **kwargs):
-        raise NotImplementedError("Not implemented")
+def mock_start_match():
+    class MockMatchServiceFactory(ms_downstream.MatchServiceClientFactory):
+        def __init__(self):
+            self._impl = None
 
-    class StartMatchMockContainer:
-        pass
+        def start_match(self, request):
+            if self._impl is None:
+                raise NotImplementedError("start_match not configured")
+            return self._impl(request)
 
-    res = StartMatchMockContainer()
-    res.start_match = base_impl
-    return res
+        def __call__(self, f):
+            self._impl = f
 
-
-@pytest.fixture
-def ms_client(_start_match):
-    class MockClient:
-        def StartMatch(self, *args, **kwargs):
-            return _start_match.start_match(self, *args, **kwargs)
-
-    return MockClient()
+    return MockMatchServiceFactory()
 
 
 @pytest.fixture
-def mock_start_match(_start_match):
-    def dec(f):
-        _start_match.start_match = f
-
-    return dec
+def ms_factory(mock_start_match):
+    return mock_start_match
 
 
 @pytest.fixture
 def cfg():
-    return config_py.MMExecConfig(10_000, 10_000, 5_000, "", "")
+    return config_py.MMExecConfig(10_000, 10_000, 5_000, "")
 
 
 @pytest.fixture

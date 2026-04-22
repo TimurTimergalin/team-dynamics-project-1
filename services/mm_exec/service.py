@@ -2,15 +2,15 @@ import traceback
 from itertools import chain
 
 import gen.proto.python.match_service.match_service_pb2 as ms_pb2
-import gen.proto.python.match_service.match_service_pb2_grpc as ms_grpc_pb2
 import models
 import redis_repo
+from downstream.match_service import MatchServiceClientFactory
 
 
 class MMExecService:
-    def __init__(self, redis_ops: redis_repo.Ops, ms_client: ms_grpc_pb2.MatchServiceStub):
+    def __init__(self, redis_ops: redis_repo.Ops, ms_factory: MatchServiceClientFactory):
         self.redis_ops = redis_ops
-        self.ms_client = ms_client
+        self.ms_factory = ms_factory
 
     def make_player_data(self, player: models.Player) -> ms_pb2.PlayerData:
         return ms_pb2.PlayerData(
@@ -48,7 +48,7 @@ class MMExecService:
                 chain.from_iterable((str(m.player1.id), str(m.player2.id)) for m in matches))
             ms_request = self.make_request(matches)
             try:
-                response = self.ms_client.StartMatch(ms_request)
+                response = self.ms_factory.start_match(ms_request)
                 print("ms response:", response)
                 for inp_match, out_match in zip(matches, response.results):
                     if out_match.player1_fail_response == ms_pb2.PLAYER_FAIL_RESPONSE_REENTER:

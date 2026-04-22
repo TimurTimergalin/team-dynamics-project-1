@@ -5,17 +5,14 @@ import (
 	"fmt"
 	"github.com/redis/go-redis/v9"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"net"
 	"os"
 	"strconv"
-	fmPb "team_dynamics/api/proto/fleet_manager"
-	mhsPb "team_dynamics/api/proto/match_history_service"
 	pb "team_dynamics/api/proto/match_service"
-	rsPb "team_dynamics/api/proto/rating_service"
 	"team_dynamics/match_service/config"
 	"team_dynamics/match_service/controllers"
+	"team_dynamics/match_service/downstream"
 	msRedis "team_dynamics/match_service/redis"
 	"team_dynamics/match_service/services"
 	"time"
@@ -145,38 +142,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("error in match service config: %v", err)
 	}
-	fmConn, err := grpc.NewClient(matchServiceConfig.FleetManagerAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	defer func(fmConn *grpc.ClientConn) {
-		_ = fmConn.Close()
-	}(fmConn)
-	if err != nil {
-		log.Fatalf("error in fleet manager: %v", err)
-	}
-	fmClient := fmPb.NewFleetManagerClient(fmConn)
-	rsConn, err := grpc.NewClient(matchServiceConfig.RatingServiceAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	defer func(rsConn *grpc.ClientConn) {
-		_ = rsConn.Close()
-	}(rsConn)
-	if err != nil {
-		log.Fatalf("error in rating service: %v", err)
-	}
-	rsClient := rsPb.NewRatingServiceClient(rsConn)
-	mhsConn, err := grpc.NewClient(matchServiceConfig.MatchHistoryServiceAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	defer func(mhsConn *grpc.ClientConn) {
-		_ = mhsConn.Close()
-	}(mhsConn)
-	if err != nil {
-		log.Fatalf("error in match history service: %v", err)
-	}
-	mhsClient := mhsPb.NewMatchHistoryServiceClient(mhsConn)
 	controller := &controllers.MatchServiceController{
 		Service: services.MakeMatchService(
-			msRedis.MakeMatchKvRepo(
-				redisClient,
-			),
-			fmClient,
-			rsClient,
-			mhsClient,
+			msRedis.MakeMatchKvRepo(redisClient),
+				downstream.NewFleetManagerClientFactory(matchServiceConfig.FleetManagerAddress),
+			downstream.NewRatingServiceClientFactory(matchServiceConfig.RatingServiceAddress),
+			downstream.NewMatchHistoryServiceClientFactory(matchServiceConfig.MatchHistoryServiceAddress),
 		),
 	}
 

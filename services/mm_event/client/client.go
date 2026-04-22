@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	msPb "team_dynamics/api/proto/match_service"
 	"team_dynamics/mm_event/connection"
+	"team_dynamics/mm_event/downstream"
 	mmeJson "team_dynamics/mm_event/json"
 	"team_dynamics/mm_event/models"
 	"team_dynamics/mm_event/redis"
@@ -38,7 +39,7 @@ type clientImpl struct {
 	mmPoolRepo              redis.MMPoolRepo
 	logger                  *slog.Logger
 	player                  *models.Player
-	msClient                msPb.MatchServiceClient
+	msFactory               downstream.MatchServiceClientFactory
 	config                  *Config
 }
 
@@ -119,10 +120,7 @@ func (c *clientImpl) checkMatch() (*string, error) {
 	if c.state != WaitingForMatch {
 		return nil, nil
 	}
-	req := &msPb.GetMatchRequest{
-		PlayerId: &c.player.Id,
-	}
-	resp, err := c.msClient.GetMatch(c.ctx, req)
+	resp, err := c.msFactory.GetMatch(c.ctx, &msPb.GetMatchRequest{PlayerId: &c.player.Id})
 	if err != nil {
 		c.logger.Error("failed to get match", "player_id", c.player.Id, "error", err)
 		c.state = Erroneous

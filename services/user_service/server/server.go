@@ -190,9 +190,16 @@ func main() {
 		panic(fmt.Sprintf("Unable to get http listen address: %v", err))
 	}
 
+	steamApiKey := os.Getenv("STEAM_API_KEY")
+	if steamApiKey == "" {
+		panic("STEAM_API_KEY environment variable not set")
+	}
+
 	controller := &controllers.UserServiceController{
 		Service: services.MakeUserService(
 			pg.MakeUserStorageRepo(pool),
+			services.MakePageKeyService(),
+			services.NewSteamService(steamApiKey),
 		),
 	}
 

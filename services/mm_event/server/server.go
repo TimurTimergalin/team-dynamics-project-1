@@ -5,18 +5,14 @@ import (
 	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/redis/go-redis/v9"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"log/slog"
 	"net/http"
 	"os"
 	"strconv"
-	msPb "team_dynamics/api/proto/match_service"
-	rsPb "team_dynamics/api/proto/rating_service"
-	usPb "team_dynamics/api/proto/user_service"
 	"team_dynamics/mm_event/client"
 	"team_dynamics/mm_event/controllers"
+	"team_dynamics/mm_event/downstream"
 	mmeRedis "team_dynamics/mm_event/redis"
 	"time"
 )
@@ -244,30 +240,6 @@ func main() {
 	handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{AddSource: true, Level: slog.LevelDebug})
 	logger := slog.New(handler)
 
-	usConn, err := grpc.NewClient(mmeCfg.UserServiceAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	defer func(usConn *grpc.ClientConn) {
-		_ = usConn.Close()
-	}(usConn)
-	if err != nil {
-		log.Fatalf("cannot connect to user service")
-	}
-	usClient := usPb.NewUserServiceClient(usConn)
-	rsConn, err := grpc.NewClient(mmeCfg.RatingServiceAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	defer func(rsConn *grpc.ClientConn) {
-		_ = rsConn.Close()
-	}(rsConn)
-	if err != nil {
-		log.Fatalf("cannot connect to rating service")
-	}
-	rsClient := rsPb.NewRatingServiceClient(rsConn)
-	msConn, err := grpc.NewClient(mmeCfg.MatchServiceAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	defer func(msConn *grpc.ClientConn) {
-		_ = msConn.Close()
-	}(msConn)
-	if err != nil {
-		log.Fatalf("cannot connect to match service")
-	}
-	msClient := msPb.NewMatchServiceClient(msConn)
 	upgrader := &websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
@@ -275,9 +247,13 @@ func main() {
 			return true
 		},
 	}
-
 	hub := client.NewHub(disconnectCh, registerCh, logger, clientConfig)
-	factory := client.NewClientFactory(msClient, rsClient, usClient, mmPoolRepo, disconnectCh, logger, clientConfig, upgrader)
+	factory := client.NewClientFactory(
+		downstream.NewMatchServiceClientFactory(mmeCfg.MatchServiceAddress),
+		downstream.NewRatingServiceClientFactory(mmeCfg.RatingServiceAddress),
+		downstream.NewUserServiceClientFactory(mmeCfg.UserServiceAddress),
+		mmPoolRepo, disconnectCh, logger, clientConfig, upgrader,
+	)
 
 	controller := controllers.NewMMEventController(
 		hub,

@@ -23,6 +23,113 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type AddFriendResult int32
+
+const (
+	AddFriendResult_ADD_FRIEND_RESULT_UNSPECIFIED  AddFriendResult = 0
+	AddFriendResult_ADD_FRIEND_RESULT_NOOP         AddFriendResult = 1
+	AddFriendResult_ADD_FRIEND_RESULT_REQUEST_SENT AddFriendResult = 2
+	AddFriendResult_ADD_FRIEND_RESULT_ACCEPTED     AddFriendResult = 3
+)
+
+// Enum value maps for AddFriendResult.
+var (
+	AddFriendResult_name = map[int32]string{
+		0: "ADD_FRIEND_RESULT_UNSPECIFIED",
+		1: "ADD_FRIEND_RESULT_NOOP",
+		2: "ADD_FRIEND_RESULT_REQUEST_SENT",
+		3: "ADD_FRIEND_RESULT_ACCEPTED",
+	}
+	AddFriendResult_value = map[string]int32{
+		"ADD_FRIEND_RESULT_UNSPECIFIED":  0,
+		"ADD_FRIEND_RESULT_NOOP":         1,
+		"ADD_FRIEND_RESULT_REQUEST_SENT": 2,
+		"ADD_FRIEND_RESULT_ACCEPTED":     3,
+	}
+)
+
+func (x AddFriendResult) Enum() *AddFriendResult {
+	p := new(AddFriendResult)
+	*p = x
+	return p
+}
+
+func (x AddFriendResult) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AddFriendResult) Descriptor() protoreflect.EnumDescriptor {
+	return file_user_service_user_service_proto_enumTypes[0].Descriptor()
+}
+
+func (AddFriendResult) Type() protoreflect.EnumType {
+	return &file_user_service_user_service_proto_enumTypes[0]
+}
+
+func (x AddFriendResult) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AddFriendResult.Descriptor instead.
+func (AddFriendResult) EnumDescriptor() ([]byte, []int) {
+	return file_user_service_user_service_proto_rawDescGZIP(), []int{0}
+}
+
+type RemoveFriendResult int32
+
+const (
+	RemoveFriendResult_REMOVE_FRIEND_RESULT_UNSPECIFIED       RemoveFriendResult = 0
+	RemoveFriendResult_REMOVE_FRIEND_RESULT_NOOP              RemoveFriendResult = 1
+	RemoveFriendResult_REMOVE_FRIEND_RESULT_REQUEST_CANCELLED RemoveFriendResult = 2
+	RemoveFriendResult_REMOVE_FRIEND_RESULT_REQUEST_DECLINED  RemoveFriendResult = 3
+	RemoveFriendResult_REMOVE_FRIEND_RESULT_FRIEND_REMOVED    RemoveFriendResult = 4
+)
+
+// Enum value maps for RemoveFriendResult.
+var (
+	RemoveFriendResult_name = map[int32]string{
+		0: "REMOVE_FRIEND_RESULT_UNSPECIFIED",
+		1: "REMOVE_FRIEND_RESULT_NOOP",
+		2: "REMOVE_FRIEND_RESULT_REQUEST_CANCELLED",
+		3: "REMOVE_FRIEND_RESULT_REQUEST_DECLINED",
+		4: "REMOVE_FRIEND_RESULT_FRIEND_REMOVED",
+	}
+	RemoveFriendResult_value = map[string]int32{
+		"REMOVE_FRIEND_RESULT_UNSPECIFIED":       0,
+		"REMOVE_FRIEND_RESULT_NOOP":              1,
+		"REMOVE_FRIEND_RESULT_REQUEST_CANCELLED": 2,
+		"REMOVE_FRIEND_RESULT_REQUEST_DECLINED":  3,
+		"REMOVE_FRIEND_RESULT_FRIEND_REMOVED":    4,
+	}
+)
+
+func (x RemoveFriendResult) Enum() *RemoveFriendResult {
+	p := new(RemoveFriendResult)
+	*p = x
+	return p
+}
+
+func (x RemoveFriendResult) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RemoveFriendResult) Descriptor() protoreflect.EnumDescriptor {
+	return file_user_service_user_service_proto_enumTypes[1].Descriptor()
+}
+
+func (RemoveFriendResult) Type() protoreflect.EnumType {
+	return &file_user_service_user_service_proto_enumTypes[1]
+}
+
+func (x RemoveFriendResult) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RemoveFriendResult.Descriptor instead.
+func (RemoveFriendResult) EnumDescriptor() ([]byte, []int) {
+	return file_user_service_user_service_proto_rawDescGZIP(), []int{1}
+}
+
 type UserData struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            *int64                 `protobuf:"varint,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
@@ -305,7 +412,8 @@ func (x *GetUserDataResponse) GetUserData() *UserData {
 
 type GetFriendsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Pagekey       *string                `protobuf:"bytes,1,opt,name=pagekey,proto3,oneof" json:"pagekey,omitempty"`
+	UserId        *int64                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
+	Pagekey       *string                `protobuf:"bytes,2,opt,name=pagekey,proto3,oneof" json:"pagekey,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -338,6 +446,13 @@ func (x *GetFriendsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use GetFriendsRequest.ProtoReflect.Descriptor instead.
 func (*GetFriendsRequest) Descriptor() ([]byte, []int) {
 	return file_user_service_user_service_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetFriendsRequest) GetUserId() int64 {
+	if x != nil && x.UserId != nil {
+		return *x.UserId
+	}
+	return 0
 }
 
 func (x *GetFriendsRequest) GetPagekey() string {
@@ -401,7 +516,8 @@ func (x *GetFriendsResponse) GetPagekey() string {
 
 type GetIncomingRequestsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Pagekey       *string                `protobuf:"bytes,1,opt,name=pagekey,proto3,oneof" json:"pagekey,omitempty"`
+	UserId        *int64                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
+	Pagekey       *string                `protobuf:"bytes,2,opt,name=pagekey,proto3,oneof" json:"pagekey,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -434,6 +550,13 @@ func (x *GetIncomingRequestsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use GetIncomingRequestsRequest.ProtoReflect.Descriptor instead.
 func (*GetIncomingRequestsRequest) Descriptor() ([]byte, []int) {
 	return file_user_service_user_service_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GetIncomingRequestsRequest) GetUserId() int64 {
+	if x != nil && x.UserId != nil {
+		return *x.UserId
+	}
+	return 0
 }
 
 func (x *GetIncomingRequestsRequest) GetPagekey() string {
@@ -497,7 +620,8 @@ func (x *GetIncomingRequestsResponse) GetPagekey() string {
 
 type GetOutgoingRequestsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Pagekey       *string                `protobuf:"bytes,1,opt,name=pagekey,proto3,oneof" json:"pagekey,omitempty"`
+	UserId        *int64                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
+	Pagekey       *string                `protobuf:"bytes,2,opt,name=pagekey,proto3,oneof" json:"pagekey,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -530,6 +654,13 @@ func (x *GetOutgoingRequestsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use GetOutgoingRequestsRequest.ProtoReflect.Descriptor instead.
 func (*GetOutgoingRequestsRequest) Descriptor() ([]byte, []int) {
 	return file_user_service_user_service_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *GetOutgoingRequestsRequest) GetUserId() int64 {
+	if x != nil && x.UserId != nil {
+		return *x.UserId
+	}
+	return 0
 }
 
 func (x *GetOutgoingRequestsRequest) GetPagekey() string {
@@ -594,6 +725,7 @@ func (x *GetOutgoingRequestsResponse) GetPagekey() string {
 type AddFriendRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        *int64                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
+	OtherUserId   *int64                 `protobuf:"varint,2,opt,name=other_user_id,json=otherUserId,proto3,oneof" json:"other_user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -635,9 +767,17 @@ func (x *AddFriendRequest) GetUserId() int64 {
 	return 0
 }
 
+func (x *AddFriendRequest) GetOtherUserId() int64 {
+	if x != nil && x.OtherUserId != nil {
+		return *x.OtherUserId
+	}
+	return 0
+}
+
 type AddFriendResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Friend        *Friend                `protobuf:"bytes,1,opt,name=friend,proto3,oneof" json:"friend,omitempty"`
+	Result        AddFriendResult        `protobuf:"varint,2,opt,name=result,proto3,enum=user_service.AddFriendResult" json:"result,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -679,9 +819,17 @@ func (x *AddFriendResponse) GetFriend() *Friend {
 	return nil
 }
 
+func (x *AddFriendResponse) GetResult() AddFriendResult {
+	if x != nil {
+		return x.Result
+	}
+	return AddFriendResult_ADD_FRIEND_RESULT_UNSPECIFIED
+}
+
 type RemoveFriendRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        *int64                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
+	OtherUserId   *int64                 `protobuf:"varint,2,opt,name=other_user_id,json=otherUserId,proto3,oneof" json:"other_user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -723,9 +871,16 @@ func (x *RemoveFriendRequest) GetUserId() int64 {
 	return 0
 }
 
+func (x *RemoveFriendRequest) GetOtherUserId() int64 {
+	if x != nil && x.OtherUserId != nil {
+		return *x.OtherUserId
+	}
+	return 0
+}
+
 type RemoveFriendResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Removed       *bool                  `protobuf:"varint,1,opt,name=removed,proto3,oneof" json:"removed,omitempty"`
+	Result        RemoveFriendResult     `protobuf:"varint,1,opt,name=result,proto3,enum=user_service.RemoveFriendResult" json:"result,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -760,11 +915,11 @@ func (*RemoveFriendResponse) Descriptor() ([]byte, []int) {
 	return file_user_service_user_service_proto_rawDescGZIP(), []int{15}
 }
 
-func (x *RemoveFriendResponse) GetRemoved() bool {
-	if x != nil && x.Removed != nil {
-		return *x.Removed
+func (x *RemoveFriendResponse) GetResult() RemoveFriendResult {
+	if x != nil {
+		return x.Result
 	}
-	return false
+	return RemoveFriendResult_REMOVE_FRIEND_RESULT_UNSPECIFIED
 }
 
 var File_user_service_user_service_proto protoreflect.FileDescriptor
@@ -795,49 +950,72 @@ const file_user_service_user_service_proto_rawDesc = "" +
 	"\x13GetUserDataResponse\x128\n" +
 	"\tuser_data\x18\x01 \x01(\v2\x16.user_service.UserDataH\x00R\buserData\x88\x01\x01B\f\n" +
 	"\n" +
-	"_user_data\">\n" +
-	"\x11GetFriendsRequest\x12\x1d\n" +
-	"\apagekey\x18\x01 \x01(\tH\x00R\apagekey\x88\x01\x01B\n" +
+	"_user_data\"h\n" +
+	"\x11GetFriendsRequest\x12\x1c\n" +
+	"\auser_id\x18\x01 \x01(\x03H\x00R\x06userId\x88\x01\x01\x12\x1d\n" +
+	"\apagekey\x18\x02 \x01(\tH\x01R\apagekey\x88\x01\x01B\n" +
+	"\n" +
+	"\b_user_idB\n" +
 	"\n" +
 	"\b_pagekey\"o\n" +
 	"\x12GetFriendsResponse\x12.\n" +
 	"\afriends\x18\x01 \x03(\v2\x14.user_service.FriendR\afriends\x12\x1d\n" +
 	"\apagekey\x18\x02 \x01(\tH\x00R\apagekey\x88\x01\x01B\n" +
 	"\n" +
-	"\b_pagekey\"G\n" +
-	"\x1aGetIncomingRequestsRequest\x12\x1d\n" +
-	"\apagekey\x18\x01 \x01(\tH\x00R\apagekey\x88\x01\x01B\n" +
+	"\b_pagekey\"q\n" +
+	"\x1aGetIncomingRequestsRequest\x12\x1c\n" +
+	"\auser_id\x18\x01 \x01(\x03H\x00R\x06userId\x88\x01\x01\x12\x1d\n" +
+	"\apagekey\x18\x02 \x01(\tH\x01R\apagekey\x88\x01\x01B\n" +
+	"\n" +
+	"\b_user_idB\n" +
 	"\n" +
 	"\b_pagekey\"x\n" +
 	"\x1bGetIncomingRequestsResponse\x12.\n" +
 	"\afriends\x18\x01 \x03(\v2\x14.user_service.FriendR\afriends\x12\x1d\n" +
 	"\apagekey\x18\x02 \x01(\tH\x00R\apagekey\x88\x01\x01B\n" +
 	"\n" +
-	"\b_pagekey\"G\n" +
-	"\x1aGetOutgoingRequestsRequest\x12\x1d\n" +
-	"\apagekey\x18\x01 \x01(\tH\x00R\apagekey\x88\x01\x01B\n" +
+	"\b_pagekey\"q\n" +
+	"\x1aGetOutgoingRequestsRequest\x12\x1c\n" +
+	"\auser_id\x18\x01 \x01(\x03H\x00R\x06userId\x88\x01\x01\x12\x1d\n" +
+	"\apagekey\x18\x02 \x01(\tH\x01R\apagekey\x88\x01\x01B\n" +
+	"\n" +
+	"\b_user_idB\n" +
 	"\n" +
 	"\b_pagekey\"x\n" +
 	"\x1bGetOutgoingRequestsResponse\x12.\n" +
 	"\afriends\x18\x01 \x03(\v2\x14.user_service.FriendR\afriends\x12\x1d\n" +
 	"\apagekey\x18\x02 \x01(\tH\x00R\apagekey\x88\x01\x01B\n" +
 	"\n" +
-	"\b_pagekey\"<\n" +
+	"\b_pagekey\"w\n" +
 	"\x10AddFriendRequest\x12\x1c\n" +
-	"\auser_id\x18\x01 \x01(\x03H\x00R\x06userId\x88\x01\x01B\n" +
+	"\auser_id\x18\x01 \x01(\x03H\x00R\x06userId\x88\x01\x01\x12'\n" +
+	"\rother_user_id\x18\x02 \x01(\x03H\x01R\votherUserId\x88\x01\x01B\n" +
 	"\n" +
-	"\b_user_id\"Q\n" +
+	"\b_user_idB\x10\n" +
+	"\x0e_other_user_id\"\x88\x01\n" +
 	"\x11AddFriendResponse\x121\n" +
-	"\x06friend\x18\x01 \x01(\v2\x14.user_service.FriendH\x00R\x06friend\x88\x01\x01B\t\n" +
-	"\a_friend\"?\n" +
+	"\x06friend\x18\x01 \x01(\v2\x14.user_service.FriendH\x00R\x06friend\x88\x01\x01\x125\n" +
+	"\x06result\x18\x02 \x01(\x0e2\x1d.user_service.AddFriendResultR\x06resultB\t\n" +
+	"\a_friend\"z\n" +
 	"\x13RemoveFriendRequest\x12\x1c\n" +
-	"\auser_id\x18\x01 \x01(\x03H\x00R\x06userId\x88\x01\x01B\n" +
+	"\auser_id\x18\x01 \x01(\x03H\x00R\x06userId\x88\x01\x01\x12'\n" +
+	"\rother_user_id\x18\x02 \x01(\x03H\x01R\votherUserId\x88\x01\x01B\n" +
 	"\n" +
-	"\b_user_id\"A\n" +
-	"\x14RemoveFriendResponse\x12\x1d\n" +
-	"\aremoved\x18\x01 \x01(\bH\x00R\aremoved\x88\x01\x01B\n" +
-	"\n" +
-	"\b_removed2\xb7\x06\n" +
+	"\b_user_idB\x10\n" +
+	"\x0e_other_user_id\"P\n" +
+	"\x14RemoveFriendResponse\x128\n" +
+	"\x06result\x18\x01 \x01(\x0e2 .user_service.RemoveFriendResultR\x06result*\x94\x01\n" +
+	"\x0fAddFriendResult\x12!\n" +
+	"\x1dADD_FRIEND_RESULT_UNSPECIFIED\x10\x00\x12\x1a\n" +
+	"\x16ADD_FRIEND_RESULT_NOOP\x10\x01\x12\"\n" +
+	"\x1eADD_FRIEND_RESULT_REQUEST_SENT\x10\x02\x12\x1e\n" +
+	"\x1aADD_FRIEND_RESULT_ACCEPTED\x10\x03*\xd9\x01\n" +
+	"\x12RemoveFriendResult\x12$\n" +
+	" REMOVE_FRIEND_RESULT_UNSPECIFIED\x10\x00\x12\x1d\n" +
+	"\x19REMOVE_FRIEND_RESULT_NOOP\x10\x01\x12*\n" +
+	"&REMOVE_FRIEND_RESULT_REQUEST_CANCELLED\x10\x02\x12)\n" +
+	"%REMOVE_FRIEND_RESULT_REQUEST_DECLINED\x10\x03\x12'\n" +
+	"#REMOVE_FRIEND_RESULT_FRIEND_REMOVED\x10\x042\x80\x06\n" +
 	"\vUserService\x12d\n" +
 	"\vGetSelfData\x12 .user_service.GetSelfDataRequest\x1a!.user_service.GetSelfDataResponse\"\x10\x82\xd3\xe4\x93\x02\n" +
 	"\x12\b/v1/self\x12j\n" +
@@ -845,9 +1023,9 @@ const file_user_service_user_service_proto_rawDesc = "" +
 	"\n" +
 	"GetFriends\x12\x1f.user_service.GetFriendsRequest\x1a .user_service.GetFriendsResponse\"\x13\x82\xd3\xe4\x93\x02\r\x12\v/v1/friends\x12\x88\x01\n" +
 	"\x13GetIncomingRequests\x12(.user_service.GetIncomingRequestsRequest\x1a).user_service.GetIncomingRequestsResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/v1/friends/incoming\x12\x88\x01\n" +
-	"\x13GetOutgoingRequests\x12(.user_service.GetOutgoingRequestsRequest\x1a).user_service.GetOutgoingRequestsResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/v1/friends/outgoing\x12d\n" +
-	"\tAddFriend\x12\x1e.user_service.AddFriendRequest\x1a\x1f.user_service.AddFriendResponse\"\x16\x82\xd3\xe4\x93\x02\x10:\x01*\"\v/v1/friends\x12t\n" +
-	"\fRemoveFriend\x12!.user_service.RemoveFriendRequest\x1a\".user_service.RemoveFriendResponse\"\x1d\x82\xd3\xe4\x93\x02\x17*\x15/v1/friends/{user_id}B&Z$team_dynamics/api/proto/user_serviceb\x06proto3"
+	"\x13GetOutgoingRequests\x12(.user_service.GetOutgoingRequestsRequest\x1a).user_service.GetOutgoingRequestsResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/v1/friends/outgoing\x12L\n" +
+	"\tAddFriend\x12\x1e.user_service.AddFriendRequest\x1a\x1f.user_service.AddFriendResponse\x12U\n" +
+	"\fRemoveFriend\x12!.user_service.RemoveFriendRequest\x1a\".user_service.RemoveFriendResponseB&Z$team_dynamics/api/proto/user_serviceb\x06proto3"
 
 var (
 	file_user_service_user_service_proto_rawDescOnce sync.Once
@@ -861,54 +1039,59 @@ func file_user_service_user_service_proto_rawDescGZIP() []byte {
 	return file_user_service_user_service_proto_rawDescData
 }
 
+var file_user_service_user_service_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_user_service_user_service_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_user_service_user_service_proto_goTypes = []any{
-	(*UserData)(nil),                    // 0: user_service.UserData
-	(*Friend)(nil),                      // 1: user_service.Friend
-	(*GetSelfDataRequest)(nil),          // 2: user_service.GetSelfDataRequest
-	(*GetSelfDataResponse)(nil),         // 3: user_service.GetSelfDataResponse
-	(*GetUserDataRequest)(nil),          // 4: user_service.GetUserDataRequest
-	(*GetUserDataResponse)(nil),         // 5: user_service.GetUserDataResponse
-	(*GetFriendsRequest)(nil),           // 6: user_service.GetFriendsRequest
-	(*GetFriendsResponse)(nil),          // 7: user_service.GetFriendsResponse
-	(*GetIncomingRequestsRequest)(nil),  // 8: user_service.GetIncomingRequestsRequest
-	(*GetIncomingRequestsResponse)(nil), // 9: user_service.GetIncomingRequestsResponse
-	(*GetOutgoingRequestsRequest)(nil),  // 10: user_service.GetOutgoingRequestsRequest
-	(*GetOutgoingRequestsResponse)(nil), // 11: user_service.GetOutgoingRequestsResponse
-	(*AddFriendRequest)(nil),            // 12: user_service.AddFriendRequest
-	(*AddFriendResponse)(nil),           // 13: user_service.AddFriendResponse
-	(*RemoveFriendRequest)(nil),         // 14: user_service.RemoveFriendRequest
-	(*RemoveFriendResponse)(nil),        // 15: user_service.RemoveFriendResponse
-	(*user_common.ExternalKey)(nil),     // 16: user_common.ExternalKey
+	(AddFriendResult)(0),                // 0: user_service.AddFriendResult
+	(RemoveFriendResult)(0),             // 1: user_service.RemoveFriendResult
+	(*UserData)(nil),                    // 2: user_service.UserData
+	(*Friend)(nil),                      // 3: user_service.Friend
+	(*GetSelfDataRequest)(nil),          // 4: user_service.GetSelfDataRequest
+	(*GetSelfDataResponse)(nil),         // 5: user_service.GetSelfDataResponse
+	(*GetUserDataRequest)(nil),          // 6: user_service.GetUserDataRequest
+	(*GetUserDataResponse)(nil),         // 7: user_service.GetUserDataResponse
+	(*GetFriendsRequest)(nil),           // 8: user_service.GetFriendsRequest
+	(*GetFriendsResponse)(nil),          // 9: user_service.GetFriendsResponse
+	(*GetIncomingRequestsRequest)(nil),  // 10: user_service.GetIncomingRequestsRequest
+	(*GetIncomingRequestsResponse)(nil), // 11: user_service.GetIncomingRequestsResponse
+	(*GetOutgoingRequestsRequest)(nil),  // 12: user_service.GetOutgoingRequestsRequest
+	(*GetOutgoingRequestsResponse)(nil), // 13: user_service.GetOutgoingRequestsResponse
+	(*AddFriendRequest)(nil),            // 14: user_service.AddFriendRequest
+	(*AddFriendResponse)(nil),           // 15: user_service.AddFriendResponse
+	(*RemoveFriendRequest)(nil),         // 16: user_service.RemoveFriendRequest
+	(*RemoveFriendResponse)(nil),        // 17: user_service.RemoveFriendResponse
+	(*user_common.ExternalKey)(nil),     // 18: user_common.ExternalKey
 }
 var file_user_service_user_service_proto_depIdxs = []int32{
-	0,  // 0: user_service.Friend.user:type_name -> user_service.UserData
-	16, // 1: user_service.GetSelfDataRequest.key:type_name -> user_common.ExternalKey
-	0,  // 2: user_service.GetSelfDataResponse.user_data:type_name -> user_service.UserData
-	0,  // 3: user_service.GetUserDataResponse.user_data:type_name -> user_service.UserData
-	1,  // 4: user_service.GetFriendsResponse.friends:type_name -> user_service.Friend
-	1,  // 5: user_service.GetIncomingRequestsResponse.friends:type_name -> user_service.Friend
-	1,  // 6: user_service.GetOutgoingRequestsResponse.friends:type_name -> user_service.Friend
-	1,  // 7: user_service.AddFriendResponse.friend:type_name -> user_service.Friend
-	2,  // 8: user_service.UserService.GetSelfData:input_type -> user_service.GetSelfDataRequest
-	4,  // 9: user_service.UserService.GetUserData:input_type -> user_service.GetUserDataRequest
-	6,  // 10: user_service.UserService.GetFriends:input_type -> user_service.GetFriendsRequest
-	8,  // 11: user_service.UserService.GetIncomingRequests:input_type -> user_service.GetIncomingRequestsRequest
-	10, // 12: user_service.UserService.GetOutgoingRequests:input_type -> user_service.GetOutgoingRequestsRequest
-	12, // 13: user_service.UserService.AddFriend:input_type -> user_service.AddFriendRequest
-	14, // 14: user_service.UserService.RemoveFriend:input_type -> user_service.RemoveFriendRequest
-	3,  // 15: user_service.UserService.GetSelfData:output_type -> user_service.GetSelfDataResponse
-	5,  // 16: user_service.UserService.GetUserData:output_type -> user_service.GetUserDataResponse
-	7,  // 17: user_service.UserService.GetFriends:output_type -> user_service.GetFriendsResponse
-	9,  // 18: user_service.UserService.GetIncomingRequests:output_type -> user_service.GetIncomingRequestsResponse
-	11, // 19: user_service.UserService.GetOutgoingRequests:output_type -> user_service.GetOutgoingRequestsResponse
-	13, // 20: user_service.UserService.AddFriend:output_type -> user_service.AddFriendResponse
-	15, // 21: user_service.UserService.RemoveFriend:output_type -> user_service.RemoveFriendResponse
-	15, // [15:22] is the sub-list for method output_type
-	8,  // [8:15] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	2,  // 0: user_service.Friend.user:type_name -> user_service.UserData
+	18, // 1: user_service.GetSelfDataRequest.key:type_name -> user_common.ExternalKey
+	2,  // 2: user_service.GetSelfDataResponse.user_data:type_name -> user_service.UserData
+	2,  // 3: user_service.GetUserDataResponse.user_data:type_name -> user_service.UserData
+	3,  // 4: user_service.GetFriendsResponse.friends:type_name -> user_service.Friend
+	3,  // 5: user_service.GetIncomingRequestsResponse.friends:type_name -> user_service.Friend
+	3,  // 6: user_service.GetOutgoingRequestsResponse.friends:type_name -> user_service.Friend
+	3,  // 7: user_service.AddFriendResponse.friend:type_name -> user_service.Friend
+	0,  // 8: user_service.AddFriendResponse.result:type_name -> user_service.AddFriendResult
+	1,  // 9: user_service.RemoveFriendResponse.result:type_name -> user_service.RemoveFriendResult
+	4,  // 10: user_service.UserService.GetSelfData:input_type -> user_service.GetSelfDataRequest
+	6,  // 11: user_service.UserService.GetUserData:input_type -> user_service.GetUserDataRequest
+	8,  // 12: user_service.UserService.GetFriends:input_type -> user_service.GetFriendsRequest
+	10, // 13: user_service.UserService.GetIncomingRequests:input_type -> user_service.GetIncomingRequestsRequest
+	12, // 14: user_service.UserService.GetOutgoingRequests:input_type -> user_service.GetOutgoingRequestsRequest
+	14, // 15: user_service.UserService.AddFriend:input_type -> user_service.AddFriendRequest
+	16, // 16: user_service.UserService.RemoveFriend:input_type -> user_service.RemoveFriendRequest
+	5,  // 17: user_service.UserService.GetSelfData:output_type -> user_service.GetSelfDataResponse
+	7,  // 18: user_service.UserService.GetUserData:output_type -> user_service.GetUserDataResponse
+	9,  // 19: user_service.UserService.GetFriends:output_type -> user_service.GetFriendsResponse
+	11, // 20: user_service.UserService.GetIncomingRequests:output_type -> user_service.GetIncomingRequestsResponse
+	13, // 21: user_service.UserService.GetOutgoingRequests:output_type -> user_service.GetOutgoingRequestsResponse
+	15, // 22: user_service.UserService.AddFriend:output_type -> user_service.AddFriendResponse
+	17, // 23: user_service.UserService.RemoveFriend:output_type -> user_service.RemoveFriendResponse
+	17, // [17:24] is the sub-list for method output_type
+	10, // [10:17] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_user_service_user_service_proto_init() }
@@ -931,19 +1114,19 @@ func file_user_service_user_service_proto_init() {
 	file_user_service_user_service_proto_msgTypes[12].OneofWrappers = []any{}
 	file_user_service_user_service_proto_msgTypes[13].OneofWrappers = []any{}
 	file_user_service_user_service_proto_msgTypes[14].OneofWrappers = []any{}
-	file_user_service_user_service_proto_msgTypes[15].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_service_user_service_proto_rawDesc), len(file_user_service_user_service_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      2,
 			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_user_service_user_service_proto_goTypes,
 		DependencyIndexes: file_user_service_user_service_proto_depIdxs,
+		EnumInfos:         file_user_service_user_service_proto_enumTypes,
 		MessageInfos:      file_user_service_user_service_proto_msgTypes,
 	}.Build()
 	File_user_service_user_service_proto = out.File

@@ -39,11 +39,13 @@ type UserService interface {
 }
 
 type userServiceImpl struct {
-	repo pg.UserStorageRepo
+	repo           pg.UserStorageRepo
+	pageKeyService PageKeyService
+	steamService   SteamService
 }
 
-func MakeUserService(repo pg.UserStorageRepo) UserService {
-	return &userServiceImpl{repo}
+func MakeUserService(repo pg.UserStorageRepo, pageKeyService PageKeyService, steamService SteamService) UserService {
+	return &userServiceImpl{repo, pageKeyService, steamService}
 }
 
 func convertUserData(model *models.UserData) *pb.UserData {
@@ -54,6 +56,53 @@ func convertUserData(model *models.UserData) *pb.UserData {
 		Id:   &model.Id,
 		Name: &model.Name,
 	}
+}
+
+func convertFriend(f *models.Friend) *pb.Friend {
+	if f == nil {
+		return nil
+	}
+	source := fmt.Sprintf("%d", f.Source)
+	return &pb.Friend{
+		User:   convertUserData(f.Data),
+		Source: &source,
+	}
+}
+
+func convertFriends(friends []*models.Friend) []*pb.Friend {
+	result := make([]*pb.Friend, 0, len(friends))
+	for _, f := range friends {
+		result = append(result, convertFriend(f))
+	}
+	return result
+}
+
+func validateGetFriendsRequest(req *pb.GetFriendsRequest) error {
+	if req == nil || req.UserId == nil {
+		return errors.New("user_id is not set")
+	}
+	return nil
+}
+
+func validateGetIncomingRequestsRequest(req *pb.GetIncomingRequestsRequest) error {
+	if req == nil || req.UserId == nil {
+		return errors.New("user_id is not set")
+	}
+	return nil
+}
+
+func validateGetOutgoingRequestsRequest(req *pb.GetOutgoingRequestsRequest) error {
+	if req == nil || req.UserId == nil {
+		return errors.New("user_id is not set")
+	}
+	return nil
+}
+
+func (s *userServiceImpl) parsePageKey(raw *string) (*models.PageKey, error) {
+	if raw == nil {
+		return &models.PageKey{LastUserId: 0}, nil
+	}
+	return s.pageKeyService.Deserialize(*raw)
 }
 
 func validateGetSelfDataRequest(req *pb.GetSelfDataRequest) error {
@@ -75,9 +124,13 @@ func (s *userServiceImpl) GetSelfData(ctx context.Context, req *pb.GetSelfDataRe
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid request: %v", err))
 	}
 	steamId := req.Key.Key.(*pbCommon.ExternalKey_SteamId).SteamId
-	user, err := s.repo.GetSelfData(ctx, steamId)
+	steamData, err := s.steamService.GetUserSummary(ctx, fmt.Sprintf("%d", steamId))
 	if err != nil {
-		return nil, convertError(err)
+		return nil, status.Errorf(codes.Unavailable, "failed to fetch Steam data: %v", err)
+	}
+	user, pgErr := s.repo.UpsertSelfData(ctx, steamId, steamData.Name)
+	if pgErr != nil {
+		return nil, convertError(pgErr)
 	}
 	return &pb.GetSelfDataResponse{
 		UserData: convertUserData(user),
@@ -99,26 +152,132 @@ func (s *userServiceImpl) GetUserData(ctx context.Context, req *pb.GetUserDataRe
 }
 
 func (s *userServiceImpl) GetFriends(ctx context.Context, req *pb.GetFriendsRequest) (*pb.GetFriendsResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	if err := validateGetFriendsRequest(req); err != nil {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid request: %v", err))
+	}
+	pageKey, err := s.parsePageKey(req.Pagekey)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid pagekey: %v", err))
+	}
+	friends, pgErr := s.repo.GetFriends(ctx, *req.UserId, pageKey)
+	if pgErr != nil {
+		return nil, convertError(pgErr)
+	}
+	return &pb.GetFriendsResponse{
+		Friends: convertFriends(friends),
+		Pagekey: s.pageKeyService.GetNewPageKey(friends),
+	}, nil
 }
 
 func (s *userServiceImpl) GetIncomingRequests(ctx context.Context, req *pb.GetIncomingRequestsRequest) (*pb.GetIncomingRequestsResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	if err := validateGetIncomingRequestsRequest(req); err != nil {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid request: %v", err))
+	}
+	pageKey, err := s.parsePageKey(req.Pagekey)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid pagekey: %v", err))
+	}
+	friends, pgErr := s.repo.GetIncomingRequests(ctx, *req.UserId, pageKey)
+	if pgErr != nil {
+		return nil, convertError(pgErr)
+	}
+	return &pb.GetIncomingRequestsResponse{
+		Friends: convertFriends(friends),
+		Pagekey: s.pageKeyService.GetNewPageKey(friends),
+	}, nil
 }
 
 func (s *userServiceImpl) GetOutgoingRequests(ctx context.Context, req *pb.GetOutgoingRequestsRequest) (*pb.GetOutgoingRequestsResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	if err := validateGetOutgoingRequestsRequest(req); err != nil {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid request: %v", err))
+	}
+	pageKey, err := s.parsePageKey(req.Pagekey)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid pagekey: %v", err))
+	}
+	friends, pgErr := s.repo.GetOutgoingRequests(ctx, *req.UserId, pageKey)
+	if pgErr != nil {
+		return nil, convertError(pgErr)
+	}
+	return &pb.GetOutgoingRequestsResponse{
+		Friends: convertFriends(friends),
+		Pagekey: s.pageKeyService.GetNewPageKey(friends),
+	}, nil
+}
+
+func validateAddFriendRequest(req *pb.AddFriendRequest) error {
+	if req == nil || req.UserId == nil {
+		return errors.New("user_id is not set")
+	}
+	if req.OtherUserId == nil {
+		return errors.New("other_user_id is not set")
+	}
+	if *req.UserId == *req.OtherUserId {
+		return errors.New("user_id and other_user_id must be different")
+	}
+	return nil
+}
+
+func validateRemoveFriendRequest(req *pb.RemoveFriendRequest) error {
+	if req == nil || req.UserId == nil {
+		return errors.New("user_id is not set")
+	}
+	if req.OtherUserId == nil {
+		return errors.New("other_user_id is not set")
+	}
+	if *req.UserId == *req.OtherUserId {
+		return errors.New("user_id and other_user_id must be different")
+	}
+	return nil
+}
+
+func convertAddFriendResult(r models.AddFriendResult) pb.AddFriendResult {
+	switch r {
+	case models.AddFriendRequestSent:
+		return pb.AddFriendResult_ADD_FRIEND_RESULT_REQUEST_SENT
+	case models.AddFriendAccepted:
+		return pb.AddFriendResult_ADD_FRIEND_RESULT_ACCEPTED
+	default:
+		return pb.AddFriendResult_ADD_FRIEND_RESULT_NOOP
+	}
+}
+
+func convertRemoveFriendResult(r models.RemoveFriendResult) pb.RemoveFriendResult {
+	switch r {
+	case models.RemoveFriendRequestCancelled:
+		return pb.RemoveFriendResult_REMOVE_FRIEND_RESULT_REQUEST_CANCELLED
+	case models.RemoveFriendRequestDeclined:
+		return pb.RemoveFriendResult_REMOVE_FRIEND_RESULT_REQUEST_DECLINED
+	case models.RemoveFriendFriendRemoved:
+		return pb.RemoveFriendResult_REMOVE_FRIEND_RESULT_FRIEND_REMOVED
+	default:
+		return pb.RemoveFriendResult_REMOVE_FRIEND_RESULT_NOOP
+	}
 }
 
 func (s *userServiceImpl) AddFriend(ctx context.Context, req *pb.AddFriendRequest) (*pb.AddFriendResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	if err := validateAddFriendRequest(req); err != nil {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid request: %v", err))
+	}
+	friend, result, pgErr := s.repo.AddFriend(ctx, *req.UserId, *req.OtherUserId)
+	if pgErr != nil {
+		return nil, convertError(pgErr)
+	}
+	return &pb.AddFriendResponse{
+		Friend: convertFriend(friend),
+		Result: convertAddFriendResult(result),
+	}, nil
 }
 
 func (s *userServiceImpl) RemoveFriend(ctx context.Context, req *pb.RemoveFriendRequest) (*pb.RemoveFriendResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	if err := validateRemoveFriendRequest(req); err != nil {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid request: %v", err))
+	}
+	result, pgErr := s.repo.RemoveFriend(ctx, *req.UserId, *req.OtherUserId)
+	if pgErr != nil {
+		return nil, convertError(pgErr)
+	}
+	return &pb.RemoveFriendResponse{
+		Result: convertRemoveFriendResult(result),
+	}, nil
 }
