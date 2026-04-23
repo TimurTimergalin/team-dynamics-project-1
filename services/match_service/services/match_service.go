@@ -352,7 +352,7 @@ func (s *matchServiceImpl) EndMatch(ctx context.Context, request *pb.EndMatchReq
 	matchData := &mhsPb.MatchData{
 		Player1:      p1Data,
 		Player2:      p2Data,
-		Rounds:       []*mhsPb.Round{},
+		Rounds:       request.Rounds,
 		EndTimestamp: &endTimestamp,
 		MatchResult:  historyResult,
 		MatchId:      &match.MatchId,
@@ -363,12 +363,13 @@ func (s *matchServiceImpl) EndMatch(ctx context.Context, request *pb.EndMatchReq
 
 	// Call both services concurrently
 	var ratingErr, historyErr error
+	var ratingResp *rsPb.UpdateRatingResponse
 	var wg sync.WaitGroup
 	wg.Add(2)
 
 	go func() {
 		defer wg.Done()
-		_, ratingErr = s.rsFactory.UpdateRating(ctx, ratingReq)
+		ratingResp, ratingErr = s.rsFactory.UpdateRating(ctx, ratingReq)
 	}()
 	go func() {
 		defer wg.Done()
@@ -389,7 +390,16 @@ func (s *matchServiceImpl) EndMatch(ctx context.Context, request *pb.EndMatchReq
 		return nil, status.Errorf(codes.Aborted, "failed to update match status: %v", err)
 	}
 
-	return &pb.EndMatchResponse{}, nil
+	endResp := &pb.EndMatchResponse{}
+	if ratingResp != nil {
+		if ratingResp.Player1Rating != nil {
+			endResp.NewRating_1 = ratingResp.Player1Rating.DisplayValue
+		}
+		if ratingResp.Player2Rating != nil {
+			endResp.NewRating_2 = ratingResp.Player2Rating.DisplayValue
+		}
+	}
+	return endResp, nil
 }
 
 func (s *matchServiceImpl) CancelMatch(ctx context.Context, request *pb.CancelMatchRequest) (*pb.CancelMatchResponse, error) {

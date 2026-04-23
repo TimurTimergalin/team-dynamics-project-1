@@ -3,7 +3,9 @@ syntax = "proto3";
 package match_service;
 option go_package = "team_dynamics/api/proto/match_service";
 
+import "google/api/annotations.proto";
 import "fleet_manager/fleet_manager.proto";
+import "match_history_service/match_history_service.proto"
 
 message PlayerData {
   optional int64 player_id = 1;
@@ -49,18 +51,19 @@ message GetMatchResponse {
 message EndMatchRequest {
   optional string match_id = 1;
   optional int64 winner_id = 2;
+  repeated match_history_service.Round rounds = 3;
 }
 
-message EndMatchResponse {}
+message EndMatchResponse {
+  optional int64 new_rating_1 = 1;
+  optional int64 new_rating_2 = 2;
+}
 
 message CancelMatchRequest {
   optional string match_id = 1;
 }
 
-message CancelMatchResponse {
-  optional int64 new_rating_1 = 1;
-  optional int64 new_rating_2 = 2;
-}
+message CancelMatchResponse {}
 
 message RenewMatchRequest {
   optional string match_id = 1;
@@ -70,8 +73,27 @@ message RenewMatchResponse {}
 
 service MatchService {
   rpc StartMatch(StartMatchRequest) returns (StartMatchResponse);
+
   rpc GetMatch(GetMatchRequest) returns (GetMatchResponse);
-  rpc EndMatch(EndMatchRequest) returns (EndMatchResponse);
-  rpc CancelMatch(CancelMatchRequest) returns (CancelMatchResponse);
-  rpc RenewMatch(RenewMatchRequest) returns (RenewMatchResponse);
+
+  rpc EndMatch(EndMatchRequest) returns (EndMatchResponse) {
+    option (google.api.http) = {
+      post: "/v1/matches/{match_id}/end"
+      body: "*"
+    };
+  }
+
+  rpc CancelMatch(CancelMatchRequest) returns (CancelMatchResponse) {
+    option (google.api.http) = {
+      post: "/v1/matches/{match_id}/cancel"
+      body: "*"
+    };
+  }
+
+  rpc RenewMatch(RenewMatchRequest) returns (RenewMatchResponse) {
+    option (google.api.http) = {
+      post: "/v1/matches/{match_id}/renew"
+      body: "*"
+    };
+  }
 }

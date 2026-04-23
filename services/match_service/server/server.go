@@ -1,12 +1,16 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/redis/go-redis/v9"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"net"
+	"net/http"
 	"os"
 	"strconv"
 	pb "team_dynamics/api/proto/match_service"
@@ -109,6 +113,10 @@ func getMatchServiceConfig() (*config.MatchServiceConfig, error) {
 	if listenAddr == "" {
 		return nil, errors.New("MATCH_SERVICE_LISTEN_ADDRESS environment variable not set")
 	}
+	httpListenAddr := os.Getenv("HTTP_LISTEN_ADDRESS")
+	if httpListenAddr == "" {
+		return nil, errors.New("HTTP_LISTEN_ADDRESS environment variable not set")
+	}
 	fmAddr := os.Getenv("FLEET_MANAGER_ADDRESS")
 	if fmAddr == "" {
 		return nil, errors.New("FLEET_MANAGER_ADDRESS environment variable not set")
@@ -123,6 +131,7 @@ func getMatchServiceConfig() (*config.MatchServiceConfig, error) {
 	}
 	return &config.MatchServiceConfig{
 		ListenAddress:              listenAddr,
+		HttpListenAddress:          httpListenAddr,
 		FleetManagerAddress:        fmAddr,
 		RatingServiceAddress:       rsAddr,
 		MatchHistoryServiceAddress: mhsAddr,
@@ -157,7 +166,18 @@ func main() {
 	}
 	s := grpc.NewServer()
 	pb.RegisterMatchServiceServer(s, controller)
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("Error while trying to serve: %s", err.Error())
+	go func() {
+		if err := s.Serve(lis); err != nil {
+			log.Fatalf("Error while trying to serve: %s", err.Error())
+		}
+	}()
+	ctx := context.Background()
+	mux := runtime.NewServeMux()
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	if err := pb.RegisterMatchServiceHandlerFromEndpoint(ctx, mux, matchServiceConfig.ListenAddress, opts); err != nil {
+		log.Fatalf("error registering grpc gateway: %v", err)
+	}
+	if err := http.ListenAndServe(matchServiceConfig.HttpListenAddress, mux); err != nil {
+		log.Fatalf("error on http listen: %v", err)
 	}
 }

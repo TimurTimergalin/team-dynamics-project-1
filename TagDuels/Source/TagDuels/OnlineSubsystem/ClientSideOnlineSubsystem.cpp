@@ -2,8 +2,9 @@
 
 #include "utils.h"
 
-void UClientSideOnlineSubsystem::Initialize(FSubsystemCollectionBase&)
+void UClientSideOnlineSubsystem::Initialize(FSubsystemCollectionBase& SubsystemCollectionBase)
 {
+	Super::Initialize(SubsystemCollectionBase);
 	UsClient = CreateUserServiceClient();
 	MhsClient = CreateMatchHistoryServiceClient();
 	RsClient = CreateRatingServiceClient();

@@ -22,3 +22,5 @@ TFuture<TOptional<T>> WithRetry(F Func, int Attempts)
 		return TOptional<T>();
 	});
 }
+
+TOptional<int64> StrToInt64(const FString& InString);

@@ -70,7 +70,7 @@ namespace
 }
 
 MMEventClient::MMEventClient(const FString& Address, int64 UserId, FOnMatch OnMatchCallback,
-                             FOnErroneousResponse OnError): OnMatchCallback(OnMatchCallback), OnError(OnError)
+                             FOnErroneousResponse OnError): OnMatchCallback(OnMatchCallback), OnError(OnError), UserId(UserId)
 {
 	FString Fleet = "Moscow"; // Пока хардкод
 	Url = FString::Printf(TEXT("ws://%s/events?playerId=%lld&fleet=%s"), *Address, UserId, *Fleet);
@@ -90,9 +90,9 @@ void MMEventClient::ExecuteOnError(const FString& Error)
 
 void MMEventClient::ExecuteOnMatch(const FString& GameServerAddress)
 {
-	AsyncTask(ENamedThreads::GameThread, [OnMatchCallback = this->OnMatchCallback, GameServerAddress]()
+	AsyncTask(ENamedThreads::GameThread, [OnMatchCallback = this->OnMatchCallback, UserId = this->UserId, GameServerAddress]()
 	{
-		if (!OnMatchCallback.ExecuteIfBound(GameServerAddress))
+		if (!OnMatchCallback.ExecuteIfBound(GameServerAddress + FString::Printf(TEXT("player_id=%lld"), UserId)))
 		{
 			UE_LOG(LogTemp, Error, TEXT("OnMatchCallback for MMEvent not set"));
 		}
