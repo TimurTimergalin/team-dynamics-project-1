@@ -32,7 +32,7 @@ public:
 	bool GetPlayer2(FUserAnnotations& PlayerData);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	bool EndMatch(const TArray<FRoundData>& Rounds, FOnMatchEnd OnResponse, FOnErroneousResponse OnError);
+	bool DrawMatch(const TArray<FRoundData>& Rounds, FOnMatchEnd OnResponse, FOnErroneousResponse OnError);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
 	bool EndMatch(int64 WinnerId, const TArray<FRoundData>& Rounds, FOnMatchEnd OnResponse, FOnErroneousResponse OnError);

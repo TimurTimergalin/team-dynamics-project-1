@@ -158,7 +158,7 @@ bool UServerSideOnlineSubsystem::GetPlayer2(FUserAnnotations& PlayerData)
 	return false;
 }
 
-bool UServerSideOnlineSubsystem::EndMatch(const TArray<FRoundData>& Rounds, FOnMatchEnd OnResponse, FOnErroneousResponse OnError)
+bool UServerSideOnlineSubsystem::DrawMatch(const TArray<FRoundData>& Rounds, FOnMatchEnd OnResponse, FOnErroneousResponse OnError)
 {
 	if (!MsClient.IsSet() || !MatchData.IsSet())
 	{
