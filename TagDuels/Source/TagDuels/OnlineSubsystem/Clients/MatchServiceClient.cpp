@@ -36,8 +36,8 @@ namespace
         }
 
         FEndMatchResponse Result;
-        JsonObject->TryGetNumberField(TEXT("new_rating_1"), Result.NewRating1);
-        JsonObject->TryGetNumberField(TEXT("new_rating_2"), Result.NewRating2);
+        JsonObject->TryGetNumberField(TEXT("newRating1"), Result.NewRating1);
+        JsonObject->TryGetNumberField(TEXT("newRating2"), Result.NewRating2);
         return Result;
     }
 

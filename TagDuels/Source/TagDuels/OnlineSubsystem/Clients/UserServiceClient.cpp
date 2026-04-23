@@ -31,9 +31,9 @@ namespace
 		}
 
 		const TSharedPtr<FJsonObject>* UserDataObject = nullptr;
-		if (!JsonObject->TryGetObjectField(TEXT("user_data"), UserDataObject) || !UserDataObject)
+		if (!JsonObject->TryGetObjectField(TEXT("userData"), UserDataObject) || !UserDataObject)
 		{
-			UE_LOG(LogTemp, Error, TEXT("GetSelfData: missing 'user_data' field"));
+			UE_LOG(LogTemp, Error, TEXT("GetSelfData: missing 'userData' field"));
 			return {};
 		}
 
@@ -59,7 +59,9 @@ UserServiceClient::UserServiceClient(const FString& Address): Address(Address) {
 TSharedPtr<IHttpRequest> UserServiceClient::GetSelfDataRequest(int64 SteamId) const
 {
 	// Build URL: http://<Address>/v1/self?key.steam_id=<SteamId>
-	FString Url = FString::Printf(TEXT("http://%s/v1/self?key.steam_id=%lld"), *Address, SteamId);
+	FString Url = FString::Format(TEXT("http://{0}/v1/self?key.steam_id={1}"), { Address, SteamId });
+	//FString Url = FString::Printf(TEXT("http://%s/v1/self?key.steam_id=%lld"), *Address, SteamId);
+	UE_LOG(LogTemp, Display, TEXT("%s"), *Url);
 
 	TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest();
 	Request->SetURL(Url);

@@ -30,7 +30,7 @@ public:
 	void LoginToEOS();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "OSS")
-	void OnSuccessfulLoginSteam(const FString& AccountID, const FString& AuthToken);
+	void OnSuccessfulLoginSteam(const int64 AccountID, const FString& AuthToken);
 	
 	UFUNCTION(BlueprintImplementableEvent, Category = "OSS")
 	void OnSuccessfulLoginEOS(const FString& AccountID, const FString& AuthToken);

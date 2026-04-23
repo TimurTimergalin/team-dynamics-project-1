@@ -42,9 +42,9 @@ namespace
         }
 
         int64 DisplayValue = 0;
-        if (!(*RatingObject)->TryGetNumberField(TEXT("display_value"), DisplayValue))
+        if (!(*RatingObject)->TryGetNumberField(TEXT("displayValue"), DisplayValue))
         {
-            UE_LOG(LogTemp, Error, TEXT("GetRating: missing or invalid 'display_value' field"));
+            UE_LOG(LogTemp, Error, TEXT("GetRating: missing or invalid 'displayValue' field"));
             return {};
         }
 

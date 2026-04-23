@@ -57,13 +57,13 @@ namespace
 
                 FRoundData Round;
                 bool bIsPlayer1Killer = false;
-                if ((*RoundObj)->TryGetBoolField(TEXT("is_player1_killer"), bIsPlayer1Killer))
+                if ((*RoundObj)->TryGetBoolField(TEXT("isPlayer1Killer"), bIsPlayer1Killer))
                 {
                     Round.RoundKiller = bIsPlayer1Killer ? RoundKiller::First : RoundKiller::Second;
                 }
 
                 int64 TimeMillis = 0;
-                if ((*RoundObj)->TryGetNumberField(TEXT("time_millis"), TimeMillis))
+                if ((*RoundObj)->TryGetNumberField(TEXT("timeMillis"), TimeMillis))
                 {
                     Round.Duration = FTimespan::FromMilliseconds(TimeMillis);
                 }
@@ -74,7 +74,7 @@ namespace
 
         // --- End Timestamp ---
         int64 EndTimestamp = 0;
-        if (!MatchObj->TryGetNumberField(TEXT("end_timestamp"), EndTimestamp))
+        if (!MatchObj->TryGetNumberField(TEXT("endTimestamp"), EndTimestamp))
             return {};
 
         // Convert milliseconds since epoch to FDateTime.
@@ -83,13 +83,13 @@ namespace
 
         // --- Match Result ---
         int32 ResultVal = 0;
-        if (MatchObj->TryGetNumberField(TEXT("match_result"), ResultVal))
+        if (MatchObj->TryGetNumberField(TEXT("matchResult"), ResultVal))
         {
             History.Resolution = ParseMatchResult(ResultVal);
         }
 
         // --- Match ID ---
-        if (!MatchObj->TryGetStringField(TEXT("match_id"), History.MatchId))
+        if (!MatchObj->TryGetStringField(TEXT("matchId"), History.MatchId))
             return {};
 
         return History;

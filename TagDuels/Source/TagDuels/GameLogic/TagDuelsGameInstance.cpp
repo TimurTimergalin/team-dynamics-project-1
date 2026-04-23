@@ -5,6 +5,7 @@
 #include "OnlineSubsystem.h"
 #include "Interfaces/OnlineIdentityInterface.h"
 #include "OnlineSubsystemUtils.h"
+#include "TagDuels/OnlineSubsystem/utils.h"
 
 
 // Basic Methods
@@ -48,16 +49,23 @@ void UTagDuelsGameInstance::LoginToSteam()
 	}
 	
 	// Get ID and Auth Token
-	FString AccountId = UserId->ToString();
+	int64 SteamId64 = StrToInt64(UserId->ToString()).Get(0);
+	if (SteamId64 == 0)
+	{
+		DebugMessage = FString::Printf(TEXT("SteamId not available"));
+		UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
+		OnFailedToLogin(DebugMessage);
+		return;
+	}
 	FString AuthToken = IdentityInterface->GetAuthToken(0);
 	
 	// Print ID and Auth Token
-	DebugMessage = FString::Printf(TEXT("Ready to send to backend - Steam ID: %s, Token: %s"), *AccountId, *AuthToken);
+	DebugMessage = FString::Printf(TEXT("Ready to send to backend - Steam ID64: %lld, Token: %s"), SteamId64, *AuthToken);
 	UE_LOG(LogTemp, Display, TEXT("%s"), *DebugMessage);
 	if (GEngine) GEngine->AddOnScreenDebugMessage(-1,10.0f, FColor::Green, DebugMessage);
 	
 	// Вызываем ивент в Blueprint GameInstance
-	OnSuccessfulLoginSteam(AccountId, AuthToken);
+	OnSuccessfulLoginSteam(SteamId64, AuthToken);
 }
 
 // EpicGames
