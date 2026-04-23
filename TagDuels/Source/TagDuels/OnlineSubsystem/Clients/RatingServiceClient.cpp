@@ -83,9 +83,9 @@ TOptional<RatingServiceClient> CreateRatingServiceClient()
         UE_LOG(LogTemp, Error, TEXT("CreateRatingServiceClient: GConfig absent"));
         return {};
     }
-    if (!GConfig->GetString(TEXT("/Script/OnlineServices.Addresses"), TEXT("RatingService"), Address, GGameIni))
+    if (!GConfig->GetString(TEXT("OnlineSubsystemAddresses"), TEXT("RatingService"), Address, GGameIni))
     {
-        UE_LOG(LogTemp, Error, TEXT("CreateRatingServiceClient: /Script/OnlineServices.Addresses:RatingService not set"));
+        UE_LOG(LogTemp, Error, TEXT("CreateRatingServiceClient: OnlineSubsystemAddresses:RatingService not set"));
         return {};
     }
 

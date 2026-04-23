@@ -82,9 +82,9 @@ TOptional<UserServiceClient> CreateUserServiceClient()
 		UE_LOG(LogTemp, Error, TEXT("CreateUserServiceClient: GConfig absent"));
 		return {};
 	}
-	if (!GConfig->GetString(TEXT("/Script/OnlineServices.Addresses"), TEXT("UserService"), Address, FPaths::ProjectConfigDir() / TEXT("DefaultOnlineSettings.ini")))
+	if (!GConfig->GetString(TEXT("OnlineSubsystemAddresses"), TEXT("UserService"), Address, GGameIni))
 	{
-		UE_LOG(LogTemp, Error, TEXT("CreateUserServiceClient: /Script/OnlineServices.Addresses:UserService not set"));
+		UE_LOG(LogTemp, Error, TEXT("CreateUserServiceClient: OnlineSubsystemAddresses:UserService not set"));
 		return {};
 	}
 

@@ -158,9 +158,9 @@ TOptional<MatchServiceClient> CreateMatchServiceClient()
         UE_LOG(LogTemp, Error, TEXT("CreateMatchServiceClient: GConfig absent"));
         return {};
     }
-    if (!GConfig->GetString(TEXT("/Script/OnlineServices.Addresses"), TEXT("MatchService"), Address, GGameIni))
+    if (!GConfig->GetString(TEXT("OnlineSubsystemAddresses"), TEXT("MatchService"), Address, GGameIni))
     {
-        UE_LOG(LogTemp, Error, TEXT("CreateMatchServiceClient: /Script/OnlineServices.Addresses:MatchService not set"));
+        UE_LOG(LogTemp, Error, TEXT("CreateMatchServiceClient: OnlineSubsystemAddresses:MatchService not set"));
         return {};
     }
 

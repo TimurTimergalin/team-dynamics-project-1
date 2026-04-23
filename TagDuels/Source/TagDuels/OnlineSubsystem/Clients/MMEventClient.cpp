@@ -220,9 +220,9 @@ TOptional<MMEventClient> CreateMMEventClient(int64 UserId, FOnMatch OnMatchCallb
 		UE_LOG(LogTemp, Error, TEXT("CreateRatingServiceClient: GConfig absent"));
 		return {};
 	}
-	if (!GConfig->GetString(TEXT("/Script/OnlineServices.Addresses"), TEXT("MMEvent"), Address, GGameIni))
+	if (!GConfig->GetString(TEXT("OnlineSubsystemAddresses"), TEXT("MMEvent"), Address, GGameIni))
 	{
-		UE_LOG(LogTemp, Error, TEXT("CreateRatingServiceClient: /Script/OnlineServices.Addresses:MMEvent not set"));
+		UE_LOG(LogTemp, Error, TEXT("CreateRatingServiceClient: OnlineSubsystemAddresses:MMEvent not set"));
 		return {};
 	}
 	return MMEventClient(Address, UserId, OnMatchCallback, OnError);

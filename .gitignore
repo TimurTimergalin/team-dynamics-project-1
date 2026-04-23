@@ -3,6 +3,8 @@ releases
 **/.venv
 .idea
 **/.idea
-**/__pycache__
+**/__pycache__/*
+*/.pyc
+**/.pyc
 testt
 deployment/secrets/*.yaml

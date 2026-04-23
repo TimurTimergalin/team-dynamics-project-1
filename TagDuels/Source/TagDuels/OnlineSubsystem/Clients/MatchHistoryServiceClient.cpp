@@ -186,9 +186,9 @@ TOptional<MatchHistoryServiceClient> CreateMatchHistoryServiceClient()
         UE_LOG(LogTemp, Error, TEXT("CreateMatchHistoryServiceClient: GConfig absent"));
         return {};
     }
-    if (!GConfig->GetString(TEXT("/Script/OnlineServices.Addresses"), TEXT("MatchHistoryService"), Address, GGameIni))
+    if (!GConfig->GetString(TEXT("OnlineSubsystemAddresses"), TEXT("MatchHistoryService"), Address, GGameIni))
     {
-        UE_LOG(LogTemp, Error, TEXT("CreateMatchHistoryServiceClient: /Script/OnlineServices.Addresses:MatchHistoryService not set"));
+        UE_LOG(LogTemp, Error, TEXT("CreateMatchHistoryServiceClient: OnlineSubsystemAddresses:MatchHistoryService not set"));
         return {};
     }
 
