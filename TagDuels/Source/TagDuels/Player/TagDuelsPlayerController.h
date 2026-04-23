@@ -16,7 +16,7 @@ public:
     virtual void SetViewTarget(class AActor* NewViewTarget, FViewTargetTransitionParams TransitionParams = FViewTargetTransitionParams()) override;
 
 	virtual void BeginPlayingState() override;
-
+	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlayerController")
 	void OnBeginPlayingState();
 };
