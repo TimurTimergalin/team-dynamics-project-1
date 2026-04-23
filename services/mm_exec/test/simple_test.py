@@ -15,9 +15,9 @@ class PlayerValues(NamedTuple):
     reg_id: str
 
 
-def test_simple(ms_client, mock_start_match, cfg, rdb):
+def test_simple(ms_factory, mock_start_match, cfg, rdb):
     @mock_start_match
-    def _mock_start_match(client, request, *args, **kwargs):
+    def _mock_start_match(request, *args, **kwargs):
         r_json = json_format.MessageToDict(request)
         assert r_json == {
             "matches": [
@@ -86,7 +86,7 @@ def test_simple(ms_client, mock_start_match, cfg, rdb):
 
     ser = service_py.MMExecService(
         redis_repo.Ops(rdb, cfg),
-        ms_client
+        ms_factory
     )
 
     p_keys = [

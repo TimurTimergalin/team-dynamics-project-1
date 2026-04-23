@@ -13,6 +13,7 @@ import (
 	pb "team_dynamics/api/proto/match_service"
 	rsPb "team_dynamics/api/proto/rating_service"
 	"team_dynamics/logging"
+	"team_dynamics/match_service/downstream"
 	"team_dynamics/match_service/models"
 	"team_dynamics/match_service/redis"
 	"time"
@@ -27,14 +28,14 @@ type MatchService interface {
 }
 
 type matchServiceImpl struct {
-	repo      redis.MatchKvRepo
-	fmClient  fmPb.FleetManagerClient
-	rsClient  rsPb.RatingServiceClient
-	mhsClient mhsPb.MatchHistoryServiceClient
+	repo       redis.MatchKvRepo
+	fmFactory  downstream.FleetManagerClientFactory
+	rsFactory  downstream.RatingServiceClientFactory
+	mhsFactory downstream.MatchHistoryServiceClientFactory
 }
 
-func MakeMatchService(repo redis.MatchKvRepo, fmClient fmPb.FleetManagerClient, rsClient rsPb.RatingServiceClient, mhsClient mhsPb.MatchHistoryServiceClient) MatchService {
-	return &matchServiceImpl{repo, fmClient, rsClient, mhsClient}
+func MakeMatchService(repo redis.MatchKvRepo, fmFactory downstream.FleetManagerClientFactory, rsFactory downstream.RatingServiceClientFactory, mhsFactory downstream.MatchHistoryServiceClientFactory) MatchService {
+	return &matchServiceImpl{repo, fmFactory, rsFactory, mhsFactory}
 }
 
 func validatePlayerData(data *pb.PlayerData) error {
@@ -220,7 +221,7 @@ func (s *matchServiceImpl) GetMatch(ctx context.Context, request *pb.GetMatchReq
 		req := &fmPb.GetServerRequest{
 			MatchId: &match.MatchId,
 		}
-		resp, err := s.fmClient.GetServer(ctx, req)
+		resp, err := s.fmFactory.GetServer(ctx, req)
 		if err != nil {
 			logger.Debug("GetMatch: GetServer failed or no connection info", "matchId", match.MatchId, "error", err)
 			return &pb.GetMatchResponse{}, nil
@@ -260,7 +261,7 @@ func (s *matchServiceImpl) GetMatch(ctx context.Context, request *pb.GetMatchReq
 			FleetName: &match.Fleet,
 			MatchId:   &match.MatchId,
 		}
-		allocResp, err := s.fmClient.Allocate(ctx, allocReq)
+		allocResp, err := s.fmFactory.Allocate(ctx, allocReq)
 		if err != nil || allocResp == nil || allocResp.ConnectionInfo == nil {
 			logger.Debug("GetMatch: Allocate failed or no connection info", "matchId", match.MatchId, "error", err)
 			return &pb.GetMatchResponse{}, nil
@@ -351,7 +352,7 @@ func (s *matchServiceImpl) EndMatch(ctx context.Context, request *pb.EndMatchReq
 	matchData := &mhsPb.MatchData{
 		Player1:      p1Data,
 		Player2:      p2Data,
-		Rounds:       []*mhsPb.Round{},
+		Rounds:       request.Rounds,
 		EndTimestamp: &endTimestamp,
 		MatchResult:  historyResult,
 		MatchId:      &match.MatchId,
@@ -362,16 +363,17 @@ func (s *matchServiceImpl) EndMatch(ctx context.Context, request *pb.EndMatchReq
 
 	// Call both services concurrently
 	var ratingErr, historyErr error
+	var ratingResp *rsPb.UpdateRatingResponse
 	var wg sync.WaitGroup
 	wg.Add(2)
 
 	go func() {
 		defer wg.Done()
-		_, ratingErr = s.rsClient.UpdateRating(ctx, ratingReq)
+		ratingResp, ratingErr = s.rsFactory.UpdateRating(ctx, ratingReq)
 	}()
 	go func() {
 		defer wg.Done()
-		_, historyErr = s.mhsClient.SaveMatch(ctx, historyReq)
+		_, historyErr = s.mhsFactory.SaveMatch(ctx, historyReq)
 	}()
 
 	wg.Wait()
@@ -388,7 +390,16 @@ func (s *matchServiceImpl) EndMatch(ctx context.Context, request *pb.EndMatchReq
 		return nil, status.Errorf(codes.Aborted, "failed to update match status: %v", err)
 	}
 
-	return &pb.EndMatchResponse{}, nil
+	endResp := &pb.EndMatchResponse{}
+	if ratingResp != nil {
+		if ratingResp.Player1Rating != nil {
+			endResp.NewRating_1 = ratingResp.Player1Rating.DisplayValue
+		}
+		if ratingResp.Player2Rating != nil {
+			endResp.NewRating_2 = ratingResp.Player2Rating.DisplayValue
+		}
+	}
+	return endResp, nil
 }
 
 func (s *matchServiceImpl) CancelMatch(ctx context.Context, request *pb.CancelMatchRequest) (*pb.CancelMatchResponse, error) {
@@ -431,7 +442,7 @@ func (s *matchServiceImpl) CancelMatch(ctx context.Context, request *pb.CancelMa
 	}
 
 	// Save cancelled match to history
-	_, err = s.mhsClient.SaveMatch(ctx, historyReq)
+	_, err = s.mhsFactory.SaveMatch(ctx, historyReq)
 	if err != nil {
 		logger.Debug("CancelMatch: SaveMatch failed", "matchId", match.MatchId, "error", err)
 		return nil, status.Errorf(codes.Aborted, "failed to save cancelled match to history: %v", err)

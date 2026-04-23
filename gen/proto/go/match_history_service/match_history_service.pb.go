@@ -509,10 +509,10 @@ const file_match_history_service_match_history_service_proto_rawDesc = "" +
 	"\x18MATCH_RESULT_PLAYER1_WIN\x10\x01\x12\x15\n" +
 	"\x11MATCH_RESULT_DRAW\x10\x02\x12\x1c\n" +
 	"\x18MATCH_RESULT_PLAYER2_WIN\x10\x03\x12\x1a\n" +
-	"\x16MATCH_RESULT_CANCELLED\x10\x042\xa1\x02\n" +
+	"\x16MATCH_RESULT_CANCELLED\x10\x042\x83\x02\n" +
 	"\x13MatchHistoryService\x12\x8b\x01\n" +
-	"\x0fGetMatchHistory\x12-.match_history_service.GetMatchHistoryRequest\x1a..match_history_service.GetMatchHistoryResponse\"\x19\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/match_history\x12|\n" +
-	"\tSaveMatch\x12'.match_history_service.SaveMatchRequest\x1a(.match_history_service.SaveMatchResponse\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/match_historyB/Z-team_dynamics/api/proto/match_history_serviceb\x06proto3"
+	"\x0fGetMatchHistory\x12-.match_history_service.GetMatchHistoryRequest\x1a..match_history_service.GetMatchHistoryResponse\"\x19\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/match_history\x12^\n" +
+	"\tSaveMatch\x12'.match_history_service.SaveMatchRequest\x1a(.match_history_service.SaveMatchResponseB/Z-team_dynamics/api/proto/match_history_serviceb\x06proto3"
 
 var (
 	file_match_history_service_match_history_service_proto_rawDescOnce sync.Once

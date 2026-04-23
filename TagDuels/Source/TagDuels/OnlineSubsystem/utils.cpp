@@ -13,3 +13,15 @@ TFuture<FHttpResponsePtr> MakeHttpRequest(TSharedPtr<IHttpRequest> Request)
 	Request->ProcessRequest();
 	return future;
 }
+
+TOptional<int64> StrToInt64(const FString& InString)
+{
+	const TCHAR *Start = *InString;
+	TCHAR* End = nullptr;
+	int64 Value = FCString::Strtoi64(Start, &End, 10);
+	if (*End != '\0')
+	{
+		return {};
+	}
+	return Value;
+}

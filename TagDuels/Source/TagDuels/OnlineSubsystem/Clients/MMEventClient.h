@@ -24,6 +24,7 @@ private:
 	FOnErroneousResponse OnError;
 	FString Url;
 	bool Resolved{};
+	int64 UserId{};
 	TSharedPtr<IWebSocket> Connection;
 	int ConnectionRetries = InitialConnectionRetries;
 	friend TOptional<MMEventClient> CreateMMEventClient(int64 UserId, FOnMatch OnMatchCallback, FOnErroneousResponse OnError);

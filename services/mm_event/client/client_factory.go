@@ -12,6 +12,7 @@ import (
 	rsPb "team_dynamics/api/proto/rating_service"
 	usPb "team_dynamics/api/proto/user_service"
 	"team_dynamics/mm_event/connection"
+	"team_dynamics/mm_event/downstream"
 	mmeJson "team_dynamics/mm_event/json"
 	"team_dynamics/mm_event/models"
 	"team_dynamics/mm_event/redis"
@@ -23,9 +24,9 @@ type Factory interface {
 }
 
 type clientFactoryImpl struct {
-	msClient     msPb.MatchServiceClient
-	rsClient     rsPb.RatingServiceClient
-	usClient     usPb.UserServiceClient
+	msFactory    downstream.MatchServiceClientFactory
+	rsFactory    downstream.RatingServiceClientFactory
+	usFactory    downstream.UserServiceClientFactory
 	mmPoolRepo   redis.MMPoolRepo
 	disconnectCh chan<- Client
 	logger       *slog.Logger
@@ -34,9 +35,9 @@ type clientFactoryImpl struct {
 }
 
 func NewClientFactory(
-	msClient msPb.MatchServiceClient,
-	rsClient rsPb.RatingServiceClient,
-	usClient usPb.UserServiceClient,
+	msFactory downstream.MatchServiceClientFactory,
+	rsFactory downstream.RatingServiceClientFactory,
+	usFactory downstream.UserServiceClientFactory,
 	mmPoolRepo redis.MMPoolRepo,
 	disconnectCh chan<- Client,
 	logger *slog.Logger,
@@ -44,9 +45,9 @@ func NewClientFactory(
 	upgrader *websocket.Upgrader,
 ) Factory {
 	return &clientFactoryImpl{
-		msClient,
-		rsClient,
-		usClient,
+		msFactory,
+		rsFactory,
+		usFactory,
 		mmPoolRepo,
 		disconnectCh,
 		logger,
@@ -56,10 +57,7 @@ func NewClientFactory(
 }
 
 func (f *clientFactoryImpl) getUserData(ctx context.Context, playerID int64) (*string, error) {
-	req := &usPb.GetUserDataRequest{
-		Id: &playerID,
-	}
-	resp, err := f.usClient.GetUserData(ctx, req)
+	resp, err := f.usFactory.GetUserData(ctx, &usPb.GetUserDataRequest{Id: &playerID})
 	if err != nil {
 		return nil, err
 	}
@@ -68,11 +66,9 @@ func (f *clientFactoryImpl) getUserData(ctx context.Context, playerID int64) (*s
 	}
 	return resp.UserData.Name, nil
 }
+
 func (f *clientFactoryImpl) getUserRating(ctx context.Context, playerID int64) (float64, int64, error) {
-	req := &rsPb.GetRatingRequest{
-		UserId: &playerID,
-	}
-	resp, err := f.rsClient.GetRating(ctx, req)
+	resp, err := f.rsFactory.GetRating(ctx, &rsPb.GetRatingRequest{UserId: &playerID})
 	if err != nil {
 		return 0, 0, err
 	}
@@ -127,10 +123,7 @@ func (f *clientFactoryImpl) getPlayerData(ctx context.Context, playerID int64, f
 }
 
 func (f *clientFactoryImpl) getMatchAddress(ctx context.Context, playerID int64) *string {
-	req := &msPb.GetMatchRequest{
-		PlayerId: &playerID,
-	}
-	resp, err := f.msClient.GetMatch(ctx, req)
+	resp, err := f.msFactory.GetMatch(ctx, &msPb.GetMatchRequest{PlayerId: &playerID})
 	if err != nil {
 		f.logger.Error("failed to get match address", "player_id", playerID, "error", err)
 		return nil
@@ -224,7 +217,7 @@ func (f *clientFactoryImpl) MakeClient(w http.ResponseWriter, r *http.Request) (
 		mmPoolRepo:              f.mmPoolRepo,
 		logger:                  f.logger,
 		player:                  player,
-		msClient:                f.msClient,
+	msFactory:               f.msFactory,
 		config:                  f.config,
 	}
 

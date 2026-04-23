@@ -2,8 +2,9 @@
 
 #include "utils.h"
 
-void UClientSideOnlineSubsystem::Initialize(FSubsystemCollectionBase&)
+void UClientSideOnlineSubsystem::Initialize(FSubsystemCollectionBase& SubsystemCollectionBase)
 {
+	Super::Initialize(SubsystemCollectionBase);
 	UsClient = CreateUserServiceClient();
 	MhsClient = CreateMatchHistoryServiceClient();
 	RsClient = CreateRatingServiceClient();
@@ -127,14 +128,6 @@ bool UClientSideOnlineSubsystem::GetRating(FOnInt64Response OnResponse, FOnErron
 	return true;
 }
 
-void UClientSideOnlineSubsystem::SubscribeToMatchStart(FOnMatch Callback)
-{
-}
-
-void UClientSideOnlineSubsystem::ClearMatchStartCallback()
-{
-}
-
 void UClientSideOnlineSubsystem::SendOrAcceptRequest(int64 OtherUserId, FOnEmptyResponse OnResponse,
                                                      FOnErroneousResponse OnError)
 {
@@ -193,7 +186,7 @@ bool UClientSideOnlineSubsystem::CancelMatchMaking()
 	return MmeClient->CancelMatchmaking();
 }
 
-bool UClientSideOnlineSubsystem::DisconnectFromMMEvent(FOnMatch OnResponse, FOnErroneousResponse OnError)
+bool UClientSideOnlineSubsystem::DisconnectFromMMEvent()
 {
 	if (!MmeClient.IsSet())
 	{

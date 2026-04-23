@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Contract/Match.h"
 #include "Contract/MatchHistory.h"
 #include "Contract/UserData.h"
 #include "Delegates.generated.h"
@@ -20,3 +21,5 @@ DECLARE_DYNAMIC_DELEGATE_OneParam(FOnMatchHistoryResponse, const FMatchHistoryPa
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnUserListResponse, const FPlayersList&, Response);
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnMatch, FString, Address);
+
+DECLARE_DYNAMIC_DELEGATE_OneParam(FOnMatchEnd, FEndMatchResponse, NewRatings);

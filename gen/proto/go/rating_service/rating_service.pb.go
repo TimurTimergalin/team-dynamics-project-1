@@ -371,10 +371,10 @@ const file_rating_service_rating_service_proto_rawDesc = "" +
 	"\x18MATCH_RESULT_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13MATCH_RESULT_WINNER\x10\x01\x12\x15\n" +
 	"\x11MATCH_RESULT_DRAW\x10\x02\x12\x16\n" +
-	"\x12MATCH_RESULT_LOSER\x10\x032\xf3\x01\n" +
+	"\x12MATCH_RESULT_LOSER\x10\x032\xdb\x01\n" +
 	"\rRatingService\x12o\n" +
-	"\tGetRating\x12 .rating_service.GetRatingRequest\x1a!.rating_service.GetRatingResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/v1/ratings/{user_id}\x12q\n" +
-	"\fUpdateRating\x12#.rating_service.UpdateRatingRequest\x1a$.rating_service.UpdateRatingResponse\"\x16\x82\xd3\xe4\x93\x02\x10:\x01*\"\v/v1/ratingsB(Z&team_dynamics/api/proto/rating_serviceb\x06proto3"
+	"\tGetRating\x12 .rating_service.GetRatingRequest\x1a!.rating_service.GetRatingResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/v1/ratings/{user_id}\x12Y\n" +
+	"\fUpdateRating\x12#.rating_service.UpdateRatingRequest\x1a$.rating_service.UpdateRatingResponseB(Z&team_dynamics/api/proto/rating_serviceb\x06proto3"
 
 var (
 	file_rating_service_rating_service_proto_rawDescOnce sync.Once

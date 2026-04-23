@@ -5,7 +5,6 @@ import (
 	"github.com/alicebob/miniredis/v2"
 	"github.com/gorilla/websocket"
 	"github.com/redis/go-redis/v9"
-	"google.golang.org/grpc"
 	"log/slog"
 	"net/http"
 	"net/url"
@@ -17,6 +16,7 @@ import (
 	usPb "team_dynamics/api/proto/user_service"
 	"team_dynamics/mm_event/client"
 	"team_dynamics/mm_event/controllers"
+	"team_dynamics/mm_event/downstream"
 	"team_dynamics/mm_event/json"
 	mmeRedis "team_dynamics/mm_event/redis"
 	"testing"
@@ -27,71 +27,41 @@ func ptr[T any](v T) *T {
 	return &v
 }
 
-type SimpleTestMatchServiceMockClient struct {
+type mockMatchServiceFactory struct {
 	hasMatch bool
 	mu       sync.Mutex
 }
 
-func (s *SimpleTestMatchServiceMockClient) StartMatch(ctx context.Context, in *msPb.StartMatchRequest, opts ...grpc.CallOption) (*msPb.StartMatchResponse, error) {
-	panic("implement me")
-}
-
-func (s *SimpleTestMatchServiceMockClient) GetMatch(ctx context.Context, in *msPb.GetMatchRequest, opts ...grpc.CallOption) (*msPb.GetMatchResponse, error) {
-	if !s.hasMatch {
+func (m *mockMatchServiceFactory) GetMatch(_ context.Context, _ *msPb.GetMatchRequest) (*msPb.GetMatchResponse, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if !m.hasMatch {
 		return &msPb.GetMatchResponse{}, nil
 	}
 	return &msPb.GetMatchResponse{ConnectionInfo: &fmPb.ConnectionInfo{Address: ptr("localhost:7777")}}, nil
 }
 
-func (s *SimpleTestMatchServiceMockClient) EndMatch(ctx context.Context, in *msPb.EndMatchRequest, opts ...grpc.CallOption) (*msPb.EndMatchResponse, error) {
-	panic("implement me")
+func (m *mockMatchServiceFactory) setEnable(v bool) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.hasMatch = v
 }
 
-func (s *SimpleTestMatchServiceMockClient) CancelMatch(ctx context.Context, in *msPb.CancelMatchRequest, opts ...grpc.CallOption) (*msPb.CancelMatchResponse, error) {
-	panic("implement me")
-}
+type mockRatingServiceFactory struct{}
 
-func (s *SimpleTestMatchServiceMockClient) RenewMatch(ctx context.Context, in *msPb.RenewMatchRequest, opts ...grpc.CallOption) (*msPb.RenewMatchResponse, error) {
-	panic("implement me")
-}
-
-func (s *SimpleTestMatchServiceMockClient) setEnable(v bool) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.hasMatch = v
-}
-
-type SimpleTestRatingServiceMockClient struct{}
-
-func (s *SimpleTestRatingServiceMockClient) GetRating(ctx context.Context, in *rsPb.GetRatingRequest, opts ...grpc.CallOption) (*rsPb.GetRatingResponse, error) {
+func (m *mockRatingServiceFactory) GetRating(_ context.Context, in *rsPb.GetRatingRequest) (*rsPb.GetRatingResponse, error) {
 	return &rsPb.GetRatingResponse{Rating: &rsPb.RatingData{RatingValue: ptr(1200.5), DisplayValue: ptr[int64](1200)}}, nil
 }
 
-func (s *SimpleTestRatingServiceMockClient) UpdateRating(ctx context.Context, in *rsPb.UpdateRatingRequest, opts ...grpc.CallOption) (*rsPb.UpdateRatingResponse, error) {
-	panic("implement me")
-}
+type mockUserServiceFactory struct{}
 
-type SimpleTestUserServiceMockClient struct{}
-
-func (s *SimpleTestUserServiceMockClient) GetSelfData(ctx context.Context, in *usPb.GetSelfDataRequest, opts ...grpc.CallOption) (*usPb.GetSelfDataResponse, error) {
-	panic("implement me")
-}
-
-func (s *SimpleTestUserServiceMockClient) GetUserData(ctx context.Context, in *usPb.GetUserDataRequest, opts ...grpc.CallOption) (*usPb.GetUserDataResponse, error) {
+func (m *mockUserServiceFactory) GetUserData(_ context.Context, _ *usPb.GetUserDataRequest) (*usPb.GetUserDataResponse, error) {
 	return &usPb.GetUserDataResponse{UserData: &usPb.UserData{Id: ptr[int64](1), Name: ptr("Player1")}}, nil
 }
 
-func (s *SimpleTestUserServiceMockClient) GetFriends(ctx context.Context, in *usPb.GetFriendsRequest, opts ...grpc.CallOption) (*usPb.GetFriendsResponse, error) {
-	panic("implement me")
-}
-
-func (s *SimpleTestUserServiceMockClient) GetIncomingRequests(ctx context.Context, in *usPb.GetIncomingRequestsRequest, opts ...grpc.CallOption) (*usPb.GetIncomingRequestsResponse, error) {
-	panic("implement me")
-}
-
-func (s *SimpleTestUserServiceMockClient) GetOutgoingRequests(ctx context.Context, in *usPb.GetOutgoingRequestsRequest, opts ...grpc.CallOption) (*usPb.GetOutgoingRequestsResponse, error) {
-	panic("implement me")
-}
+var _ downstream.MatchServiceClientFactory = (*mockMatchServiceFactory)(nil)
+var _ downstream.RatingServiceClientFactory = (*mockRatingServiceFactory)(nil)
+var _ downstream.UserServiceClientFactory = (*mockUserServiceFactory)(nil)
 
 type TestClient struct {
 	conn *websocket.Conn
@@ -155,9 +125,9 @@ func TestSimple(t *testing.T) {
 		_ = rdb.Close()
 	}(rdb)
 
-	rsClient := &SimpleTestRatingServiceMockClient{}
-	msClient := &SimpleTestMatchServiceMockClient{}
-	usClient := &SimpleTestUserServiceMockClient{}
+	rsClient := &mockRatingServiceFactory{}
+	msClient := &mockMatchServiceFactory{}
+	usClient := &mockUserServiceFactory{}
 	mmPoolRepo := mmeRedis.MakeMMPoolRepo(rdb, &mmeRedis.MMPoolRepoConfig{LockTTL: 10 * time.Second})
 	registerCh := make(chan client.Client, 32)
 	disconnectCh := make(chan client.Client, 32)
