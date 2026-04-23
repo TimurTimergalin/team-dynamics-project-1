@@ -10,7 +10,6 @@ void ATagDuelsPlayerController::SetViewTarget(AActor* NewViewTarget, FViewTarget
 
 	if (PlayerCameraManager)
 	{
-		// (Не работает) Черный экран, пока грузится уровень
 		//  PlayerCameraManager->SetManualCameraFade(1.0f, FColor::Black, false);
 	}
 }
@@ -23,5 +22,4 @@ void ATagDuelsPlayerController::BeginPlayingState()
 
 void ATagDuelsPlayerController::OnBeginPlayingState_Implementation()
 {
-	// Можно что-нибудь добавить
-}
+}    
