@@ -162,7 +162,7 @@ void MMEventClient::EstablishConnection()
 		{
 			Resolved = true;
 			ExecuteOnError(FString::Printf(TEXT("Cannot parse response: %s"), *message), EOnlineErrorType::NonCritical);
-			return;
+			return;	
 		}
 		const Response& Resp = RespOpt.GetValue();
 		if (Resp.GameServerAddress.IsSet())
