@@ -174,7 +174,7 @@ bool UServerSideOnlineSubsystem::DrawMatch(const TArray<FRoundData>& Rounds, FOn
 	{
 		if (!Response.IsSet())
 		{
-			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FString(TEXT("EndMatch failed after 3 attempts")));
+			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("EndMatch failed after 3 attempts"), EOnlineErrorType::NonCritical});
 		}
 		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Response.GetValue());
 	}).Next(FutureJoin).Next([](bool bWasBound)
@@ -204,7 +204,7 @@ bool UServerSideOnlineSubsystem::EndMatch(int64 WinnerId, const TArray<FRoundDat
 	{
 		if (!Response.IsSet())
 		{
-			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FString(TEXT("EndMatch failed after 3 attempts")));
+			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("EndMatch failed after 3 attempts"), EOnlineErrorType::NonCritical});
 		}
 		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Response.GetValue());
 	}).Next(FutureJoin).Next([](bool bWasBound)
@@ -231,7 +231,7 @@ bool UServerSideOnlineSubsystem::CancelMatch(FOnEmptyResponse OnResponse, FOnErr
 	{
 		if (!Result.IsSet() || !Result.GetValue())
 		{
-			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FString(TEXT("CancelMatch failed after 3 attempts")));
+			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("CancelMatch failed after 3 attempts"), EOnlineErrorType::NonCritical});
 		}
 		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
 	}).Next(FutureJoin).Next([](bool bWasBound)
@@ -258,7 +258,7 @@ bool UServerSideOnlineSubsystem::RenewMatch(FOnEmptyResponse OnResponse, FOnErro
 	{
 		if (!Result.IsSet() || !Result.GetValue())
 		{
-			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FString(TEXT("RenewMatch failed after 3 attempts")));
+			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("RenewMatch failed after 3 attempts"), EOnlineErrorType::NonCritical});
 		}
 		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
 	}).Next(FutureJoin).Next([](bool bWasBound)

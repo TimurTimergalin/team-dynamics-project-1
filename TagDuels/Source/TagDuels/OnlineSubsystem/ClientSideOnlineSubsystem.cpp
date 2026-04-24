@@ -66,7 +66,7 @@ bool UClientSideOnlineSubsystem::GetMatchHistoryPage(FString PageToken, FOnMatch
 	{
 		if (!Page.IsSet())
 		{
-			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, "Failed to fetch match history after 3 attempts");
+			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to fetch match history after 3 attempts"), EOnlineErrorType::NonCritical});
 		}
 		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Page.GetValue());
 	}).Next(FutureJoin).Next([](bool bWasBound)
@@ -114,7 +114,7 @@ bool UClientSideOnlineSubsystem::GetRating(FOnInt64Response OnResponse, FOnErron
 	{
 		if (!Rating.IsSet())
 		{
-			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FString(TEXT("Failed to fetch rating after 3 attempts")));
+			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to fetch rating after 3 attempts"), EOnlineErrorType::NonCritical});
 		}
 		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Rating.GetValue());
 	}).Next(FutureJoin).Next([](bool bWasBound)
