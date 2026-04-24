@@ -69,7 +69,8 @@ namespace
 	}
 }
 
-MMEventClient::MMEventClient(const FString& Address, int64 UserId,TSharedPtr<FOnMatch> OnMatchCallback, TSharedPtr<FOnErroneousResponse> OnError): OnMatchCallback(OnMatchCallback), OnError(OnError), UserId(UserId)
+MMEventClient::MMEventClient(const FString& Address, int64 UserId, FOnMatch OnMatchCallback,
+                             FOnErroneousResponse OnError): OnMatchCallback(OnMatchCallback), OnError(OnError), UserId(UserId)
 {
 	FString Fleet = "Moscow"; // Пока хардкод
 	Url = FString::Printf(TEXT("ws://%s/events?playerId=%lld&fleet=%s"), *Address, UserId, *Fleet);
@@ -78,28 +79,30 @@ MMEventClient::MMEventClient(const FString& Address, int64 UserId,TSharedPtr<FOn
 
 void MMEventClient::ExecuteOnError(const FString& Error, EOnlineErrorType Type)
 {
-	AsyncTask(ENamedThreads::GameThread, [OnError = TWeakPtr<FOnErroneousResponse>(this->OnError), Error, Type]()
+	AsyncTask(ENamedThreads::GameThread, [this, Error, Type, Alive = TWeakPtr<bool>(this->Alive)]()
 	{
-		if (auto Pinned = OnError.Pin(); Pinned)
+		if (!Alive.IsValid())
 		{
-			if (!Pinned->ExecuteIfBound(FOnlineSubsystemError{Error, Type}))
-			{
-				UE_LOG(LogTemp, Error, TEXT("OnError for MMEvent not set"));
-			}
+			return;
+		}
+		if (!OnError.ExecuteIfBound(FOnlineSubsystemError{Error, Type}))
+		{
+			UE_LOG(LogTemp, Error, TEXT("OnError for MMEvent not set"));
 		}
 	});
 }
 
 void MMEventClient::ExecuteOnMatch(const FString& GameServerAddress)
 {
-	AsyncTask(ENamedThreads::GameThread, [OnMatchCallback = TWeakPtr<FOnMatch>(this->OnMatchCallback), UserId = this->UserId, GameServerAddress]()
+	AsyncTask(ENamedThreads::GameThread, [this, GameServerAddress, Alive = TWeakPtr<bool>(this->Alive)]()
 	{
-		if (auto Pinned = OnMatchCallback.Pin(); Pinned)
+		if (!Alive.IsValid())
 		{
-			if (!Pinned->ExecuteIfBound(GameServerAddress + FString::Printf(TEXT("player_id=%lld"), UserId)))
-			{
-				UE_LOG(LogTemp, Error, TEXT("OnMatchCallback for MMEvent not set"));
-			}
+			return;
+		}
+		if (!OnMatchCallback.ExecuteIfBound(GameServerAddress + FString::Printf(TEXT("player_id=%lld"), UserId)))
+		{
+			UE_LOG(LogTemp, Error, TEXT("OnMatchCallback for MMEvent not set"));
 		}
 	});
 }
@@ -120,24 +123,40 @@ void MMEventClient::Retry(const FString& Error,EOnlineErrorType Type)
 void MMEventClient::EstablishConnection()
 {
 	Connection = FWebSocketsModule::Get().CreateWebSocket(Url, "");
-	Connection->OnConnected().AddLambda([this]()
+	Connection->OnConnected().AddLambda([this, Alive = TWeakPtr<bool>(this->Alive)]()
 	{
+		if (!Alive.IsValid())
+		{
+			return;
+		}
 		ConnectionRetries = InitialConnectionRetries;
 	});
-	Connection->OnConnectionError().AddLambda([this](const FString& Error)
+	Connection->OnConnectionError().AddLambda([this, Alive = TWeakPtr<bool>(this->Alive)](const FString& Error)
 	{
+		if (!Alive.IsValid())
+		{
+			return;
+		}
 		Retry(Error, EOnlineErrorType::Critical);
 	});
-	Connection->OnClosed().AddLambda([this](int32 /*StatusCode*/, const FString& Reason, bool /*WasClean*/)
+	Connection->OnClosed().AddLambda([this, Alive = TWeakPtr<bool>(this->Alive)](int32 /*StatusCode*/, const FString& Reason, bool /*WasClean*/)
 	{
+		if (!Alive.IsValid())
+		{
+			return;
+		}
 		if (!Resolved)
 		{
 			Retry("Connection closed before receiving match: " + Reason, EOnlineErrorType::NonCritical);
 		}
 		Connection = nullptr;
 	});
-	Connection->OnMessage().AddLambda([this](const FString& message)
+	Connection->OnMessage().AddLambda([this, Alive = TWeakPtr<bool>(this->Alive)](const FString& message)
 	{
+		if (!Alive.IsValid())
+		{
+			return;
+		}
 		TOptional<Response> RespOpt = ParseResponse(message);
 		if (!RespOpt)
 		{
@@ -217,7 +236,7 @@ bool MMEventClient::IsConnected()
 	return Connection != nullptr && Connection->IsConnected();
 }
 
-TOptional<MMEventClient> CreateMMEventClient(int64 UserId, TSharedPtr<FOnMatch> OnMatchCallback, TSharedPtr<FOnErroneousResponse> OnError)
+TOptional<MMEventClient> CreateMMEventClient(int64 UserId, FOnMatch OnMatchCallback, FOnErroneousResponse OnError)
 {
 	FString Address;
 	if (!GConfig)

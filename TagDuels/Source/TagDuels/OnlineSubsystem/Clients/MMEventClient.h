@@ -16,18 +16,19 @@ private:
 	void ExecuteOnError(const FString& Error, EOnlineErrorType Type);
 	void ExecuteOnMatch(const FString& GameServerAddress);
 	void Retry(const FString& Error,EOnlineErrorType Type);
-	MMEventClient(const FString& Address, int64 UserId, TSharedPtr<FOnMatch> OnMatchCallback, TSharedPtr<FOnErroneousResponse> OnError);
+	MMEventClient(const FString& Address, int64 UserId, FOnMatch OnMatchCallback, FOnErroneousResponse OnError);
 	
 	static constexpr int InitialConnectionRetries = 3; 
 	
-	TSharedPtr<FOnMatch> OnMatchCallback;
-	TSharedPtr<FOnErroneousResponse> OnError;
+	FOnMatch OnMatchCallback;
+	FOnErroneousResponse OnError;
 	FString Url;
 	bool Resolved{};
 	int64 UserId{};
-	TSharedPtr<IWebSocket> Connection;	
+	TSharedPtr<IWebSocket> Connection;
 	int ConnectionRetries = InitialConnectionRetries;
-	friend TOptional<MMEventClient> CreateMMEventClient(int64 UserId, TSharedPtr<FOnMatch> OnMatchCallback, TSharedPtr<FOnErroneousResponse> OnError);
+	TSharedRef<bool> Alive{MakeShared<bool>(true)};
+	friend TOptional<MMEventClient> CreateMMEventClient(int64 UserId, FOnMatch OnMatchCallback, FOnErroneousResponse OnError);
 };
 
-TOptional<MMEventClient> CreateMMEventClient(int64 UserId, TSharedPtr<FOnMatch> OnMatchCallback, TSharedPtr<FOnErroneousResponse> OnError);
+TOptional<MMEventClient> CreateMMEventClient(int64 UserId, FOnMatch OnMatchCallback, FOnErroneousResponse OnError);
