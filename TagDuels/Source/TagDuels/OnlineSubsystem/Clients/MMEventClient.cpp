@@ -77,11 +77,11 @@ MMEventClient::MMEventClient(const FString& Address, int64 UserId, FOnMatch OnMa
 	EstablishConnection();
 }
 
-void MMEventClient::ExecuteOnError(const FString& Error)
+void MMEventClient::ExecuteOnError(const FString& Error, EOnlineErrorType Type)
 {
-	AsyncTask(ENamedThreads::GameThread, [OnError = this->OnError, Error]()
+	AsyncTask(ENamedThreads::GameThread, [OnError = this->OnError, Error, Type]()
 	{
-		if (!OnError.ExecuteIfBound(Error))
+		if (!OnError.ExecuteIfBound(FOnlineSubsystemError{Error, Type}))
 		{
 			UE_LOG(LogTemp, Error, TEXT("OnError for MMEvent not set"));
 		}
@@ -99,11 +99,11 @@ void MMEventClient::ExecuteOnMatch(const FString& GameServerAddress)
 	});
 }
 
-void MMEventClient::Retry(const FString& Error)
+void MMEventClient::Retry(const FString& Error,EOnlineErrorType Type)
 {
 	if (ConnectionRetries <= 0)
 	{
-		ExecuteOnError(Error);
+		ExecuteOnError(Error, Type);
 	}
 	else
 	{
@@ -121,13 +121,13 @@ void MMEventClient::EstablishConnection()
 	});
 	Connection->OnConnectionError().AddLambda([this](const FString& Error)
 	{
-		Retry(Error);
+		Retry(Error, EOnlineErrorType::Critical);
 	});
 	Connection->OnClosed().AddLambda([this](int32 /*StatusCode*/, const FString& Reason, bool /*WasClean*/)
 	{
 		if (!Resolved)
 		{
-			Retry("Connection closed before receiving match: " + Reason);
+			Retry("Connection closed before receiving match: " + Reason, EOnlineErrorType::NonCritical);
 		}
 		Connection = nullptr;
 	});
@@ -137,7 +137,7 @@ void MMEventClient::EstablishConnection()
 		if (!RespOpt)
 		{
 			Resolved = true;
-			ExecuteOnError(FString::Printf(TEXT("Cannot parse response: %s"), *message));
+			ExecuteOnError(FString::Printf(TEXT("Cannot parse response: %s"), *message), EOnlineErrorType::NonCritical);
 			return;
 		}
 		const Response& Resp = RespOpt.GetValue();
@@ -150,7 +150,7 @@ void MMEventClient::EstablishConnection()
 		if (Resp.ErrorMessage.IsSet())
 		{
 			Resolved = true;
-			ExecuteOnError(Resp.ErrorMessage.GetValue());
+			ExecuteOnError(Resp.ErrorMessage.GetValue(), EOnlineErrorType::NonCritical);
 			return;
 		}
 		if (Resp.Type == ResponseType::Unregistered)

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Contract/Error.h"
 #include "Contract/Match.h"
 #include "Contract/MatchHistory.h"
 #include "Contract/UserData.h"
@@ -12,7 +13,7 @@ struct FMyDelegateDummy
 
 DECLARE_DYNAMIC_DELEGATE(FOnEmptyResponse);
 
-DECLARE_DYNAMIC_DELEGATE_OneParam(FOnErroneousResponse, FString, ErrorMessage);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FOnErroneousResponse, FOnlineSubsystemError, Error);
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnInt64Response, int64, Response);
 

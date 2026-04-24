@@ -8,14 +8,14 @@ class MMEventClient
 {
 public:
 	void EstablishConnection();
-	void ExecuteOnError(const FString& Error);
-	void ExecuteOnMatch(const FString& GameServerAddress);
-	void Retry(const FString& Error);
 	bool Close();
 	bool StartMatchmaking();
 	bool CancelMatchmaking();
 	bool IsConnected();
 private:
+	void ExecuteOnError(const FString& Error, EOnlineErrorType Type);
+	void ExecuteOnMatch(const FString& GameServerAddress);
+	void Retry(const FString& Error,EOnlineErrorType Type);
 	MMEventClient(const FString& Address, int64 UserId, FOnMatch OnMatchCallback, FOnErroneousResponse OnError);
 	
 	static constexpr int InitialConnectionRetries = 3; 
