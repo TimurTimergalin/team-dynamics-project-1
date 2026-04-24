@@ -193,17 +193,14 @@ bool UServerSideOnlineSubsystem::DrawMatch(const TArray<FRoundData>& Rounds, FOn
 	{
 		if (!Response.IsSet())
 		{
-			if (!OnError.ExecuteIfBound(TEXT("EndMatch failed after 3 attempts")))
-			{
-				UE_LOG(LogTemp, Error, TEXT("OnError for EndMatch is not bound"));
-			}
+			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FString(TEXT("EndMatch failed after 3 attempts")));
 		}
-		else
+		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Response.GetValue());
+	}).Next(FutureJoin).Next([](bool bWasBound)
+	{
+		if (!bWasBound)
 		{
-			if (!OnResponse.ExecuteIfBound(Response.GetValue()))
-			{
-				UE_LOG(LogTemp, Error, TEXT("OnResponse for EndMatch is not bound"));
-			}
+			UE_LOG(LogTemp, Error, TEXT("OnResponse or OnError for DrawMatch was not set"));
 		}
 	});
 	return true;
@@ -226,17 +223,14 @@ bool UServerSideOnlineSubsystem::EndMatch(int64 WinnerId, const TArray<FRoundDat
 	{
 		if (!Response.IsSet())
 		{
-			if (!OnError.ExecuteIfBound(TEXT("EndMatch failed after 3 attempts")))
-			{
-				UE_LOG(LogTemp, Error, TEXT("OnError for EndMatch is not bound"));
-			}
+			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FString(TEXT("EndMatch failed after 3 attempts")));
 		}
-		else
+		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Response.GetValue());
+	}).Next(FutureJoin).Next([](bool bWasBound)
+	{
+		if (!bWasBound)
 		{
-			if (!OnResponse.ExecuteIfBound(Response.GetValue()))
-			{
-				UE_LOG(LogTemp, Error, TEXT("OnResponse for EndMatch is not bound"));
-			}
+			UE_LOG(LogTemp, Error, TEXT("OnResponse or OnError for EndMatch was not set"));
 		}
 	});
 	return true;
@@ -256,17 +250,14 @@ bool UServerSideOnlineSubsystem::CancelMatch(FOnEmptyResponse OnResponse, FOnErr
 	{
 		if (!Result.IsSet() || !Result.GetValue())
 		{
-			if (!OnError.ExecuteIfBound(TEXT("CancelMatch failed after 3 attempts")))
-			{
-				UE_LOG(LogTemp, Error, TEXT("OnError for CancelMatch is not bound"));
-			}
+			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FString(TEXT("CancelMatch failed after 3 attempts")));
 		}
-		else
+		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
+	}).Next(FutureJoin).Next([](bool bWasBound)
+	{
+		if (!bWasBound)
 		{
-			if (!OnResponse.ExecuteIfBound())
-			{
-				UE_LOG(LogTemp, Error, TEXT("OnResponse for CancelMatch is not bound"));
-			}
+			UE_LOG(LogTemp, Error, TEXT("OnResponse or OnError for CancelMatch was not set"));
 		}
 	});
 	return true;
@@ -286,17 +277,14 @@ bool UServerSideOnlineSubsystem::RenewMatch(FOnEmptyResponse OnResponse, FOnErro
 	{
 		if (!Result.IsSet() || !Result.GetValue())
 		{
-			if (!OnError.ExecuteIfBound(TEXT("RenewMatch failed after 3 attempts")))
-			{
-				UE_LOG(LogTemp, Error, TEXT("OnError for RenewMatch is not bound"));
-			}
+			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FString(TEXT("RenewMatch failed after 3 attempts")));
 		}
-		else
+		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
+	}).Next(FutureJoin).Next([](bool bWasBound)
+	{
+		if (!bWasBound)
 		{
-			if (!OnResponse.ExecuteIfBound())
-			{
-				UE_LOG(LogTemp, Error, TEXT("OnResponse for RenewMatch is not bound"));
-			}
+			UE_LOG(LogTemp, Error, TEXT("OnResponse or OnError for RenewMatch was not set"));
 		}
 	});
 	return true;
