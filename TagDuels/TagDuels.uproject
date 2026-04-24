@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "{A4CE7CCC-4B89-ED29-13B9-03BBFA763972}",
+	"EngineAssociation": "{68A648B9-4774-E326-8A67-F48A9BF7273E}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -35,10 +35,10 @@
 			"Name": "Agones",
 			"Enabled": true
 		},
-        {
-            "Name": "OnlineSubsystemSteam",
-            "Enabled": true
-        },
+		{
+			"Name": "OnlineSubsystemSteam",
+			"Enabled": true
+		},
 		{
 			"Name": "OnlineServicesEOS",
 			"Enabled": true

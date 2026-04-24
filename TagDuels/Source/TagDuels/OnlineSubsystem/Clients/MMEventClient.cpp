@@ -69,8 +69,7 @@ namespace
 	}
 }
 
-MMEventClient::MMEventClient(const FString& Address, int64 UserId, FOnMatch OnMatchCallback,
-                             FOnErroneousResponse OnError): OnMatchCallback(OnMatchCallback), OnError(OnError), UserId(UserId)
+MMEventClient::MMEventClient(const FString& Address, int64 UserId,TSharedPtr<FOnMatch> OnMatchCallback, TSharedPtr<FOnErroneousResponse> OnError): OnMatchCallback(OnMatchCallback), OnError(OnError), UserId(UserId)
 {
 	FString Fleet = "Moscow"; // Пока хардкод
 	Url = FString::Printf(TEXT("ws://%s/events?playerId=%lld&fleet=%s"), *Address, UserId, *Fleet);
@@ -79,22 +78,28 @@ MMEventClient::MMEventClient(const FString& Address, int64 UserId, FOnMatch OnMa
 
 void MMEventClient::ExecuteOnError(const FString& Error, EOnlineErrorType Type)
 {
-	AsyncTask(ENamedThreads::GameThread, [OnError = this->OnError, Error, Type]()
+	AsyncTask(ENamedThreads::GameThread, [OnError = TWeakPtr<FOnErroneousResponse>(this->OnError), Error, Type]()
 	{
-		if (!OnError.ExecuteIfBound(FOnlineSubsystemError{Error, Type}))
+		if (auto Pinned = OnError.Pin(); Pinned)
 		{
-			UE_LOG(LogTemp, Error, TEXT("OnError for MMEvent not set"));
+			if (!Pinned->ExecuteIfBound(FOnlineSubsystemError{Error, Type}))
+			{
+				UE_LOG(LogTemp, Error, TEXT("OnError for MMEvent not set"));
+			}
 		}
 	});
 }
 
 void MMEventClient::ExecuteOnMatch(const FString& GameServerAddress)
 {
-	AsyncTask(ENamedThreads::GameThread, [OnMatchCallback = this->OnMatchCallback, UserId = this->UserId, GameServerAddress]()
+	AsyncTask(ENamedThreads::GameThread, [OnMatchCallback = TWeakPtr<FOnMatch>(this->OnMatchCallback), UserId = this->UserId, GameServerAddress]()
 	{
-		if (!OnMatchCallback.ExecuteIfBound(GameServerAddress + FString::Printf(TEXT("player_id=%lld"), UserId)))
+		if (auto Pinned = OnMatchCallback.Pin(); Pinned)
 		{
-			UE_LOG(LogTemp, Error, TEXT("OnMatchCallback for MMEvent not set"));
+			if (!Pinned->ExecuteIfBound(GameServerAddress + FString::Printf(TEXT("player_id=%lld"), UserId)))
+			{
+				UE_LOG(LogTemp, Error, TEXT("OnMatchCallback for MMEvent not set"));
+			}
 		}
 	});
 }
@@ -212,7 +217,7 @@ bool MMEventClient::IsConnected()
 	return Connection != nullptr && Connection->IsConnected();
 }
 
-TOptional<MMEventClient> CreateMMEventClient(int64 UserId, FOnMatch OnMatchCallback, FOnErroneousResponse OnError)
+TOptional<MMEventClient> CreateMMEventClient(int64 UserId, TSharedPtr<FOnMatch> OnMatchCallback, TSharedPtr<FOnErroneousResponse> OnError)
 {
 	FString Address;
 	if (!GConfig)

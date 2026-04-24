@@ -155,7 +155,7 @@ bool UClientSideOnlineSubsystem::ConnectToMMEvent(FOnMatch OnResponse, FOnErrone
 	{
 		return false;
 	}
-	MmeClient = CreateMMEventClient(PlayerData->Id, OnResponse, OnError);
+	MmeClient = CreateMMEventClient(PlayerData->Id, MakeShared<FOnMatch>(MoveTemp(OnResponse)), MakeShared<FOnErroneousResponse>(MoveTemp(OnError)));
 	return MmeClient.IsSet();
 }
 

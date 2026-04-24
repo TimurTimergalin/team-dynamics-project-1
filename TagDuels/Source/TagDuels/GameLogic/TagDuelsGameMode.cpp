@@ -7,6 +7,8 @@ void ATagDuelsGameMode::PreLogin(const FString& Options, const FString& Address,
 	FString& ErrorMessage)
 {
 	Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
+	FString DebugMessage = FString::Printf(TEXT("Prelogin C++"));
+	UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
 	OnPreLogin_Implementation(Options, Address, UniqueId, ErrorMessage);
 }
 
