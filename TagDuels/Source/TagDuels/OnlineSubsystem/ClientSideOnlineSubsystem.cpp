@@ -21,9 +21,12 @@ bool UClientSideOnlineSubsystem::SteamAuthorize(FString /*AuthToken*/, int64 Ste
 		return UsClient->GetSelfData(SteamId);
 	}, 3).Next([this, OnResponse](TOptional<FUserPlayerData> PlayerData) {
 		this->PlayerData = PlayerData;
-		if (!OnResponse.ExecuteIfBound())
+		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
+	}).Next(FutureJoin).Next([](bool bWasBound)
+	{
+		if (!bWasBound)
 		{
-			UE_LOG(LogTemp, Error, TEXT("OnResponse for SteamAuthorize is not bound"));
+			UE_LOG(LogTemp, Error, TEXT("OnResponse for SteamAuthorize was not set"));
 		}
 	});
 	return true;
@@ -63,16 +66,14 @@ bool UClientSideOnlineSubsystem::GetMatchHistoryPage(FString PageToken, FOnMatch
 	{
 		if (!Page.IsSet())
 		{
-			if (!OnError.ExecuteIfBound("Failed to fetch match history after 3 attempts"))
-			{
-				UE_LOG(LogTemp, Error, TEXT("OnError for GetMatchHistoryPage is not bound"));
-			}
-		} else
+			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, "Failed to fetch match history after 3 attempts");
+		}
+		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Page.GetValue());
+	}).Next(FutureJoin).Next([](bool bWasBound)
+	{
+		if (!bWasBound)
 		{
-			if (!OnResponse.ExecuteIfBound(Page.GetValue()))
-			{
-				UE_LOG(LogTemp, Error, TEXT("OnResponse for GetMatchHistoryPage is not bound"));
-			}
+			UE_LOG(LogTemp, Error, TEXT("OnResponse or OnError for GetMatchHistoryPage was not set"));
 		}
 	});
 	return true;
@@ -109,20 +110,18 @@ bool UClientSideOnlineSubsystem::GetRating(FOnInt64Response OnResponse, FOnErron
 	WithRetry<int64>([this]()
 	{
 		return RsClient->GetRating(PlayerData.GetValue().Id);
-	}, 3).Next([this, OnResponse, OnError](TOptional<int64> Rating)
+	}, 3).Next([OnResponse, OnError](TOptional<int64> Rating)
 	{
 		if (!Rating.IsSet())
 		{
-			if (!OnError.ExecuteIfBound("Failed to fetch rating after 3 attempts"))
-			{
-				UE_LOG(LogTemp, Error, TEXT("OnError for GetRating is not bound"));
-			}
-		} else
+			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FString(TEXT("Failed to fetch rating after 3 attempts")));
+		}
+		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Rating.GetValue());
+	}).Next(FutureJoin).Next([](bool bWasBound)
+	{
+		if (!bWasBound)
 		{
-			if (!OnResponse.ExecuteIfBound(Rating.GetValue()))
-			{
-				UE_LOG(LogTemp, Error, TEXT("OnResponse for GetRating is not bound"));
-			}
+			UE_LOG(LogTemp, Error, TEXT("OnResponse or OnError for GetRating was not set"));
 		}
 	});
 	return true;
