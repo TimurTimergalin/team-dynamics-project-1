@@ -32,6 +32,9 @@ public:
 	bool GetPlayer2(FUserAnnotations& PlayerData);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
+	bool GetPlayerData(int64 PlayerId, FUserAnnotations& PlayerData);
+
+	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
 	bool DrawMatch(const TArray<FRoundData>& Rounds, FOnMatchEnd OnResponse, FOnErroneousResponse OnError);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")

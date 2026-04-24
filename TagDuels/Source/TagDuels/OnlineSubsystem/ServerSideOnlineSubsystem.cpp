@@ -158,6 +158,25 @@ bool UServerSideOnlineSubsystem::GetPlayer2(FUserAnnotations& PlayerData)
 	return false;
 }
 
+bool UServerSideOnlineSubsystem::GetPlayerData(int64 PlayerId, FUserAnnotations& PlayerData)
+{
+	if (!MatchData.IsSet())
+	{
+		return false;
+	}
+	if (PlayerId == MatchData.GetValue().Player1.PlayerId)
+	{
+		PlayerData = MatchData.GetValue().Player1;
+		return true;
+	}
+	if (PlayerId == MatchData.GetValue().Player2.PlayerId)
+	{
+		PlayerData = MatchData.GetValue().Player2;
+		return true;
+	}
+	return false;
+}
+
 bool UServerSideOnlineSubsystem::DrawMatch(const TArray<FRoundData>& Rounds, FOnMatchEnd OnResponse, FOnErroneousResponse OnError)
 {
 	if (!MsClient.IsSet() || !MatchData.IsSet())
