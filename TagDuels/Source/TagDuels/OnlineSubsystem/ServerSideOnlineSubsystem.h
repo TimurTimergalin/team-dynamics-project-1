@@ -47,7 +47,7 @@ public:
 	bool RenewMatch(FOnEmptyResponse OnResponse, FOnErroneousResponse OnError);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	bool ValidateConnection(const FString& Options, FString& ErrorMessage);
+	bool ValidateConnection(const FString& Options, FString& ErrorMessage, int64& PlayerID);
 private:
 	UFUNCTION()
 	void OnAgonesUpdated(const FGameServerResponse& Response);

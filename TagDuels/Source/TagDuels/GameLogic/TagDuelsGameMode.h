@@ -13,4 +13,9 @@ UCLASS()
 class TAGDUELS_API ATagDuelsGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
+public:
+	virtual void PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage) override;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Login")
+	void OnPreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage);
 };

@@ -14,7 +14,7 @@ bool UServerSideOnlineSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 	return UE_SERVER;
 }
 
-bool UServerSideOnlineSubsystem::ValidateConnection(const FString& Options, FString& ErrorMessage)
+bool UServerSideOnlineSubsystem::ValidateConnection(const FString& Options, FString& ErrorMessage, int64& PlayerID)
 {
 	if (!bReady)
 	{
@@ -43,6 +43,7 @@ bool UServerSideOnlineSubsystem::ValidateConnection(const FString& Options, FStr
 		ErrorMessage = "Unknown Player Id";
 		return false;
 	}
+	PlayerID = PlayerIdInt.GetValue();
 	return true;
 }
 
