@@ -52,6 +52,7 @@ type CancelChallengePayload struct {
 }
 
 type AcceptChallengePayload struct {
+	UserId int64 `json:"userId"`
 }
 
 type DeclineChallengePayload struct {
