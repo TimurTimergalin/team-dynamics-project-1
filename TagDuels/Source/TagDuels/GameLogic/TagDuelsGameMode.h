@@ -17,5 +17,5 @@ public:
 	virtual void PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage) override;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Login")
-	void OnPreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId);
+	void OnPreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage);
 };
