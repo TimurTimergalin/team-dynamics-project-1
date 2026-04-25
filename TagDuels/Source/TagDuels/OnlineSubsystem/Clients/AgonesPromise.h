@@ -19,5 +19,5 @@ public:
 	void OnSuccess(const FEmptyResponse& Resp);
 	UFUNCTION()
 	void OnError(const FAgonesError& Err);
-	TSharedRef<TPromise<TOptional<FAgonesError>>> Promise;
+	TSharedPtr<TPromise<TOptional<FAgonesError>>> Promise;
 };
