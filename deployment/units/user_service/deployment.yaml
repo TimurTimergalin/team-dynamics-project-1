@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: user-service
+      annotations:
+        linkerd.io/inject: enabled
     spec:
       imagePullSecrets:
         - name: craas-4274eb52-inventive-macaw
@@ -42,6 +44,11 @@ spec:
                 configMapKeyRef:
                   name: user-storage-config
                   key: POSTGRES_DB
+            - name: STEAM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: steam-api
+                  key: API_KEY
           resources:
             requests:
               memory: "64Mi"
