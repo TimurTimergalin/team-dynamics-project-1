@@ -106,7 +106,7 @@ void UServerSideOnlineSubsystem::OnAgonesUpdated(const FGameServerResponse& Resp
 	}
 	else { return; }
 
-	if (const FString* MatchId = Annotations.Find("agones.dev/sdk-match-id"); MatchId)
+	if (const FString* MatchId = Labels.Find("agones.dev/sdk-match-id"); MatchId)
 	{
 		Result.MatchId = *MatchId;
 	}
