@@ -37,4 +37,5 @@ void ATagDuelsGameMode::PreLogin(const FString& Options, const FString& Address,
 void ATagDuelsGameMode::OnPreLogin_Implementation(const FString& Options, const FString& Address,
 	const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
 {
+	UE_LOG(LogTemp, Error, TEXT("OnPrelogin C++"));
 }
