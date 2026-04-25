@@ -17,10 +17,6 @@ class TAGDUELS_API UHunterAttributeSet : public UTagDuelsAttributeSetBase
 
 public:
 	UHunterAttributeSet();
-	
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_RageLevel)
-	FGameplayAttributeData RageLevel;
-	ATTRIBUTE_ACCESSORS_BASIC(UHunterAttributeSet, RageLevel);
 
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_PalletStunDuration)
 	FGameplayAttributeData PalletStunDuration;
@@ -58,13 +54,7 @@ public:
 	FGameplayAttributeData BloodlustLevel;
 	ATTRIBUTE_ACCESSORS_BASIC(UHunterAttributeSet, BloodlustLevel);
 	
-public:
-	UFUNCTION()
-	void OnRep_RageLevel (const FGameplayAttributeData& OldValue)
-	{
-		GAMEPLAYATTRIBUTE_REPNOTIFY(UHunterAttributeSet, RageLevel, OldValue);
-	}
-	
+public:	
 	UFUNCTION()
 	void OnRep_PalletStunDuration (const FGameplayAttributeData& OldValue)
 	{

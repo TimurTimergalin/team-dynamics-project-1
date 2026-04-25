@@ -7,10 +7,9 @@
 
 UHunterAttributeSet::UHunterAttributeSet()
 {
-	RageLevel = 1.f;
 	PalletStunDuration = 2.f;
-	PalletBreakDuration = 2.34f;
-	HunterVaultDuration = 1.5f;
+	PalletBreakDuration = 2.f;
+	HunterVaultDuration = 1.4f;
 	AttackHaste = 1.5f;
 	AttackDuration = 0.8f;
 	AttackRecoveryDuration = 1.5f;
@@ -22,7 +21,6 @@ UHunterAttributeSet::UHunterAttributeSet()
 void UHunterAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME_CONDITION_NOTIFY(UHunterAttributeSet, RageLevel, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UHunterAttributeSet, PalletStunDuration, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UHunterAttributeSet, PalletBreakDuration, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UHunterAttributeSet, HunterVaultDuration, COND_None, REPNOTIFY_Always);
