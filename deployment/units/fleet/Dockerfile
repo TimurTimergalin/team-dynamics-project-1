@@ -5,5 +5,4 @@ COPY LinuxServer .
 RUN chown -R server .
 RUN chmod +x TagDuelsServer.sh
 USER server
-EXPOSE 7777/udp
 CMD ./TagDuelsServer.sh -ip=0.0.0.0 -ini:Engine:[OnlineSubsystem]:DefaultPlatformService=Null

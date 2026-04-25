@@ -9,7 +9,6 @@ type ResponseType string
 
 const (
 	StatusChanged     ResponseType = "StatusChanged"
-	RequestAccepted   ResponseType = "RequestAccepted"
 	ChallengeReceived ResponseType = "ChallengeReceived"
 	ChallengeAccepted ResponseType = "ChallengeAccepted"
 	ChallengeDeclined ResponseType = "ChallengeDeclined"
@@ -33,11 +32,6 @@ type StatusChangedPayload struct {
 	NewStatus UserStatus `json:"newStatus"`
 }
 
-type RequestAcceptedPayload struct {
-	UserId   int64  `json:"userId"`
-	UserName string `json:"userName"`
-}
-
 type ChallengeReceivedPayload struct {
 	UserId   int64  `json:"userId"`
 	UserName string `json:"userName"`
@@ -50,7 +44,7 @@ type ChallengeDeclinedPayload struct {
 }
 
 type ResponsePayload interface {
-	StatusChangedPayload | RequestAcceptedPayload | ChallengeReceivedPayload | ChallengeAcceptedPayload | ChallengeDeclinedPayload
+	StatusChangedPayload | ChallengeReceivedPayload | ChallengeAcceptedPayload | ChallengeDeclinedPayload
 }
 
 func SerializeResponse[T ResponsePayload](payload T) ([]byte, error) {
@@ -58,8 +52,6 @@ func SerializeResponse[T ResponsePayload](payload T) ([]byte, error) {
 	switch any(payload).(type) {
 	case StatusChangedPayload:
 		responseType = StatusChanged
-	case RequestAcceptedPayload:
-		responseType = RequestAccepted
 	case ChallengeReceivedPayload:
 		responseType = ChallengeReceived
 	case ChallengeAcceptedPayload:
