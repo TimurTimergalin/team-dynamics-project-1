@@ -7,28 +7,29 @@
 class MMEventClient
 {
 public:
-	void EstablishConnection();
-	bool Close();
-	bool StartMatchmaking();
-	bool CancelMatchmaking();
-	bool IsConnected();
+	void EstablishConnection(TSharedRef<FOnMatch> OnResponse, TSharedRef<FOnErroneousResponse> OnError, int64 UserId);
+	bool Close() const;
+	bool StartMatchmaking() const;
+	bool CancelMatchmaking() const;
+	bool IsConnected() const;
 private:
-	void ExecuteOnError(const FString& Error, EOnlineErrorType Type);
-	void ExecuteOnMatch(const FString& GameServerAddress);
-	void Retry(const FString& Error,EOnlineErrorType Type);
-	MMEventClient(const FString& Address, int64 UserId, FOnMatch OnMatchCallback, FOnErroneousResponse OnError);
+	void EstablishConnection(TSharedRef<FOnMatch> OnResponse, TSharedRef<FOnErroneousResponse> OnError);
+	void ExecuteOnError(const FString& Error, EOnlineErrorType Type, TSharedRef<FOnErroneousResponse> OnError) const;
+	void ExecuteOnMatch(const FString& GameServerAddress, TSharedRef<FOnMatch> OnMatchCallback) const;
+	void Retry(const FString& Error, EOnlineErrorType Type, TSharedRef<FOnMatch> OnResponse, TSharedRef<FOnErroneousResponse> OnError);
+	MMEventClient(const FString& Address);
 	
 	static constexpr int InitialConnectionRetries = 3; 
 	
-	FOnMatch OnMatchCallback;
-	FOnErroneousResponse OnError;
 	FString Url;
 	bool Resolved{};
 	int64 UserId{};
+	FString Address;
 	TSharedPtr<IWebSocket> Connection;
 	int ConnectionRetries = InitialConnectionRetries;
-	TSharedRef<bool> Alive{MakeShared<bool>(true)};
-	friend TOptional<MMEventClient> CreateMMEventClient(int64 UserId, FOnMatch OnMatchCallback, FOnErroneousResponse OnError);
+	FString ConnectionId;
+	FString Fleet;
+	friend TOptional<MMEventClient> CreateMMEventClient();
 };
 
-TOptional<MMEventClient> CreateMMEventClient(int64 UserId, FOnMatch OnMatchCallback, FOnErroneousResponse OnError);
+TOptional<MMEventClient> CreateMMEventClient();

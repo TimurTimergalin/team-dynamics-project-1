@@ -69,112 +69,92 @@ namespace
 	}
 }
 
-MMEventClient::MMEventClient(const FString& Address, int64 UserId, FOnMatch OnMatchCallback,
-                             FOnErroneousResponse OnError): OnMatchCallback(OnMatchCallback), OnError(OnError), UserId(UserId)
+MMEventClient::MMEventClient(const FString& Address): Address(Address)
 {
-	FString Fleet = "Moscow"; // Пока хардкод
-	Url = FString::Printf(TEXT("ws://%s/events?playerId=%lld&fleet=%s"), *Address, UserId, *Fleet);
-	EstablishConnection();
+	Fleet = "Moscow"; // Пока хардкод
 }
 
-void MMEventClient::ExecuteOnError(const FString& Error, EOnlineErrorType Type)
+void MMEventClient::ExecuteOnError(const FString& Error, EOnlineErrorType Type, TSharedRef<FOnErroneousResponse> OnError) const
 {
-	AsyncTask(ENamedThreads::GameThread, [this, Error, Type, Alive = TWeakPtr<bool>(this->Alive)]()
+	AsyncTask(ENamedThreads::GameThread, [this, Error, Type, OnError]()
 	{
-		if (!Alive.IsValid())
-		{
-			return;
-		}
-		if (!OnError.ExecuteIfBound(FOnlineSubsystemError{Error, Type}))
+		if (!OnError.Get().ExecuteIfBound(FOnlineSubsystemError{Error, Type}))
 		{
 			UE_LOG(LogTemp, Error, TEXT("OnError for MMEvent not set"));
 		}
 	});
 }
 
-void MMEventClient::ExecuteOnMatch(const FString& GameServerAddress)
+void MMEventClient::ExecuteOnMatch(const FString& GameServerAddress, TSharedRef<FOnMatch> OnMatchCallback) const
 {
-	AsyncTask(ENamedThreads::GameThread, [this, GameServerAddress, Alive = TWeakPtr<bool>(this->Alive)]()
+	AsyncTask(ENamedThreads::GameThread, [this, GameServerAddress, OnMatchCallback]()
 	{
-		if (!Alive.IsValid())
-		{
-			return;
-		}
-		if (!OnMatchCallback.ExecuteIfBound(GameServerAddress + FString::Printf(TEXT("player_id=%lld"), UserId)))
+		if (!OnMatchCallback.Get().ExecuteIfBound(GameServerAddress + FString::Printf(TEXT("player_id=%lld"), UserId)))
 		{
 			UE_LOG(LogTemp, Error, TEXT("OnMatchCallback for MMEvent not set"));
 		}
 	});
 }
 
-void MMEventClient::Retry(const FString& Error,EOnlineErrorType Type)
+void MMEventClient::Retry(const FString& Error, EOnlineErrorType Type, TSharedRef<FOnMatch> OnResponse, TSharedRef<FOnErroneousResponse> OnError)
 {
 	if (ConnectionRetries <= 0)
 	{
-		ExecuteOnError(Error, Type);
+		ExecuteOnError(Error, Type, OnError);
 	}
 	else
 	{
 		--ConnectionRetries;
-		EstablishConnection();
+		EstablishConnection(OnResponse, OnError);
 	}
 }
 
-void MMEventClient::EstablishConnection()
+void MMEventClient::EstablishConnection(TSharedRef<FOnMatch> OnResponse, TSharedRef<FOnErroneousResponse> OnError, int64 UserId_)
+{
+	UserId = UserId_;
+	Url = FString::Printf(TEXT("ws://%s/events?playerId=%lld&fleet=%s"), *Address, UserId, *Fleet);
+	EstablishConnection(OnResponse, OnError);
+}
+
+void MMEventClient::EstablishConnection(TSharedRef<FOnMatch> OnResponse, TSharedRef<FOnErroneousResponse> OnError)
 {
 	Connection = FWebSocketsModule::Get().CreateWebSocket(Url, "");
-	Connection->OnConnected().AddLambda([this, Alive = TWeakPtr<bool>(this->Alive)]()
+	Connection->OnConnected().AddLambda([this]()
 	{
-		if (!Alive.IsValid())
-		{
-			return;
-		}
 		ConnectionRetries = InitialConnectionRetries;
 	});
-	Connection->OnConnectionError().AddLambda([this, Alive = TWeakPtr<bool>(this->Alive)](const FString& Error)
+	Connection->OnConnectionError().AddLambda([this, OnResponse, OnError](const FString& Error)
 	{
-		if (!Alive.IsValid())
-		{
-			return;
-		}
-		Retry(Error, EOnlineErrorType::Critical);
+		Retry(Error, EOnlineErrorType::Critical, OnResponse, OnError);
 	});
-	Connection->OnClosed().AddLambda([this, Alive = TWeakPtr<bool>(this->Alive)](int32 /*StatusCode*/, const FString& Reason, bool /*WasClean*/)
+	Connection->OnClosed().AddLambda([this, OnResponse, OnError](int32 /*StatusCode*/, const FString& Reason, bool /*WasClean*/)
 	{
-		if (!Alive.IsValid())
-		{
-			return;
-		}
 		if (!Resolved)
 		{
-			Retry("Connection closed before receiving match: " + Reason, EOnlineErrorType::NonCritical);
+			Retry("Connection closed before receiving match: " + Reason, EOnlineErrorType::NonCritical, OnResponse, OnError);
 		}
 		Connection = nullptr;
 	});
-	Connection->OnMessage().AddLambda([this, Alive = TWeakPtr<bool>(this->Alive)](const FString& message)
+	Connection->OnMessage().AddLambda([this, OnResponse, OnError](const FString& message)
 	{
-		if (!Alive.IsValid())
-		{
-			return;
-		}
 		TOptional<Response> RespOpt = ParseResponse(message);
 		if (!RespOpt)
 		{
 			Resolved = true;
-			ExecuteOnError(FString::Printf(TEXT("Cannot parse response: %s"), *message), EOnlineErrorType::NonCritical);
+			ExecuteOnError(FString::Printf(TEXT("Cannot parse response: %s"), *message), EOnlineErrorType::NonCritical, OnError);
 			return;	
 		}
 		const Response& Resp = RespOpt.GetValue();
 		if (Resp.GameServerAddress.IsSet())
 		{
 			Resolved = true;
-			ExecuteOnMatch(Resp.GameServerAddress.GetValue());
+			ExecuteOnMatch(Resp.GameServerAddress.GetValue(), OnResponse);
 			return;
 		}
 		if (Resp.ErrorMessage.IsSet())
 		{
 			Resolved = true;
-			ExecuteOnError(Resp.ErrorMessage.GetValue(), EOnlineErrorType::NonCritical);
+			ExecuteOnError(Resp.ErrorMessage.GetValue(), EOnlineErrorType::NonCritical, OnError);
 			return;
 		}
 		if (Resp.Type == ResponseType::Unregistered)
@@ -182,10 +162,13 @@ void MMEventClient::EstablishConnection()
 			Resolved = false;
 		}
 	});
-	Connection->Connect();
+	AsyncTask(ENamedThreads::GameThread, [this]()
+	{
+		Connection->Connect();
+	});
 }
 
-bool MMEventClient::Close()
+bool MMEventClient::Close() const
 {
 	if (Connection == nullptr)
 	{
@@ -199,7 +182,7 @@ bool MMEventClient::Close()
 	return true;
 }
 
-bool MMEventClient::StartMatchmaking()
+bool MMEventClient::StartMatchmaking() const
 {
 	if (Connection == nullptr)
 	{
@@ -217,7 +200,7 @@ bool MMEventClient::StartMatchmaking()
 	return true;
 }
 
-bool MMEventClient::CancelMatchmaking()
+bool MMEventClient::CancelMatchmaking() const
 {
 	if (Connection == nullptr)
 	{
@@ -231,12 +214,12 @@ bool MMEventClient::CancelMatchmaking()
 	return true;
 }
 
-bool MMEventClient::IsConnected()
+bool MMEventClient::IsConnected() const
 {
 	return Connection != nullptr && Connection->IsConnected();
 }
 
-TOptional<MMEventClient> CreateMMEventClient(int64 UserId, FOnMatch OnMatchCallback, FOnErroneousResponse OnError)
+TOptional<MMEventClient> CreateMMEventClient()
 {
 	FString Address;
 	if (!GConfig)
@@ -249,5 +232,5 @@ TOptional<MMEventClient> CreateMMEventClient(int64 UserId, FOnMatch OnMatchCallb
 		UE_LOG(LogTemp, Error, TEXT("CreateRatingServiceClient: OnlineSubsystemAddresses:MMEvent not set"));
 		return {};
 	}
-	return MMEventClient(Address, UserId, OnMatchCallback, OnError);
+	return MMEventClient(Address);
 }

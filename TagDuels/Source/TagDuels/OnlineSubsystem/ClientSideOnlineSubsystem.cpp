@@ -8,6 +8,7 @@ void UClientSideOnlineSubsystem::Initialize(FSubsystemCollectionBase& SubsystemC
 	UsClient = CreateUserServiceClient();
 	MhsClient = CreateMatchHistoryServiceClient();
 	RsClient = CreateRatingServiceClient();
+	MmeClient = CreateMMEventClient();
 }
 
 bool UClientSideOnlineSubsystem::SteamAuthorize(FString /*AuthToken*/, int64 SteamId, FOnEmptyResponse OnResponse)
@@ -151,12 +152,15 @@ bool UClientSideOnlineSubsystem::ConnectToMMEvent(FOnMatch OnResponse, FOnErrone
 	{
 		return false;
 	}
-	if (MmeClient.IsSet() && MmeClient->IsConnected())
+	if (!MmeClient.IsSet()) {
+		return false;
+	}
+	if (MmeClient->IsConnected())
 	{
 		return false;
 	}
-	MmeClient = CreateMMEventClient(PlayerData->Id, MoveTemp(OnResponse), MoveTemp(OnError));
-	return MmeClient.IsSet();
+	MmeClient->EstablishConnection(MakeShared<FOnMatch>(MoveTemp(OnResponse)), MakeShared<FOnErroneousResponse>(MoveTemp(OnError)), PlayerData->Id);
+	return true;
 }
 
 bool UClientSideOnlineSubsystem::StartMatchMaking()
