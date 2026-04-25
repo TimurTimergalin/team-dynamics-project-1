@@ -24,7 +24,7 @@ type MatchKvRepo interface {
 	SaveMatchStart(ctx context.Context, matchId string) error
 	SaveMatchFinish(ctx context.Context, matchId string) error
 	RemoveMatch(ctx context.Context, matchId string) error
-	RestartMatch(ctx context.Context, matchId string) error
+	RestartMatch(ctx context.Context, matchId string) (string, error)
 }
 
 type matchKvRepoImpl struct {
@@ -544,10 +544,11 @@ func (r *matchKvRepoImpl) RemoveMatch(ctx context.Context, matchId string) error
 	return err
 }
 
-func (r *matchKvRepoImpl) RestartMatch(ctx context.Context, matchId string) error {
+func (r *matchKvRepoImpl) RestartMatch(ctx context.Context, matchId string) (string, error) {
 	logger := logging.GetLogger(ctx)
 	logger.Info("RestartMatch", "match_id", matchId)
 	mKeys := realMatchKeys{matchId}
+	res := ""
 	err := r.rdb.Watch(ctx, func(tx *redis.Tx) error {
 		player1, err := tx.Get(ctx, mKeys.player1()).Int64()
 		if err != nil {
@@ -592,13 +593,15 @@ func (r *matchKvRepoImpl) RestartMatch(ctx context.Context, matchId string) erro
 		})
 		if err != nil {
 			logger.Error("pipeline restart failed", "match_id", matchId, "error", err)
+			return err
 		}
-		return err
+		res = newMatchId
+		return nil
 	}, mKeys.player1(), mKeys.player2(), mKeys.status(), mKeys.fleet())
 	if err != nil {
 		logger.Error("RestartMatch failed", "match_id", matchId, "error", err)
 	} else {
 		logger.Info("RestartMatch succeeded", "match_id", matchId)
 	}
-	return err
+	return res, err
 }

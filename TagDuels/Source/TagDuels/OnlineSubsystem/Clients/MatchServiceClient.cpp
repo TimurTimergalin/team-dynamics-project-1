@@ -58,6 +58,36 @@ namespace
 
         return true;
     }
+
+    TOptional<FString> ConvertRenewMatchResponse(FHttpResponsePtr Response)
+    {
+        if (!Response.IsValid())
+        {
+            UE_LOG(LogTemp, Error, TEXT("RenewMatch: invalid response"));
+            return {};
+        }
+
+        if (Response->GetResponseCode() != 200)
+        {
+            UE_LOG(LogTemp, Error, TEXT("RenewMatch: HTTP error %d, body: %s"),
+                   Response->GetResponseCode(), *Response->GetContentAsString());
+            return {};
+        }
+
+        FString JsonString = Response->GetContentAsString();
+        TSharedPtr<FJsonObject> JsonObject;
+        TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
+
+        if (!FJsonSerializer::Deserialize(Reader, JsonObject) || !JsonObject.IsValid())
+        {
+            UE_LOG(LogTemp, Error, TEXT("RenewMatch: failed to parse JSON: %s"), *JsonString);
+            return {};
+        }
+
+        FString MatchId;
+        JsonObject->TryGetStringField(TEXT("matchId"), MatchId);
+        return MatchId;
+    }
 }
 
 MatchServiceClient::MatchServiceClient(const FString& Address)
@@ -141,13 +171,10 @@ TFuture<bool> MatchServiceClient::CancelMatch(const FString& MatchId) const
     });
 }
 
-TFuture<bool> MatchServiceClient::RenewMatch(const FString& MatchId) const
+TFuture<TOptional<FString>> MatchServiceClient::RenewMatch(const FString& MatchId) const
 {
     TSharedPtr<IHttpRequest> Request = CreateRenewMatchRequest(MatchId);
-    return MakeHttpRequest(Request).Next([](FHttpResponsePtr Response)
-    {
-        return ConvertEmptyResponse(Response, TEXT("RenewMatch"));
-    });
+    return MakeHttpRequest(Request).Next(ConvertRenewMatchResponse);
 }
 
 TOptional<MatchServiceClient> CreateMatchServiceClient()

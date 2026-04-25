@@ -69,7 +69,9 @@ message RenewMatchRequest {
   optional string match_id = 1;
 }
 
-message RenewMatchResponse {}
+message RenewMatchResponse {
+  optional string match_id = 1;
+}
 
 service MatchService {
   rpc StartMatch(StartMatchRequest) returns (StartMatchResponse);

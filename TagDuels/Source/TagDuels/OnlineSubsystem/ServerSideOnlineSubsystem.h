@@ -9,6 +9,7 @@
 #include "Contract/ServerAnnotations.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "AgonesSubsystem.h"
+#include "Clients/TAgonesClient.h"
 #include "ServerSideOnlineSubsystem.generated.h"
 
 UCLASS()
@@ -20,10 +21,10 @@ public:
 	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
 	
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	bool Ready(FReadyDelegate OnResponse, FAgonesErrorDelegate OnError);
+	bool Ready(FOnEmptyResponse OnResponse, FAgonesErrorDelegate OnError);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	bool Shutdown(FShutdownDelegate OnResponse, FAgonesErrorDelegate OnError);
+	bool Shutdown(FOnEmptyResponse OnResponse, FAgonesErrorDelegate OnError);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
 	bool GetPlayer1(FUserAnnotations& PlayerData);
@@ -44,7 +45,7 @@ public:
 	bool CancelMatch(FOnEmptyResponse OnResponse, FOnErroneousResponse OnError);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	bool RenewMatch(FOnEmptyResponse OnResponse, FOnErroneousResponse OnError);
+	bool RenewMatch(FOnMatch OnResponse, FOnErroneousResponse OnError);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
 	bool ValidateConnection(const FString& Options, FString& ErrorMessage, int64& PlayerID);
@@ -53,6 +54,7 @@ private:
 	void OnAgonesUpdated(const FGameServerResponse& Response);
 	
 	TOptional<MatchServiceClient> MsClient;
+	TAgonesClient AgonesClient{};
 	
 	struct FMatchData
 	{

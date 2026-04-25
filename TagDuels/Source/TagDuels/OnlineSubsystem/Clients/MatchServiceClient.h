@@ -9,7 +9,7 @@ class MatchServiceClient
 public:
 	TFuture<TOptional<FEndMatchResponse>> EndMatch(const FEndMatchResult& MatchResult) const;
 	TFuture<bool> CancelMatch(const FString& MatchId) const;
-	TFuture<bool> RenewMatch(const FString& MatchId) const;
+	TFuture<TOptional<FString>> RenewMatch(const FString& MatchId) const;
 
 private:
 	explicit MatchServiceClient(const FString& Address);

@@ -465,10 +465,11 @@ func (s *matchServiceImpl) RenewMatch(ctx context.Context, request *pb.RenewMatc
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	if err := s.repo.RestartMatch(ctx, *request.MatchId); err != nil {
+	newMatchId, err := s.repo.RestartMatch(ctx, *request.MatchId)
+	if err != nil {
 		logger.Debug("RenewMatch: RestartMatch failed", "matchId", *request.MatchId, "error", err)
 		return nil, status.Errorf(codes.Aborted, "failed to renew match: %v", err)
 	}
 
-	return &pb.RenewMatchResponse{}, nil
+	return &pb.RenewMatchResponse{MatchId: &newMatchId}, nil
 }

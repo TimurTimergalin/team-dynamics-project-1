@@ -675,6 +675,7 @@ func (x *RenewMatchRequest) GetMatchId() string {
 
 type RenewMatchResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	MatchId       *string                `protobuf:"bytes,1,opt,name=match_id,json=matchId,proto3,oneof" json:"match_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -707,6 +708,13 @@ func (x *RenewMatchResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use RenewMatchResponse.ProtoReflect.Descriptor instead.
 func (*RenewMatchResponse) Descriptor() ([]byte, []int) {
 	return file_match_service_match_service_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *RenewMatchResponse) GetMatchId() string {
+	if x != nil && x.MatchId != nil {
+		return *x.MatchId
+	}
+	return ""
 }
 
 var File_match_service_match_service_proto protoreflect.FileDescriptor
@@ -772,8 +780,10 @@ const file_match_service_match_service_proto_rawDesc = "" +
 	"\x13CancelMatchResponse\"@\n" +
 	"\x11RenewMatchRequest\x12\x1e\n" +
 	"\bmatch_id\x18\x01 \x01(\tH\x00R\amatchId\x88\x01\x01B\v\n" +
-	"\t_match_id\"\x14\n" +
-	"\x12RenewMatchResponse*}\n" +
+	"\t_match_id\"A\n" +
+	"\x12RenewMatchResponse\x12\x1e\n" +
+	"\bmatch_id\x18\x01 \x01(\tH\x00R\amatchId\x88\x01\x01B\v\n" +
+	"\t_match_id*}\n" +
 	"\x12PlayerFailResponse\x12$\n" +
 	" PLAYER_FAIL_RESPONSE_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cPLAYER_FAIL_RESPONSE_REENTER\x10\x01\x12\x1f\n" +
@@ -859,6 +869,7 @@ func file_match_service_match_service_proto_init() {
 	file_match_service_match_service_proto_msgTypes[8].OneofWrappers = []any{}
 	file_match_service_match_service_proto_msgTypes[9].OneofWrappers = []any{}
 	file_match_service_match_service_proto_msgTypes[11].OneofWrappers = []any{}
+	file_match_service_match_service_proto_msgTypes[12].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

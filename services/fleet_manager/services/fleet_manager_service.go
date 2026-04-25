@@ -61,13 +61,12 @@ func validateGetServerRequest(request *pb.GetServerRequest) error {
 
 func makeAnnotations(matchId string, player1, player2 *pb.PlayerAnnotations) map[string]string {
 	return map[string]string{
-		"player1_id":     player1.GetId(),
-		"player1_name":   player1.GetName(),
-		"player1_rating": player1.GetRating(),
-		"player2_id":     player2.GetId(),
-		"player2_name":   player2.GetName(),
-		"player2_rating": player2.GetRating(),
-		"match_id":       matchId,
+		"agones.dev/sdk-player1-id":     player1.GetId(),
+		"agones.dev/sdk-player1-name":   player1.GetName(),
+		"agones.dev/sdk-player1-rating": player1.GetRating(),
+		"agones.dev/sdk-player2-id":     player2.GetId(),
+		"agones.dev/sdk-player2-name":   player2.GetName(),
+		"agones.dev/sdk-player2-rating": player2.GetRating(),
 	}
 }
 

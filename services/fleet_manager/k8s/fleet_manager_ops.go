@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-const matchIdLabel = "match-id"
+const matchIdLabel = "agones.dev/sdk-match-id"
 
 type OpsConfig struct {
 	WriteTimeout          time.Duration

@@ -51,9 +51,10 @@ void UServerSideOnlineSubsystem::OnAgonesUpdated(const FGameServerResponse& Resp
 {
 	bReady = Response.Status.State == "Allocated";
 	const TMap<FString, FString>& Annotations = Response.ObjectMeta.Annotations;
+	const TMap<FString, FString>& Labels = Response.ObjectMeta.Labels;
 	FMatchData Result{};
 
-	if (const FString* P1Id = Annotations.Find("player1_id"); P1Id)
+	if (const FString* P1Id = Annotations.Find("agones.dev/sdk-player1-id"); P1Id)
 	{
 		if (auto P1IdInt = StrToInt64(*P1Id); P1IdInt.IsSet())
 		{
@@ -63,13 +64,13 @@ void UServerSideOnlineSubsystem::OnAgonesUpdated(const FGameServerResponse& Resp
 	}
 	else { return; }
 
-	if (const FString* P1Name = Annotations.Find("player1_name"); P1Name)
+	if (const FString* P1Name = Annotations.Find("agones.dev/sdk-player1-name"); P1Name)
 	{
 		Result.Player1.Name = *P1Name;
 	}
 	else { return; }
 
-	if (const FString* P1Rating = Annotations.Find("player1_rating"); P1Rating)
+	if (const FString* P1Rating = Annotations.Find("agones.dev/sdk-player1-rating"); P1Rating)
 	{
 		if (auto P1RatingInt = StrToInt64(*P1Rating); P1RatingInt.IsSet())
 		{
@@ -79,7 +80,7 @@ void UServerSideOnlineSubsystem::OnAgonesUpdated(const FGameServerResponse& Resp
 	}
 	else { return; }
 
-	if (const FString* P2Id = Annotations.Find("player2_id"); P2Id)
+	if (const FString* P2Id = Annotations.Find("agones.dev/sdk-player2-id"); P2Id)
 	{
 		if (auto P2IdInt = StrToInt64(*P2Id); P2IdInt.IsSet())
 		{
@@ -89,13 +90,13 @@ void UServerSideOnlineSubsystem::OnAgonesUpdated(const FGameServerResponse& Resp
 	}
 	else { return; }
 
-	if (const FString* P2Name = Annotations.Find("player2_name"); P2Name)
+	if (const FString* P2Name = Annotations.Find("agones.dev/sdk-player2-name"); P2Name)
 	{
 		Result.Player2.Name = *P2Name;
 	}
 	else { return; }
 
-	if (const FString* P2Rating = Annotations.Find("player2_rating"); P2Rating)
+	if (const FString* P2Rating = Annotations.Find("agones.dev/sdk-player2-rating"); P2Rating)
 	{
 		if (auto P2RatingInt = StrToInt64(*P2Rating); P2RatingInt.IsSet())
 		{
@@ -105,7 +106,7 @@ void UServerSideOnlineSubsystem::OnAgonesUpdated(const FGameServerResponse& Resp
 	}
 	else { return; }
 
-	if (const FString* MatchId = Annotations.Find("match_id"); MatchId)
+	if (const FString* MatchId = Annotations.Find("agones.dev/sdk-match-id"); MatchId)
 	{
 		Result.MatchId = *MatchId;
 	}
@@ -114,7 +115,7 @@ void UServerSideOnlineSubsystem::OnAgonesUpdated(const FGameServerResponse& Resp
 	MatchData = MoveTemp(Result);
 }
 
-bool UServerSideOnlineSubsystem::Ready(FReadyDelegate OnResponse, FAgonesErrorDelegate OnError)
+bool UServerSideOnlineSubsystem::Ready(FOnEmptyResponse OnResponse, FAgonesErrorDelegate OnError)
 {
 	UAgonesSubsystem* AgonesSDK = UAgonesSubsystem::Get(this);
 	if (!AgonesSDK)
@@ -124,18 +125,34 @@ bool UServerSideOnlineSubsystem::Ready(FReadyDelegate OnResponse, FAgonesErrorDe
 	FGameServerDelegate Delegate;
 	Delegate.BindDynamic(this, &UServerSideOnlineSubsystem::OnAgonesUpdated);
 	AgonesSDK->WatchGameServer(Delegate);
-	AgonesSDK->Ready(OnResponse, OnError);
+	AgonesClient.Ready(*AgonesSDK).Next([OnResponse, OnError](TOptional<FAgonesError> Err)
+	{
+		if (Err)
+		{
+			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, Err.GetValue());
+		}
+		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
+	});
+	UE_LOG(LogTemp, Display, TEXT("Sent Ready to Agones"));
 	return true;
 }
 
-bool UServerSideOnlineSubsystem::Shutdown(FShutdownDelegate OnResponse, FAgonesErrorDelegate OnError)
+bool UServerSideOnlineSubsystem::Shutdown(FOnEmptyResponse OnResponse, FAgonesErrorDelegate OnError)
 {
 	UAgonesSubsystem* AgonesSDK = UAgonesSubsystem::Get(this);
 	if (!AgonesSDK)
 	{
 		return false;
 	}
-	AgonesSDK->Shutdown(OnResponse, OnError);
+	AgonesClient.Shutdown(*AgonesSDK).Next([OnResponse, OnError](TOptional<FAgonesError> Err)
+	{
+		if (Err)
+		{
+			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, Err.GetValue());
+		}
+		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
+	});
+	UE_LOG(LogTemp, Display, TEXT("Sent Shutdown to Agones"));
 	return true;
 }
 
@@ -264,23 +281,40 @@ bool UServerSideOnlineSubsystem::CancelMatch(FOnEmptyResponse OnResponse, FOnErr
 	return true;
 }
 
-bool UServerSideOnlineSubsystem::RenewMatch(FOnEmptyResponse OnResponse, FOnErroneousResponse OnError)
+bool UServerSideOnlineSubsystem::RenewMatch(FOnMatch OnResponse, FOnErroneousResponse OnError)
 {
 	if (!MsClient.IsSet() || !MatchData.IsSet())
 	{
 		return false;
 	}
+	UAgonesSubsystem* AgonesSDK = UAgonesSubsystem::Get(this);
+	if (!AgonesSDK)
+	{
+		return false;
+	}
 	FString MatchId = MatchData.GetValue().MatchId;
-	WithRetry<bool>([this, MatchId]()
+	WithRetry<FString>([this, MatchId]()
 	{
 		return MsClient->RenewMatch(MatchId);
-	}, 3).Next([OnResponse, OnError](TOptional<bool> Result)
+	}, 3).Next([this, AgonesSDK](TOptional<FString> Result)
 	{
-		if (!Result.IsSet() || !Result.GetValue())
+		if (!Result.IsSet())
 		{
-			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("RenewMatch failed after 3 attempts"), EOnlineErrorType::NonCritical});
+			TPromise<TOptional<FAgonesError>> Promise;
+			FAgonesError Error;
+			Error.ErrorMessage = "Cannot renew match";
+			Promise.SetValue(Error);
+			return Promise.GetFuture();
 		}
-		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
+		return AgonesClient.NewMatchId(*AgonesSDK, Result.GetValue());
+	}).Next(FutureJoin)
+	.Next([OnResponse = MoveTemp(OnResponse), OnError = MoveTemp(OnError)](TOptional<FAgonesError> Result) mutable
+	{
+		if (!Result.IsSet())
+		{
+			return OnGameThread(&decltype(OnError)::ExecuteIfBound, MoveTemp(OnError), FOnlineSubsystemError{TEXT("RenewMatch failed after 3 attempts"), EOnlineErrorType::NonCritical});
+		}
+		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, MoveTemp(OnResponse), Result.GetValue().ErrorMessage);
 	}).Next(FutureJoin).Next([](bool bWasBound)
 	{
 		if (!bWasBound)
