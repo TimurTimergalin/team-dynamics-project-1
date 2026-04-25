@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: fleet-manager
+      annotations:
+        linkerd.io/inject: enabled
     spec:
       serviceAccountName: fleet-manager-sa
       imagePullSecrets:
@@ -18,7 +20,7 @@ spec:
       containers:
         - name: fleet-manager
           image: 4274eb52-inventive-macaw.registry.twcstorage.ru/tag-duels/fleet-manager-server:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 50001
               name: grpc

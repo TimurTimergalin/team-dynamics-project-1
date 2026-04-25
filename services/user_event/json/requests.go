@@ -8,8 +8,6 @@ import (
 type RequestType string
 
 const (
-	AddFriend        RequestType = "AddFriend"
-	RemoveFriend     RequestType = "RemoveFriend"
 	Subscribe        RequestType = "Subscribe"
 	Unsubscribe      RequestType = "Unsubscribe"
 	Challenge        RequestType = "Challenge"
@@ -28,14 +26,6 @@ type Request struct {
 	Payload any
 }
 
-type AddFriendPayload struct {
-	OtherUserId int64 `json:"otherUserId"`
-}
-
-type RemoveFriendPayload struct {
-	OtherUserId int64 `json:"otherUserId"`
-}
-
 type SubscribePayload struct {
 	Users []int64 `json:"users"`
 }
@@ -52,6 +42,7 @@ type CancelChallengePayload struct {
 }
 
 type AcceptChallengePayload struct {
+	UserId int64 `json:"userId"`
 }
 
 type DeclineChallengePayload struct {
@@ -65,18 +56,6 @@ func ParseRequest(data []byte) (*Request, error) {
 
 	var payload any
 	switch raw.Type {
-	case AddFriend:
-		var p AddFriendPayload
-		if err := json.Unmarshal(raw.Payload, &p); err != nil {
-			return nil, fmt.Errorf("failed to parse AddFriend payload: %w", err)
-		}
-		payload = p
-	case RemoveFriend:
-		var p RemoveFriendPayload
-		if err := json.Unmarshal(raw.Payload, &p); err != nil {
-			return nil, fmt.Errorf("failed to parse RemoveFriend payload: %w", err)
-		}
-		payload = p
 	case Subscribe:
 		var p SubscribePayload
 		if err := json.Unmarshal(raw.Payload, &p); err != nil {

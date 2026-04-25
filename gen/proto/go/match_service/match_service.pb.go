@@ -7,11 +7,13 @@
 package match_service
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 	fleet_manager "team_dynamics/api/proto/fleet_manager"
+	match_history_service "team_dynamics/api/proto/match_history_service"
 	unsafe "unsafe"
 )
 
@@ -436,9 +438,10 @@ func (x *GetMatchResponse) GetConnectionInfo() *fleet_manager.ConnectionInfo {
 }
 
 type EndMatchRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	MatchId       *string                `protobuf:"bytes,1,opt,name=match_id,json=matchId,proto3,oneof" json:"match_id,omitempty"`
-	WinnerId      *int64                 `protobuf:"varint,2,opt,name=winner_id,json=winnerId,proto3,oneof" json:"winner_id,omitempty"`
+	state         protoimpl.MessageState         `protogen:"open.v1"`
+	MatchId       *string                        `protobuf:"bytes,1,opt,name=match_id,json=matchId,proto3,oneof" json:"match_id,omitempty"`
+	WinnerId      *int64                         `protobuf:"varint,2,opt,name=winner_id,json=winnerId,proto3,oneof" json:"winner_id,omitempty"`
+	Rounds        []*match_history_service.Round `protobuf:"bytes,3,rep,name=rounds,proto3" json:"rounds,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -487,8 +490,17 @@ func (x *EndMatchRequest) GetWinnerId() int64 {
 	return 0
 }
 
+func (x *EndMatchRequest) GetRounds() []*match_history_service.Round {
+	if x != nil {
+		return x.Rounds
+	}
+	return nil
+}
+
 type EndMatchResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	NewRating_1   *int64                 `protobuf:"varint,1,opt,name=new_rating_1,json=newRating1,proto3,oneof" json:"new_rating_1,omitempty"`
+	NewRating_2   *int64                 `protobuf:"varint,2,opt,name=new_rating_2,json=newRating2,proto3,oneof" json:"new_rating_2,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -521,6 +533,20 @@ func (x *EndMatchResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use EndMatchResponse.ProtoReflect.Descriptor instead.
 func (*EndMatchResponse) Descriptor() ([]byte, []int) {
 	return file_match_service_match_service_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *EndMatchResponse) GetNewRating_1() int64 {
+	if x != nil && x.NewRating_1 != nil {
+		return *x.NewRating_1
+	}
+	return 0
+}
+
+func (x *EndMatchResponse) GetNewRating_2() int64 {
+	if x != nil && x.NewRating_2 != nil {
+		return *x.NewRating_2
+	}
+	return 0
 }
 
 type CancelMatchRequest struct {
@@ -569,8 +595,6 @@ func (x *CancelMatchRequest) GetMatchId() string {
 
 type CancelMatchResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	NewRating_1   *int64                 `protobuf:"varint,1,opt,name=new_rating_1,json=newRating1,proto3,oneof" json:"new_rating_1,omitempty"`
-	NewRating_2   *int64                 `protobuf:"varint,2,opt,name=new_rating_2,json=newRating2,proto3,oneof" json:"new_rating_2,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -603,20 +627,6 @@ func (x *CancelMatchResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use CancelMatchResponse.ProtoReflect.Descriptor instead.
 func (*CancelMatchResponse) Descriptor() ([]byte, []int) {
 	return file_match_service_match_service_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *CancelMatchResponse) GetNewRating_1() int64 {
-	if x != nil && x.NewRating_1 != nil {
-		return *x.NewRating_1
-	}
-	return 0
-}
-
-func (x *CancelMatchResponse) GetNewRating_2() int64 {
-	if x != nil && x.NewRating_2 != nil {
-		return *x.NewRating_2
-	}
-	return 0
 }
 
 type RenewMatchRequest struct {
@@ -703,7 +713,7 @@ var File_match_service_match_service_proto protoreflect.FileDescriptor
 
 const file_match_service_match_service_proto_rawDesc = "" +
 	"\n" +
-	"!match_service/match_service.proto\x12\rmatch_service\x1a!fleet_manager/fleet_manager.proto\"\xd5\x01\n" +
+	"!match_service/match_service.proto\x12\rmatch_service\x1a\x1cgoogle/api/annotations.proto\x1a!fleet_manager/fleet_manager.proto\x1a1match_history_service/match_history_service.proto\"\xd5\x01\n" +
 	"\n" +
 	"PlayerData\x12 \n" +
 	"\tplayer_id\x18\x01 \x01(\x03H\x00R\bplayerId\x88\x01\x01\x12$\n" +
@@ -741,24 +751,25 @@ const file_match_service_match_service_proto_rawDesc = "" +
 	"_player_id\"s\n" +
 	"\x10GetMatchResponse\x12K\n" +
 	"\x0fconnection_info\x18\x01 \x01(\v2\x1d.fleet_manager.ConnectionInfoH\x00R\x0econnectionInfo\x88\x01\x01B\x12\n" +
-	"\x10_connection_info\"n\n" +
+	"\x10_connection_info\"\xa4\x01\n" +
 	"\x0fEndMatchRequest\x12\x1e\n" +
 	"\bmatch_id\x18\x01 \x01(\tH\x00R\amatchId\x88\x01\x01\x12 \n" +
-	"\twinner_id\x18\x02 \x01(\x03H\x01R\bwinnerId\x88\x01\x01B\v\n" +
+	"\twinner_id\x18\x02 \x01(\x03H\x01R\bwinnerId\x88\x01\x01\x124\n" +
+	"\x06rounds\x18\x03 \x03(\v2\x1c.match_history_service.RoundR\x06roundsB\v\n" +
 	"\t_match_idB\f\n" +
 	"\n" +
-	"_winner_id\"\x12\n" +
-	"\x10EndMatchResponse\"A\n" +
-	"\x12CancelMatchRequest\x12\x1e\n" +
-	"\bmatch_id\x18\x01 \x01(\tH\x00R\amatchId\x88\x01\x01B\v\n" +
-	"\t_match_id\"\x85\x01\n" +
-	"\x13CancelMatchResponse\x12%\n" +
+	"_winner_id\"\x82\x01\n" +
+	"\x10EndMatchResponse\x12%\n" +
 	"\fnew_rating_1\x18\x01 \x01(\x03H\x00R\n" +
 	"newRating1\x88\x01\x01\x12%\n" +
 	"\fnew_rating_2\x18\x02 \x01(\x03H\x01R\n" +
 	"newRating2\x88\x01\x01B\x0f\n" +
 	"\r_new_rating_1B\x0f\n" +
-	"\r_new_rating_2\"@\n" +
+	"\r_new_rating_2\"A\n" +
+	"\x12CancelMatchRequest\x12\x1e\n" +
+	"\bmatch_id\x18\x01 \x01(\tH\x00R\amatchId\x88\x01\x01B\v\n" +
+	"\t_match_id\"\x15\n" +
+	"\x13CancelMatchResponse\"@\n" +
 	"\x11RenewMatchRequest\x12\x1e\n" +
 	"\bmatch_id\x18\x01 \x01(\tH\x00R\amatchId\x88\x01\x01B\v\n" +
 	"\t_match_id\"\x14\n" +
@@ -766,15 +777,15 @@ const file_match_service_match_service_proto_rawDesc = "" +
 	"\x12PlayerFailResponse\x12$\n" +
 	" PLAYER_FAIL_RESPONSE_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cPLAYER_FAIL_RESPONSE_REENTER\x10\x01\x12\x1f\n" +
-	"\x1bPLAYER_FAIL_RESPONSE_REMOVE\x10\x022\xa4\x03\n" +
+	"\x1bPLAYER_FAIL_RESPONSE_REMOVE\x10\x022\x9e\x04\n" +
 	"\fMatchService\x12Q\n" +
 	"\n" +
 	"StartMatch\x12 .match_service.StartMatchRequest\x1a!.match_service.StartMatchResponse\x12K\n" +
-	"\bGetMatch\x12\x1e.match_service.GetMatchRequest\x1a\x1f.match_service.GetMatchResponse\x12K\n" +
-	"\bEndMatch\x12\x1e.match_service.EndMatchRequest\x1a\x1f.match_service.EndMatchResponse\x12T\n" +
-	"\vCancelMatch\x12!.match_service.CancelMatchRequest\x1a\".match_service.CancelMatchResponse\x12Q\n" +
+	"\bGetMatch\x12\x1e.match_service.GetMatchRequest\x1a\x1f.match_service.GetMatchResponse\x12r\n" +
+	"\bEndMatch\x12\x1e.match_service.EndMatchRequest\x1a\x1f.match_service.EndMatchResponse\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/v1/matches/{match_id}/end\x12~\n" +
+	"\vCancelMatch\x12!.match_service.CancelMatchRequest\x1a\".match_service.CancelMatchResponse\"(\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/v1/matches/{match_id}/cancel\x12z\n" +
 	"\n" +
-	"RenewMatch\x12 .match_service.RenewMatchRequest\x1a!.match_service.RenewMatchResponseB'Z%team_dynamics/api/proto/match_serviceb\x06proto3"
+	"RenewMatch\x12 .match_service.RenewMatchRequest\x1a!.match_service.RenewMatchResponse\"'\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v1/matches/{match_id}/renewB'Z%team_dynamics/api/proto/match_serviceb\x06proto3"
 
 var (
 	file_match_service_match_service_proto_rawDescOnce sync.Once
@@ -806,6 +817,7 @@ var file_match_service_match_service_proto_goTypes = []any{
 	(*RenewMatchRequest)(nil),            // 12: match_service.RenewMatchRequest
 	(*RenewMatchResponse)(nil),           // 13: match_service.RenewMatchResponse
 	(*fleet_manager.ConnectionInfo)(nil), // 14: fleet_manager.ConnectionInfo
+	(*match_history_service.Round)(nil),  // 15: match_history_service.Round
 }
 var file_match_service_match_service_proto_depIdxs = []int32{
 	1,  // 0: match_service.InputMatch.player1:type_name -> match_service.PlayerData
@@ -815,21 +827,22 @@ var file_match_service_match_service_proto_depIdxs = []int32{
 	0,  // 4: match_service.MatchCreationResult.player2_fail_response:type_name -> match_service.PlayerFailResponse
 	4,  // 5: match_service.StartMatchResponse.results:type_name -> match_service.MatchCreationResult
 	14, // 6: match_service.GetMatchResponse.connection_info:type_name -> fleet_manager.ConnectionInfo
-	3,  // 7: match_service.MatchService.StartMatch:input_type -> match_service.StartMatchRequest
-	6,  // 8: match_service.MatchService.GetMatch:input_type -> match_service.GetMatchRequest
-	8,  // 9: match_service.MatchService.EndMatch:input_type -> match_service.EndMatchRequest
-	10, // 10: match_service.MatchService.CancelMatch:input_type -> match_service.CancelMatchRequest
-	12, // 11: match_service.MatchService.RenewMatch:input_type -> match_service.RenewMatchRequest
-	5,  // 12: match_service.MatchService.StartMatch:output_type -> match_service.StartMatchResponse
-	7,  // 13: match_service.MatchService.GetMatch:output_type -> match_service.GetMatchResponse
-	9,  // 14: match_service.MatchService.EndMatch:output_type -> match_service.EndMatchResponse
-	11, // 15: match_service.MatchService.CancelMatch:output_type -> match_service.CancelMatchResponse
-	13, // 16: match_service.MatchService.RenewMatch:output_type -> match_service.RenewMatchResponse
-	12, // [12:17] is the sub-list for method output_type
-	7,  // [7:12] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	15, // 7: match_service.EndMatchRequest.rounds:type_name -> match_history_service.Round
+	3,  // 8: match_service.MatchService.StartMatch:input_type -> match_service.StartMatchRequest
+	6,  // 9: match_service.MatchService.GetMatch:input_type -> match_service.GetMatchRequest
+	8,  // 10: match_service.MatchService.EndMatch:input_type -> match_service.EndMatchRequest
+	10, // 11: match_service.MatchService.CancelMatch:input_type -> match_service.CancelMatchRequest
+	12, // 12: match_service.MatchService.RenewMatch:input_type -> match_service.RenewMatchRequest
+	5,  // 13: match_service.MatchService.StartMatch:output_type -> match_service.StartMatchResponse
+	7,  // 14: match_service.MatchService.GetMatch:output_type -> match_service.GetMatchResponse
+	9,  // 15: match_service.MatchService.EndMatch:output_type -> match_service.EndMatchResponse
+	11, // 16: match_service.MatchService.CancelMatch:output_type -> match_service.CancelMatchResponse
+	13, // 17: match_service.MatchService.RenewMatch:output_type -> match_service.RenewMatchResponse
+	13, // [13:18] is the sub-list for method output_type
+	8,  // [8:13] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_match_service_match_service_proto_init() }
@@ -843,8 +856,8 @@ func file_match_service_match_service_proto_init() {
 	file_match_service_match_service_proto_msgTypes[5].OneofWrappers = []any{}
 	file_match_service_match_service_proto_msgTypes[6].OneofWrappers = []any{}
 	file_match_service_match_service_proto_msgTypes[7].OneofWrappers = []any{}
+	file_match_service_match_service_proto_msgTypes[8].OneofWrappers = []any{}
 	file_match_service_match_service_proto_msgTypes[9].OneofWrappers = []any{}
-	file_match_service_match_service_proto_msgTypes[10].OneofWrappers = []any{}
 	file_match_service_match_service_proto_msgTypes[11].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

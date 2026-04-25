@@ -11,13 +11,15 @@ spec:
     metadata:
       labels:
         app: match-service
+      annotations:
+        linkerd.io/inject: enabled
     spec:
       imagePullSecrets:
         - name: craas-4274eb52-inventive-macaw
       containers:
         - name: match-service
           image: 4274eb52-inventive-macaw.registry.twcstorage.ru/tag-duels/match-service-server:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 50001
               name: grpc

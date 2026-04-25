@@ -6,5 +6,7 @@ releases
 **/__pycache__/*
 */.pyc
 **/.pyc
+**/__pycache__
+**/*.exe
 testt
 deployment/secrets/*.yaml

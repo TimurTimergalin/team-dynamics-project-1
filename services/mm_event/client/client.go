@@ -159,6 +159,7 @@ func (c *clientImpl) onMessage(msg connection.ReceivedMessage) bool {
 	if req == nil {
 		return false
 	}
+	_, _ = c.mmPoolRepo.AddConnection(c.ctx, c.player.Id, c.config.ConnectionTTL)
 	switch req.Type {
 	case mmeJson.Unregister:
 		if err := c.removeFromPool(); err != nil {
