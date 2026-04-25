@@ -1,7 +1,7 @@
 ﻿#include "UserServiceClient.h"
 
 #include "HttpModule.h"
-#include "interfaces/IHttpResponse.h"
+#include "Interfaces/IHttpResponse.h"
 #include "TagDuels/OnlineSubsystem/utils.h"
 
 namespace

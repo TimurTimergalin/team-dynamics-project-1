@@ -20,8 +20,8 @@ bool UClientSideOnlineSubsystem::SteamAuthorize(FString /*AuthToken*/, int64 Ste
 	WithRetry<FUserPlayerData>([this, SteamId]()
 	{
 		return UsClient->GetSelfData(SteamId);
-	}, 3).Next([this, OnResponse](TOptional<FUserPlayerData> PlayerData) {
-		this->PlayerData = PlayerData;
+	}, 3).Next([this, OnResponse](TOptional<FUserPlayerData> PlayerData_) {
+		this->PlayerData = PlayerData_;
 		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
 	}).Next(FutureJoin).Next([](bool bWasBound)
 	{
