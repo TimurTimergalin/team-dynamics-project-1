@@ -66,6 +66,18 @@ func (c *Connection) readLoop() {
 	}
 }
 
+func (c *Connection) pingLoop() {
+	ticker := time.NewTicker(30 * time.Second)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		err := c.conn.WriteControl(websocket.PingMessage, nil, time.Now().Add(3*time.Second))
+		if err != nil {
+			return
+		}
+	}
+}
+
 func (c *Connection) Close() error {
 	// Send close frame with normal closure code
 	_ = c.conn.WriteControl(
@@ -81,6 +93,14 @@ func WrapConnection(conn *websocket.Conn) *Connection {
 		conn:    conn,
 		msgChan: make(chan ReceivedMessage),
 	}
+	c.conn.SetPongHandler(func(appData string) error {
+		return c.conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+	})
+	c.conn.SetPingHandler(func(appData string) error {
+		_ = c.conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+		return c.conn.WriteControl(websocket.PongMessage, nil, time.Time{})
+	})
 	go c.readLoop()
+	go c.pingLoop()
 	return c
 }
