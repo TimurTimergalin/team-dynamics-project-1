@@ -101,6 +101,7 @@ void MMEventClient::Retry(const FString& Error, EOnlineErrorType Type, TSharedRe
 	if (ConnectionRetries <= 0)
 	{
 		Connection = nullptr;
+		Resolved = false;
 		ExecuteOnError(Error, Type, OnError);
 	}
 	else
@@ -133,6 +134,8 @@ void MMEventClient::EstablishConnection(TSharedRef<FOnMatch> OnResponse, TShared
 		if (!Resolved)
 		{
 			Retry("Connection closed before receiving match: " + Reason, EOnlineErrorType::NonCritical, OnResponse, OnError);
+		} else {
+			Resolved = false;
 		}
 	});
 	Connection->OnMessage().AddLambda([this, OnResponse, OnError](const FString& message)
