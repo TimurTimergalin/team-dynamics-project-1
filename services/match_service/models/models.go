@@ -13,6 +13,7 @@ const (
 	Requested MatchStatus = 1 + iota
 	Ongoing
 	Finished
+	Initialising
 )
 
 type PlayerFailResponse int32

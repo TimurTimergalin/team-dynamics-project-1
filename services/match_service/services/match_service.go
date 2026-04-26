@@ -215,7 +215,8 @@ func (s *matchServiceImpl) GetMatch(ctx context.Context, request *pb.GetMatchReq
 			return nil, status.Errorf(codes.Internal, "failed to remove finished match: %v", err)
 		}
 		return &pb.GetMatchResponse{}, nil
-
+	case models.Initialising:
+		fallthrough
 	case models.Ongoing:
 		// Query fleet manager for server connection
 		req := &fmPb.GetServerRequest{
@@ -233,11 +234,20 @@ func (s *matchServiceImpl) GetMatch(ctx context.Context, request *pb.GetMatchReq
 			}
 			return &pb.GetMatchResponse{}, nil
 		}
+		if match.Status == models.Initialising {
+			if err := s.repo.SaveMatchStart(ctx, match.MatchId); err != nil {
+				logger.Warn("Get match: unable to change initializing->ongoing", "error", err)
+			}
+		}
 		return &pb.GetMatchResponse{
 			ConnectionInfo: resp.ConnectionInfo,
 		}, nil
 
 	case models.Requested:
+		if err := s.repo.SaveMatchInitialising(ctx, match.MatchId); err != nil {
+			logger.Info("GetMatch: Unable to switch requested->initializing", "error", err)
+			return &pb.GetMatchResponse{}, nil
+		}
 		// Prepare player annotations
 		player1IdStr := strconv.FormatInt(player1.Id, 10)
 		player1Name := player1.Name
@@ -270,6 +280,9 @@ func (s *matchServiceImpl) GetMatch(ctx context.Context, request *pb.GetMatchReq
 		if err := s.repo.SaveMatchStart(ctx, match.MatchId); err != nil {
 			logger.Debug("GetMatch: SaveMatchStart failed", "matchId", match.MatchId, "error", err)
 			return nil, status.Errorf(codes.Internal, "failed to update match status: %v", err)
+		}
+		if err := s.repo.SaveMatchStart(ctx, match.MatchId); err != nil {
+			logger.Warn("Get match: unable to change initializing->ongoing", "error", err)
 		}
 		return &pb.GetMatchResponse{
 			ConnectionInfo: allocResp.ConnectionInfo,
