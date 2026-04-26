@@ -74,7 +74,7 @@ MMEventClient::MMEventClient(const FString& Address): Address(Address)
 	Fleet = "Moscow"; // Пока хардкод
 }
 
-void MMEventClient::ExecuteOnError(const FString& Error, EOnlineErrorType Type, TSharedRef<FOnErroneousResponse> OnError) const
+void MMEventClient::ExecuteOnError(const FString& Error, EOnlineErrorType Type, TSharedRef<FOnErroneousResponse> OnError)
 {
 	AsyncTask(ENamedThreads::GameThread, [this, Error, Type, OnError]()
 	{
@@ -85,7 +85,7 @@ void MMEventClient::ExecuteOnError(const FString& Error, EOnlineErrorType Type, 
 	});
 }
 
-void MMEventClient::ExecuteOnMatch(const FString& GameServerAddress, TSharedRef<FOnMatch> OnMatchCallback) const
+void MMEventClient::ExecuteOnMatch(const FString& GameServerAddress, TSharedRef<FOnMatch> OnMatchCallback)
 {
 	AsyncTask(ENamedThreads::GameThread, [this, GameServerAddress, OnMatchCallback]()
 	{
@@ -175,7 +175,7 @@ void MMEventClient::EstablishConnection(TSharedRef<FOnMatch> OnResponse, TShared
 	});
 }
 
-bool MMEventClient::Close() const
+bool MMEventClient::Close()
 {
 	if (Connection == nullptr)
 	{
@@ -190,7 +190,7 @@ bool MMEventClient::Close() const
 	return true;
 }
 
-bool MMEventClient::StartMatchmaking() const
+bool MMEventClient::StartMatchmaking()
 {
 	if (Connection == nullptr)
 	{
@@ -208,7 +208,7 @@ bool MMEventClient::StartMatchmaking() const
 	return true;
 }
 
-bool MMEventClient::CancelMatchmaking() const
+bool MMEventClient::CancelMatchmaking()
 {
 	if (Connection == nullptr)
 	{
@@ -222,7 +222,7 @@ bool MMEventClient::CancelMatchmaking() const
 	return true;
 }
 
-bool MMEventClient::IsConnected() const
+bool MMEventClient::IsConnected()
 {
 	return Connection != nullptr && Connection->IsConnected();
 }
