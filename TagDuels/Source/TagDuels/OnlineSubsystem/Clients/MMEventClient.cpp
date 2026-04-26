@@ -100,6 +100,7 @@ void MMEventClient::Retry(const FString& Error, EOnlineErrorType Type, TSharedRe
 {
 	if (ConnectionRetries <= 0)
 	{
+		Connection = nullptr;
 		ExecuteOnError(Error, Type, OnError);
 	}
 	else
@@ -133,7 +134,6 @@ void MMEventClient::EstablishConnection(TSharedRef<FOnMatch> OnResponse, TShared
 		{
 			Retry("Connection closed before receiving match: " + Reason, EOnlineErrorType::NonCritical, OnResponse, OnError);
 		}
-		Connection = nullptr;
 	});
 	Connection->OnMessage().AddLambda([this, OnResponse, OnError](const FString& message)
 	{
@@ -164,6 +164,10 @@ void MMEventClient::EstablishConnection(TSharedRef<FOnMatch> OnResponse, TShared
 	});
 	AsyncTask(ENamedThreads::GameThread, [this]()
 	{
+		if (!Connection) {
+			UE_LOG(LogTemp, Error, TEXT("MME Connection is nullptr - that is Wierd!!!"));
+			return;
+		}
 		Connection->Connect();
 	});
 }
