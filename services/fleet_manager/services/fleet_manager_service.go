@@ -145,6 +145,9 @@ func (s *fleetManagerServiceImpl) GetServer(ctx context.Context, request *pb.Get
 	}
 	address, fleet, err := s.k8sOps.GetServerByMatchId(ctx, request.GetMatchId())
 	if err != nil {
+		if err.Type == k8s.NotFoundError {
+			return &pb.GetServerResponse{}, nil
+		}
 		return nil, convertError(err)
 	}
 	return &pb.GetServerResponse{
