@@ -71,7 +71,7 @@ class Ops:
         )
 
     def get_players(self) -> list[models.Player]:
-        player_ids = self.pool.lrange(MM_POOL, 0, -1)
+        player_ids = set(self.pool.lrange(MM_POOL, 0, -1))
         players = (self.read_player(id_) for id_ in player_ids)
         players = list(p for p in players if p)
         return players

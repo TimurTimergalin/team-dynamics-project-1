@@ -35,15 +35,17 @@ class MMExecService:
             ]
         )
 
-    def execute(self):
+    def execute(self) -> bool:
         self.redis_ops.reset()
         with self.redis_ops.lock():
             if not self.redis_ops.verify_time():
                 return
             players = self.redis_ops.get_players()
-            print("players in the pool:", [p.id for p in players])
+            if players:
+                print("players in the pool:", [p.id for p in players])
             matches = self.redis_ops.gather_matches(players)
-            print("matches: ", matches)
+            if matches:
+                print("matches: ", matches)
             to_return = set(str(p.id) for p in players) - set(
                 chain.from_iterable((str(m.player1.id), str(m.player2.id)) for m in matches))
             ms_request = self.make_request(matches)
@@ -61,3 +63,4 @@ class MMExecService:
                 print("failed to request matches", traceback.format_exc())
             self.redis_ops.update_time()
             print("done")
+            return bool(matches)
