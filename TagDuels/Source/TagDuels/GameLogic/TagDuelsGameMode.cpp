@@ -29,7 +29,10 @@ void ATagDuelsGameMode::PreLogin(const FString& Options, const FString& Address,
 		ErrorMessage = TEXT("invalid_unique_net_id");
 	}
 	UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorMessage);
-	if (GEngine) GEngine->AddOnScreenDebugMessage(-1,10.0f, FColor::Red, ErrorMessage);
+	if (ErrorMessage.IsEmpty())
+	{
+		UE_LOG(LogTemp, Display, TEXT("Successful Prelogin"));
+	}
 	
 	FGameModeEvents::GameModePreLoginEvent.Broadcast(this, UniqueId, ErrorMessage);
 }
@@ -37,5 +40,5 @@ void ATagDuelsGameMode::PreLogin(const FString& Options, const FString& Address,
 void ATagDuelsGameMode::OnPreLogin_Implementation(const FString& Options, const FString& Address,
 	const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
 {
-	UE_LOG(LogTemp, Error, TEXT("OnPrelogin C++"));
+	UE_LOG(LogTemp, Display, TEXT("OnPrelogin C++"));
 }
