@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc/status"
 	pb "team_dynamics/api/proto/fleet_manager"
 	"team_dynamics/fleet_manager/k8s"
+	"team_dynamics/logging"
 )
 
 type FleetManagerService interface {
@@ -93,11 +94,14 @@ func makeConnectionInfo(address string) *pb.ConnectionInfo {
 }
 
 func (s *fleetManagerServiceImpl) Allocate(ctx context.Context, request *pb.AllocateRequest) (*pb.AllocateResponse, error) {
+	logger := logging.GetLogger(ctx)
 	if err := validateAllocateRequest(request); err != nil {
+		logger.Debug("Allocate: invalid request", "error", err)
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid request: %v", err))
 	}
 	address, _, err := s.k8sOps.GetServerByMatchId(ctx, request.GetMatchId())
 	if err == nil {
+		logger.Debug("Allocate: server already exists", "matchId", request.GetMatchId(), "address", address)
 		return &pb.AllocateResponse{
 			ConnectionInfo: makeConnectionInfo(address),
 		}, nil
@@ -105,17 +109,21 @@ func (s *fleetManagerServiceImpl) Allocate(ctx context.Context, request *pb.Allo
 	annotations := makeAnnotations(request.GetMatchId(), request.Player1, request.GetPlayer2())
 	address, err = s.k8sOps.Allocate(ctx, request.GetMatchId(), request.FleetName, annotations)
 	if err == nil {
+		logger.Debug("Allocate: allocated successfully", "matchId", request.GetMatchId(), "address", address)
 		return &pb.AllocateResponse{
 			ConnectionInfo: makeConnectionInfo(address),
 		}, nil
 	}
+	logger.Debug("Allocate: initial allocation failed", "matchId", request.GetMatchId(), "errorType", err.Type, "error", err)
 
 	tryGettingAgain := false
 	switch err.Type {
 	case k8s.FleetFullError:
 		if request.FleetName != nil {
+			logger.Debug("Allocate: fleet full, retrying without fleet constraint", "matchId", request.GetMatchId())
 			address, err = s.k8sOps.Allocate(ctx, request.GetMatchId(), nil, annotations)
 			if err == nil {
+				logger.Debug("Allocate: allocated successfully without fleet constraint", "matchId", request.GetMatchId(), "address", address)
 				return &pb.AllocateResponse{
 					ConnectionInfo: makeConnectionInfo(address),
 				}, nil
@@ -129,27 +137,35 @@ func (s *fleetManagerServiceImpl) Allocate(ctx context.Context, request *pb.Allo
 	default:
 	}
 	if tryGettingAgain {
+		logger.Debug("Allocate: contention detected, trying to get existing server", "matchId", request.GetMatchId())
 		address, _, err = s.k8sOps.GetServerByMatchId(ctx, request.GetMatchId())
 		if err == nil {
+			logger.Debug("Allocate: found existing server after contention", "matchId", request.GetMatchId(), "address", address)
 			return &pb.AllocateResponse{
 				ConnectionInfo: makeConnectionInfo(address),
 			}, nil
 		}
 	}
+	logger.Error("Allocate: failed", "matchId", request.GetMatchId(), "errorType", err.Type, "error", err)
 	return nil, convertError(err)
 }
 
 func (s *fleetManagerServiceImpl) GetServer(ctx context.Context, request *pb.GetServerRequest) (*pb.GetServerResponse, error) {
+	logger := logging.GetLogger(ctx)
 	if err := validateGetServerRequest(request); err != nil {
+		logger.Debug("GetServer: invalid request", "error", err)
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid request: %v", err))
 	}
 	address, fleet, err := s.k8sOps.GetServerByMatchId(ctx, request.GetMatchId())
 	if err != nil {
 		if err.Type == k8s.NotFoundError {
+			logger.Debug("GetServer: server not found", "matchId", request.GetMatchId())
 			return &pb.GetServerResponse{}, nil
 		}
+		logger.Error("GetServer: failed", "matchId", request.GetMatchId(), "errorType", err.Type, "error", err)
 		return nil, convertError(err)
 	}
+	logger.Debug("GetServer: found", "matchId", request.GetMatchId(), "address", address)
 	return &pb.GetServerResponse{
 		ConnectionInfo: makeConnectionInfo(address),
 		Fleet:          fleet,
