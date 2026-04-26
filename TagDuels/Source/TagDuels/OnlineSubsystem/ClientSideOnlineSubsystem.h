@@ -71,6 +71,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
 	void ConnectToUserEvent(FOnEmptyResponse OnResponse, FOnErroneousResponse OnError);
 
+	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystemDebug")
+	void SetPlayerData(const FString& Name, int64 PlayerId);
+
 private:
 	TOptional<UserServiceClient> UsClient{};
 	TOptional<MatchHistoryServiceClient> MhsClient{};

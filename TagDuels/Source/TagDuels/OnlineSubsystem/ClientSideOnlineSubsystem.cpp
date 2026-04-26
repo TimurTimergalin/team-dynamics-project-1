@@ -195,10 +195,17 @@ bool UClientSideOnlineSubsystem::DisconnectFromMMEvent()
 	{
 		return false;
 	}
-	MmeClient->Close();
-	return true;
+	return MmeClient->Close();
 }
 
 void UClientSideOnlineSubsystem::ConnectToUserEvent(FOnEmptyResponse OnResponse, FOnErroneousResponse OnError)
 {
+}
+
+void UClientSideOnlineSubsystem::SetPlayerData(const FString& Name, int64 PlayerId)
+{
+	FUserPlayerData Pd;
+	Pd.Id = PlayerId;
+	Pd.Name = Name;
+	PlayerData = Pd;
 }
