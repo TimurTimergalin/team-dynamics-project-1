@@ -228,11 +228,15 @@ func (s *matchServiceImpl) GetMatch(ctx context.Context, request *pb.GetMatchReq
 			return &pb.GetMatchResponse{}, nil
 		}
 		if resp == nil || resp.ConnectionInfo == nil {
-			logger.Warn("GetMatch: server for ongoing match not found - clearing")
-			if err := s.repo.RemoveMatch(ctx, match.MatchId); err != nil {
-				logger.Warn("GetMatch: unable to remove absent ongoing match from redis", "error", err)
+			if match.Status == models.Initialising {
+				logger.Info("Server not found while initializing. Skipping")
+			} else {
+				logger.Warn("GetMatch: server for ongoing match not found - clearing")
+				if err := s.repo.RemoveMatch(ctx, match.MatchId); err != nil {
+					logger.Warn("GetMatch: unable to remove absent ongoing match from redis", "error", err)
+				}
+				return &pb.GetMatchResponse{}, nil
 			}
-			return &pb.GetMatchResponse{}, nil
 		}
 		if match.Status == models.Initialising {
 			if err := s.repo.SaveMatchStart(ctx, match.MatchId); err != nil {
@@ -274,6 +278,9 @@ func (s *matchServiceImpl) GetMatch(ctx context.Context, request *pb.GetMatchReq
 		allocResp, err := s.fmFactory.Allocate(ctx, allocReq)
 		if err != nil || allocResp == nil || allocResp.ConnectionInfo == nil {
 			logger.Debug("GetMatch: Allocate failed or no connection info", "matchId", match.MatchId, "error", err)
+			if err := s.repo.CancelMatchInitializing(ctx, match.MatchId); err != nil {
+				logger.Warn("Could not cancel init", "matchId", match.MatchId, "error", err)
+			}
 			return &pb.GetMatchResponse{}, nil
 		}
 		// Mark match as started

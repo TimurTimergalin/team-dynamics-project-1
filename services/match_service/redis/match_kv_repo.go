@@ -26,6 +26,7 @@ type MatchKvRepo interface {
 	RemoveMatch(ctx context.Context, matchId string) error
 	RestartMatch(ctx context.Context, matchId string) (string, error)
 	SaveMatchInitialising(ctx context.Context, matchId string) error
+	CancelMatchInitializing(ctx context.Context, matchId string) error
 }
 
 type matchKvRepoImpl struct {
@@ -611,4 +612,10 @@ func (r *matchKvRepoImpl) SaveMatchInitialising(ctx context.Context, matchId str
 	logger := logging.GetLogger(ctx)
 	logger.Info("SaveMatchInitialising", "match_id", matchId)
 	return r.changeMatchStatus(ctx, matchId, models.Requested, models.Initialising)
+}
+
+func (r *matchKvRepoImpl) CancelMatchInitializing(ctx context.Context, matchId string) error {
+	logger := logging.GetLogger(ctx)
+	logger.Info("SaveMatchInitialising", "match_id", matchId)
+	return r.changeMatchStatus(ctx, matchId, models.Initialising, models.Requested)
 }

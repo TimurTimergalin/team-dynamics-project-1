@@ -182,6 +182,7 @@ bool MMEventClient::Close() const
 	{
 		return false;
 	}
+	Resolved = true;
 	Connection->Close();
 	return true;
 }
@@ -198,7 +199,7 @@ bool MMEventClient::StartMatchmaking() const
 	}
 	if (Resolved)
 	{
-		return true;
+		return false;
 	}
 	Connection->Send("{\"type\": \"Register\"}");
 	return true;
