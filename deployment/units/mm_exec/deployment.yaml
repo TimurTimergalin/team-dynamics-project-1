@@ -17,7 +17,7 @@ spec:
       containers:
         - name: mm-exec
           image: 4274eb52-inventive-macaw.registry.twcstorage.ru/tag-duels/mm-exec:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 50001
               name: grpc

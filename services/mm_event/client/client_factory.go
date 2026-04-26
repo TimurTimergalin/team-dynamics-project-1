@@ -169,6 +169,7 @@ func (f *clientFactoryImpl) MakeClient(w http.ResponseWriter, r *http.Request) (
 		return nil, err
 	}
 	if !ok {
+		_ = f.mmPoolRepo.RemoveConnection(ctx, *playerID)
 		f.logger.Warn("player already has an active connection", "player_id", *playerID)
 		http.Error(w, "player already connected", http.StatusConflict)
 		return nil, fmt.Errorf("player already connected")
