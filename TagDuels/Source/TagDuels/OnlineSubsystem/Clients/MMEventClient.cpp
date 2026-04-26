@@ -89,7 +89,7 @@ void MMEventClient::ExecuteOnMatch(const FString& GameServerAddress, TSharedRef<
 {
 	AsyncTask(ENamedThreads::GameThread, [this, GameServerAddress, OnMatchCallback]()
 	{
-		if (!OnMatchCallback.Get().ExecuteIfBound(GameServerAddress + FString::Printf(TEXT("player_id=%lld"), UserId)))
+		if (!OnMatchCallback.Get().ExecuteIfBound(GameServerAddress + FString::Printf(TEXT("?player_id=%lld"), UserId)))
 		{
 			UE_LOG(LogTemp, Error, TEXT("OnMatchCallback for MMEvent not set"));
 		}
