@@ -70,11 +70,13 @@ class Ops:
             self.pool.get(key_set.reg_id)
         )
 
-    def get_players(self) -> list[models.Player]:
-        player_ids = set(self.pool.lrange(MM_POOL, 0, -1))
+    def get_players(self) -> tuple[list[models.Player], int]:
+        player_ids = self.pool.lrange(MM_POOL, 0, -1)
+        taken = len(player_ids)
+        player_ids = set(player_ids)
         players = (self.read_player(id_) for id_ in player_ids)
         players = list(p for p in players if p)
-        return players
+        return players, taken
 
     @staticmethod
     def gather_matches(players: list[models.Player]) -> list[models.Match]:

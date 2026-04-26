@@ -40,7 +40,7 @@ class MMExecService:
         with self.redis_ops.lock():
             if not self.redis_ops.verify_time():
                 return
-            players = self.redis_ops.get_players()
+            players, taken = self.redis_ops.get_players()
             if players:
                 print("players in the pool:", [p.id for p in players])
             matches = self.redis_ops.gather_matches(players)
@@ -58,7 +58,7 @@ class MMExecService:
                     if out_match.player2_fail_response == ms_pb2.PLAYER_FAIL_RESPONSE_REENTER:
                         to_return.add(str(inp_match.player2.id))
                 self.redis_ops.remove_players(p.id for p in players if str(p.id) not in to_return)
-                self.redis_ops.return_players(len(players), to_return)
+                self.redis_ops.return_players(taken, to_return)
             except Exception:
                 print("failed to request matches", traceback.format_exc())
             self.redis_ops.update_time()
