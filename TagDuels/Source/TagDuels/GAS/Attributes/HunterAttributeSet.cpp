@@ -8,8 +8,8 @@
 UHunterAttributeSet::UHunterAttributeSet()
 {
 	PalletStunDuration = 2.f;
-	PalletBreakDuration = 2.f;
-	HunterVaultDuration = 1.4f;
+	PalletBreakDuration = 1.9f;
+	HunterVaultDuration = 1.3f;
 	AttackHaste = 1.5f;
 	AttackDuration = 0.8f;
 	AttackRecoveryDuration = 1.5f;
