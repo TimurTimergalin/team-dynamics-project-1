@@ -59,7 +59,7 @@ namespace
                 bool bIsPlayer1Killer = false;
                 if ((*RoundObj)->TryGetBoolField(TEXT("isPlayer1Killer"), bIsPlayer1Killer))
                 {
-                    Round.RoundKiller = bIsPlayer1Killer ? RoundKiller::First : RoundKiller::Second;
+                    Round.RoundKiller_ = bIsPlayer1Killer ? RoundKiller::First : RoundKiller::Second;
                 }
 
                 int64 TimeMillis = 0;

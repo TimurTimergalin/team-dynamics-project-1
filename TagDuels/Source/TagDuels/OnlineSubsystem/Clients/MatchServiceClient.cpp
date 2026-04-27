@@ -110,7 +110,7 @@ TSharedPtr<IHttpRequest> MatchServiceClient::CreateEndMatchRequest(const FEndMat
     for (const FRoundData& Round : MatchResult.Rounds)
     {
         TSharedRef<FJsonObject> RoundObj = MakeShared<FJsonObject>();
-        RoundObj->SetBoolField(TEXT("isPlayer1Killer"), Round.RoundKiller == RoundKiller::First);
+        RoundObj->SetBoolField(TEXT("isPlayer1Killer"), Round.RoundKiller_ == RoundKiller::First);
         RoundObj->SetNumberField(TEXT("timeMillis"), static_cast<double>(Round.Duration.GetTotalMilliseconds()));
         RoundsArray.Add(MakeShared<FJsonValueObject>(RoundObj));
     }

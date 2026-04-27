@@ -24,7 +24,7 @@ struct TAGDUELS_API FRoundData
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly)
-	RoundKiller RoundKiller{};
+	RoundKiller RoundKiller_{};
 
 	UPROPERTY(BlueprintReadOnly)
 	FTimespan Duration{};
