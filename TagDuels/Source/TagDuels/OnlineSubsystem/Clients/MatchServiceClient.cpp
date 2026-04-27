@@ -103,7 +103,7 @@ TSharedPtr<IHttpRequest> MatchServiceClient::CreateEndMatchRequest(const FEndMat
 
     if (MatchResult.WinnerId.IsSet())
     {
-        Body->SetNumberField(TEXT("winnerId"), static_cast<double>(MatchResult.WinnerId.GetValue()));
+        Body->SetNumberField(TEXT("winnerId"), static_cast<int64>(MatchResult.WinnerId.GetValue()));
     }
 
     TArray<TSharedPtr<FJsonValue>> RoundsArray;
@@ -111,7 +111,7 @@ TSharedPtr<IHttpRequest> MatchServiceClient::CreateEndMatchRequest(const FEndMat
     {
         TSharedRef<FJsonObject> RoundObj = MakeShared<FJsonObject>();
         RoundObj->SetBoolField(TEXT("isPlayer1Killer"), Round.RoundKiller_ == RoundKiller::First);
-        RoundObj->SetNumberField(TEXT("timeMillis"), static_cast<double>(Round.Duration.GetTotalMilliseconds()));
+        RoundObj->SetNumberField(TEXT("timeMillis"), static_cast<int64>(Round.Duration.GetTotalMilliseconds()));
         RoundsArray.Add(MakeShared<FJsonValueObject>(RoundObj));
     }
     Body->SetArrayField(TEXT("rounds"), RoundsArray);
