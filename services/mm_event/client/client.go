@@ -297,9 +297,6 @@ func (c *clientImpl) handle() (shouldTerminate bool) {
 	case <-c.updateConnectionTicket.C:
 		c.logger.Debug("ticker fired", "ticker", "updateConnection")
 		return c.onUpdateTick()
-	case <-time.After(c.config.MessageReceivedTimeout):
-		c.logger.Debug("timeout")
-		return c.onCancel()
 	}
 }
 

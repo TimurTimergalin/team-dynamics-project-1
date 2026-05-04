@@ -396,6 +396,8 @@ func (x *GetMatchRequest) GetPlayerId() int64 {
 type GetMatchResponse struct {
 	state          protoimpl.MessageState        `protogen:"open.v1"`
 	ConnectionInfo *fleet_manager.ConnectionInfo `protobuf:"bytes,1,opt,name=connection_info,json=connectionInfo,proto3,oneof" json:"connection_info,omitempty"`
+	Player1Id      *int64                        `protobuf:"varint,2,opt,name=player1_id,json=player1Id,proto3,oneof" json:"player1_id,omitempty"`
+	Player2Id      *int64                        `protobuf:"varint,3,opt,name=player2_id,json=player2Id,proto3,oneof" json:"player2_id,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -435,6 +437,20 @@ func (x *GetMatchResponse) GetConnectionInfo() *fleet_manager.ConnectionInfo {
 		return x.ConnectionInfo
 	}
 	return nil
+}
+
+func (x *GetMatchResponse) GetPlayer1Id() int64 {
+	if x != nil && x.Player1Id != nil {
+		return *x.Player1Id
+	}
+	return 0
+}
+
+func (x *GetMatchResponse) GetPlayer2Id() int64 {
+	if x != nil && x.Player2Id != nil {
+		return *x.Player2Id
+	}
+	return 0
 }
 
 type EndMatchRequest struct {
@@ -756,10 +772,16 @@ const file_match_service_match_service_proto_rawDesc = "" +
 	"\x0fGetMatchRequest\x12 \n" +
 	"\tplayer_id\x18\x01 \x01(\x03H\x00R\bplayerId\x88\x01\x01B\f\n" +
 	"\n" +
-	"_player_id\"s\n" +
+	"_player_id\"\xd9\x01\n" +
 	"\x10GetMatchResponse\x12K\n" +
-	"\x0fconnection_info\x18\x01 \x01(\v2\x1d.fleet_manager.ConnectionInfoH\x00R\x0econnectionInfo\x88\x01\x01B\x12\n" +
-	"\x10_connection_info\"\xa4\x01\n" +
+	"\x0fconnection_info\x18\x01 \x01(\v2\x1d.fleet_manager.ConnectionInfoH\x00R\x0econnectionInfo\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"player1_id\x18\x02 \x01(\x03H\x01R\tplayer1Id\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"player2_id\x18\x03 \x01(\x03H\x02R\tplayer2Id\x88\x01\x01B\x12\n" +
+	"\x10_connection_infoB\r\n" +
+	"\v_player1_idB\r\n" +
+	"\v_player2_id\"\xa4\x01\n" +
 	"\x0fEndMatchRequest\x12\x1e\n" +
 	"\bmatch_id\x18\x01 \x01(\tH\x00R\amatchId\x88\x01\x01\x12 \n" +
 	"\twinner_id\x18\x02 \x01(\x03H\x01R\bwinnerId\x88\x01\x01\x124\n" +

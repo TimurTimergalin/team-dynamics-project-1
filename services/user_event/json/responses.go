@@ -8,15 +8,22 @@ import (
 type ResponseType string
 
 const (
-	StatusChanged     ResponseType = "StatusChanged"
-	ChallengeReceived ResponseType = "ChallengeReceived"
-	ChallengeAccepted ResponseType = "ChallengeAccepted"
-	ChallengeDeclined ResponseType = "ChallengeDeclined"
+	StatusChanged      ResponseType = "StatusChanged"
+	ChallengeReceived  ResponseType = "ChallengeReceived"
+	ChallengeAccepted  ResponseType = "ChallengeAccepted"
+	ChallengeDeclined  ResponseType = "ChallengeDeclined"
+	ChallengeCancelled ResponseType = "ChallengeCancelled"
+	MatchStarted       ResponseType = "MatchStarted"
+	Error              ResponseType = "Error"
 )
 
-type Response struct {
+type Event struct {
 	Type    ResponseType    `json:"type"`
 	Payload json.RawMessage `json:"payload"`
+}
+
+type Response struct {
+	Events []*Event `json:"events"`
 }
 
 type UserStatus string
@@ -33,21 +40,34 @@ type StatusChangedPayload struct {
 }
 
 type ChallengeReceivedPayload struct {
-	UserId   int64  `json:"userId"`
-	UserName string `json:"userName"`
+	MessageId string `json:"messageId"`
+	UserId    int64  `json:"userId"`
+	UserName  string `json:"userName"`
 }
 
 type ChallengeAcceptedPayload struct {
+	Address string `json:"address"`
 }
 
 type ChallengeDeclinedPayload struct {
 }
 
-type ResponsePayload interface {
-	StatusChangedPayload | ChallengeReceivedPayload | ChallengeAcceptedPayload | ChallengeDeclinedPayload
+type ChallengeCancelledPayload struct {
 }
 
-func SerializeResponse[T ResponsePayload](payload T) ([]byte, error) {
+type MatchStartedPayload struct {
+	Address string `json:"address"`
+}
+
+type ErrorPayload struct {
+	Message string `json:"message"`
+}
+
+type ResponsePayload interface {
+	StatusChangedPayload | ChallengeReceivedPayload | ChallengeAcceptedPayload | ChallengeDeclinedPayload | ChallengeCancelledPayload | MatchStartedPayload | ErrorPayload
+}
+
+func MakeEvent[T ResponsePayload](payload T) (*Event, error) {
 	var responseType ResponseType
 	switch any(payload).(type) {
 	case StatusChangedPayload:
@@ -58,13 +78,20 @@ func SerializeResponse[T ResponsePayload](payload T) ([]byte, error) {
 		responseType = ChallengeAccepted
 	case ChallengeDeclinedPayload:
 		responseType = ChallengeDeclined
+	case ChallengeCancelledPayload:
+		responseType = ChallengeCancelled
+	case MatchStartedPayload:
+		responseType = MatchStarted
+	case ErrorPayload:
+		responseType = Error
 	}
 	rawPayload, err := json.Marshal(payload)
 	if err != nil {
-		return nil, fmt.Errorf("failed to serialize response payload: %w", err)
+		return nil, fmt.Errorf("failed to serialize event payload: %w", err)
 	}
-	return json.Marshal(Response{
-		Type:    responseType,
-		Payload: rawPayload,
-	})
+	return &Event{Type: responseType, Payload: rawPayload}, nil
+}
+
+func SerializeResponse(response *Response) ([]byte, error) {
+	return json.Marshal(response)
 }

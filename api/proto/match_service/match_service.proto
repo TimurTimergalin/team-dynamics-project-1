@@ -46,6 +46,8 @@ message GetMatchRequest {
 
 message GetMatchResponse {
   optional fleet_manager.ConnectionInfo connection_info = 1;
+  optional int64 player1_id = 2;
+  optional int64 player2_id = 3;
 }
 
 message EndMatchRequest {

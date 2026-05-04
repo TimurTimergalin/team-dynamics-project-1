@@ -235,8 +235,8 @@ func (s *matchServiceImpl) GetMatch(ctx context.Context, request *pb.GetMatchReq
 				if err := s.repo.RemoveMatch(ctx, match.MatchId); err != nil {
 					logger.Warn("GetMatch: unable to remove absent ongoing match from redis", "error", err)
 				}
-				return &pb.GetMatchResponse{}, nil
 			}
+			return &pb.GetMatchResponse{}, nil
 		}
 		if match.Status == models.Initialising {
 			if err := s.repo.SaveMatchStart(ctx, match.MatchId); err != nil {
@@ -245,6 +245,8 @@ func (s *matchServiceImpl) GetMatch(ctx context.Context, request *pb.GetMatchReq
 		}
 		return &pb.GetMatchResponse{
 			ConnectionInfo: resp.ConnectionInfo,
+			Player1Id:      &match.Player1Id,
+			Player2Id:      &match.Player2Id,
 		}, nil
 
 	case models.Requested:
@@ -293,6 +295,8 @@ func (s *matchServiceImpl) GetMatch(ctx context.Context, request *pb.GetMatchReq
 		}
 		return &pb.GetMatchResponse{
 			ConnectionInfo: allocResp.ConnectionInfo,
+			Player1Id:      &match.Player1Id,
+			Player2Id:      &match.Player2Id,
 		}, nil
 
 	default:

@@ -9,6 +9,7 @@ import (
 
 type MatchServiceClientFactory interface {
 	GetMatch(ctx context.Context, req *msPb.GetMatchRequest) (*msPb.GetMatchResponse, error)
+	StartMatch(ctx context.Context, req *msPb.StartMatchRequest) (*msPb.StartMatchResponse, error)
 }
 
 type matchServiceClientFactory struct {
@@ -26,4 +27,13 @@ func (f *matchServiceClientFactory) GetMatch(ctx context.Context, req *msPb.GetM
 	}
 	defer conn.Close()
 	return msPb.NewMatchServiceClient(conn).GetMatch(ctx, req)
+}
+
+func (f *matchServiceClientFactory) StartMatch(ctx context.Context, req *msPb.StartMatchRequest) (*msPb.StartMatchResponse, error) {
+	conn, err := grpc.NewClient(f.address, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	return msPb.NewMatchServiceClient(conn).StartMatch(ctx, req)
 }

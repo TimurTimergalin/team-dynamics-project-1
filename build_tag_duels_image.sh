@@ -1,1 +1,0 @@
-docker build -f Dockerfile.TagDuels -t tag-duels-server .

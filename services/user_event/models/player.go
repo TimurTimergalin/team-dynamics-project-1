@@ -1,7 +1,6 @@
 package models
 
 type PlayerStatus int64
-
 const (
 	Offline PlayerStatus = 1 + iota
 	Online

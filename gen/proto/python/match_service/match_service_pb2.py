@@ -27,7 +27,7 @@ from fleet_manager import fleet_manager_pb2 as fleet__manager_dot_fleet__manager
 from match_history_service import match_history_service_pb2 as match__history__service_dot_match__history__service__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n!match_service/match_service.proto\x12\rmatch_service\x1a\x1cgoogle/api/annotations.proto\x1a!fleet_manager/fleet_manager.proto\x1a\x31match_history_service/match_history_service.proto\"\xaa\x01\n\nPlayerData\x12\x16\n\tplayer_id\x18\x01 \x01(\x03H\x00\x88\x01\x01\x12\x18\n\x0bplayer_name\x18\x02 \x01(\tH\x01\x88\x01\x01\x12\x1a\n\rplayer_rating\x18\x03 \x01(\x03H\x02\x88\x01\x01\x12\x13\n\x06reg_id\x18\x04 \x01(\tH\x03\x88\x01\x01\x42\x0c\n\n_player_idB\x0e\n\x0c_player_nameB\x10\n\x0e_player_ratingB\t\n\x07_reg_id\"\xa4\x01\n\nInputMatch\x12/\n\x07player1\x18\x01 \x01(\x0b\x32\x19.match_service.PlayerDataH\x00\x88\x01\x01\x12/\n\x07player2\x18\x02 \x01(\x0b\x32\x19.match_service.PlayerDataH\x01\x88\x01\x01\x12\x12\n\x05\x66leet\x18\x03 \x01(\tH\x02\x88\x01\x01\x42\n\n\x08_player1B\n\n\x08_player2B\x08\n\x06_fleet\"?\n\x11StartMatchRequest\x12*\n\x07matches\x18\x01 \x03(\x0b\x32\x19.match_service.InputMatch\"\xbd\x01\n\x13MatchCreationResult\x12\x15\n\x08match_id\x18\x01 \x01(\tH\x00\x88\x01\x01\x12@\n\x15player1_fail_response\x18\x02 \x01(\x0e\x32!.match_service.PlayerFailResponse\x12@\n\x15player2_fail_response\x18\x03 \x01(\x0e\x32!.match_service.PlayerFailResponseB\x0b\n\t_match_id\"I\n\x12StartMatchResponse\x12\x33\n\x07results\x18\x01 \x03(\x0b\x32\".match_service.MatchCreationResult\"7\n\x0fGetMatchRequest\x12\x16\n\tplayer_id\x18\x01 \x01(\x03H\x00\x88\x01\x01\x42\x0c\n\n_player_id\"c\n\x10GetMatchResponse\x12;\n\x0f\x63onnection_info\x18\x01 \x01(\x0b\x32\x1d.fleet_manager.ConnectionInfoH\x00\x88\x01\x01\x42\x12\n\x10_connection_info\"\x89\x01\n\x0f\x45ndMatchRequest\x12\x15\n\x08match_id\x18\x01 \x01(\tH\x00\x88\x01\x01\x12\x16\n\twinner_id\x18\x02 \x01(\x03H\x01\x88\x01\x01\x12,\n\x06rounds\x18\x03 \x03(\x0b\x32\x1c.match_history_service.RoundB\x0b\n\t_match_idB\x0c\n\n_winner_id\"j\n\x10\x45ndMatchResponse\x12\x19\n\x0cnew_rating_1\x18\x01 \x01(\x03H\x00\x88\x01\x01\x12\x19\n\x0cnew_rating_2\x18\x02 \x01(\x03H\x01\x88\x01\x01\x42\x0f\n\r_new_rating_1B\x0f\n\r_new_rating_2\"8\n\x12\x43\x61ncelMatchRequest\x12\x15\n\x08match_id\x18\x01 \x01(\tH\x00\x88\x01\x01\x42\x0b\n\t_match_id\"\x15\n\x13\x43\x61ncelMatchResponse\"7\n\x11RenewMatchRequest\x12\x15\n\x08match_id\x18\x01 \x01(\tH\x00\x88\x01\x01\x42\x0b\n\t_match_id\"8\n\x12RenewMatchResponse\x12\x15\n\x08match_id\x18\x01 \x01(\tH\x00\x88\x01\x01\x42\x0b\n\t_match_id*}\n\x12PlayerFailResponse\x12$\n PLAYER_FAIL_RESPONSE_UNSPECIFIED\x10\x00\x12 \n\x1cPLAYER_FAIL_RESPONSE_REENTER\x10\x01\x12\x1f\n\x1bPLAYER_FAIL_RESPONSE_REMOVE\x10\x02\x32\x9e\x04\n\x0cMatchService\x12Q\n\nStartMatch\x12 .match_service.StartMatchRequest\x1a!.match_service.StartMatchResponse\x12K\n\x08GetMatch\x12\x1e.match_service.GetMatchRequest\x1a\x1f.match_service.GetMatchResponse\x12r\n\x08\x45ndMatch\x12\x1e.match_service.EndMatchRequest\x1a\x1f.match_service.EndMatchResponse\"%\x82\xd3\xe4\x93\x02\x1f\"\x1a/v1/matches/{match_id}/end:\x01*\x12~\n\x0b\x43\x61ncelMatch\x12!.match_service.CancelMatchRequest\x1a\".match_service.CancelMatchResponse\"(\x82\xd3\xe4\x93\x02\"\"\x1d/v1/matches/{match_id}/cancel:\x01*\x12z\n\nRenewMatch\x12 .match_service.RenewMatchRequest\x1a!.match_service.RenewMatchResponse\"\'\x82\xd3\xe4\x93\x02!\"\x1c/v1/matches/{match_id}/renew:\x01*B\'Z%team_dynamics/api/proto/match_serviceb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n!match_service/match_service.proto\x12\rmatch_service\x1a\x1cgoogle/api/annotations.proto\x1a!fleet_manager/fleet_manager.proto\x1a\x31match_history_service/match_history_service.proto\"\xaa\x01\n\nPlayerData\x12\x16\n\tplayer_id\x18\x01 \x01(\x03H\x00\x88\x01\x01\x12\x18\n\x0bplayer_name\x18\x02 \x01(\tH\x01\x88\x01\x01\x12\x1a\n\rplayer_rating\x18\x03 \x01(\x03H\x02\x88\x01\x01\x12\x13\n\x06reg_id\x18\x04 \x01(\tH\x03\x88\x01\x01\x42\x0c\n\n_player_idB\x0e\n\x0c_player_nameB\x10\n\x0e_player_ratingB\t\n\x07_reg_id\"\xa4\x01\n\nInputMatch\x12/\n\x07player1\x18\x01 \x01(\x0b\x32\x19.match_service.PlayerDataH\x00\x88\x01\x01\x12/\n\x07player2\x18\x02 \x01(\x0b\x32\x19.match_service.PlayerDataH\x01\x88\x01\x01\x12\x12\n\x05\x66leet\x18\x03 \x01(\tH\x02\x88\x01\x01\x42\n\n\x08_player1B\n\n\x08_player2B\x08\n\x06_fleet\"?\n\x11StartMatchRequest\x12*\n\x07matches\x18\x01 \x03(\x0b\x32\x19.match_service.InputMatch\"\xbd\x01\n\x13MatchCreationResult\x12\x15\n\x08match_id\x18\x01 \x01(\tH\x00\x88\x01\x01\x12@\n\x15player1_fail_response\x18\x02 \x01(\x0e\x32!.match_service.PlayerFailResponse\x12@\n\x15player2_fail_response\x18\x03 \x01(\x0e\x32!.match_service.PlayerFailResponseB\x0b\n\t_match_id\"I\n\x12StartMatchResponse\x12\x33\n\x07results\x18\x01 \x03(\x0b\x32\".match_service.MatchCreationResult\"7\n\x0fGetMatchRequest\x12\x16\n\tplayer_id\x18\x01 \x01(\x03H\x00\x88\x01\x01\x42\x0c\n\n_player_id\"\xb3\x01\n\x10GetMatchResponse\x12;\n\x0f\x63onnection_info\x18\x01 \x01(\x0b\x32\x1d.fleet_manager.ConnectionInfoH\x00\x88\x01\x01\x12\x17\n\nplayer1_id\x18\x02 \x01(\x03H\x01\x88\x01\x01\x12\x17\n\nplayer2_id\x18\x03 \x01(\x03H\x02\x88\x01\x01\x42\x12\n\x10_connection_infoB\r\n\x0b_player1_idB\r\n\x0b_player2_id\"\x89\x01\n\x0f\x45ndMatchRequest\x12\x15\n\x08match_id\x18\x01 \x01(\tH\x00\x88\x01\x01\x12\x16\n\twinner_id\x18\x02 \x01(\x03H\x01\x88\x01\x01\x12,\n\x06rounds\x18\x03 \x03(\x0b\x32\x1c.match_history_service.RoundB\x0b\n\t_match_idB\x0c\n\n_winner_id\"j\n\x10\x45ndMatchResponse\x12\x19\n\x0cnew_rating_1\x18\x01 \x01(\x03H\x00\x88\x01\x01\x12\x19\n\x0cnew_rating_2\x18\x02 \x01(\x03H\x01\x88\x01\x01\x42\x0f\n\r_new_rating_1B\x0f\n\r_new_rating_2\"8\n\x12\x43\x61ncelMatchRequest\x12\x15\n\x08match_id\x18\x01 \x01(\tH\x00\x88\x01\x01\x42\x0b\n\t_match_id\"\x15\n\x13\x43\x61ncelMatchResponse\"7\n\x11RenewMatchRequest\x12\x15\n\x08match_id\x18\x01 \x01(\tH\x00\x88\x01\x01\x42\x0b\n\t_match_id\"8\n\x12RenewMatchResponse\x12\x15\n\x08match_id\x18\x01 \x01(\tH\x00\x88\x01\x01\x42\x0b\n\t_match_id*}\n\x12PlayerFailResponse\x12$\n PLAYER_FAIL_RESPONSE_UNSPECIFIED\x10\x00\x12 \n\x1cPLAYER_FAIL_RESPONSE_REENTER\x10\x01\x12\x1f\n\x1bPLAYER_FAIL_RESPONSE_REMOVE\x10\x02\x32\x9e\x04\n\x0cMatchService\x12Q\n\nStartMatch\x12 .match_service.StartMatchRequest\x1a!.match_service.StartMatchResponse\x12K\n\x08GetMatch\x12\x1e.match_service.GetMatchRequest\x1a\x1f.match_service.GetMatchResponse\x12r\n\x08\x45ndMatch\x12\x1e.match_service.EndMatchRequest\x1a\x1f.match_service.EndMatchResponse\"%\x82\xd3\xe4\x93\x02\x1f\"\x1a/v1/matches/{match_id}/end:\x01*\x12~\n\x0b\x43\x61ncelMatch\x12!.match_service.CancelMatchRequest\x1a\".match_service.CancelMatchResponse\"(\x82\xd3\xe4\x93\x02\"\"\x1d/v1/matches/{match_id}/cancel:\x01*\x12z\n\nRenewMatch\x12 .match_service.RenewMatchRequest\x1a!.match_service.RenewMatchResponse\"\'\x82\xd3\xe4\x93\x02!\"\x1c/v1/matches/{match_id}/renew:\x01*B\'Z%team_dynamics/api/proto/match_serviceb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -41,8 +41,8 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_MATCHSERVICE'].methods_by_name['CancelMatch']._serialized_options = b'\202\323\344\223\002\"\"\035/v1/matches/{match_id}/cancel:\001*'
   _globals['_MATCHSERVICE'].methods_by_name['RenewMatch']._loaded_options = None
   _globals['_MATCHSERVICE'].methods_by_name['RenewMatch']._serialized_options = b'\202\323\344\223\002!\"\034/v1/matches/{match_id}/renew:\001*'
-  _globals['_PLAYERFAILRESPONSE']._serialized_start=1442
-  _globals['_PLAYERFAILRESPONSE']._serialized_end=1567
+  _globals['_PLAYERFAILRESPONSE']._serialized_start=1523
+  _globals['_PLAYERFAILRESPONSE']._serialized_end=1648
   _globals['_PLAYERDATA']._serialized_start=169
   _globals['_PLAYERDATA']._serialized_end=339
   _globals['_INPUTMATCH']._serialized_start=342
@@ -55,20 +55,20 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_STARTMATCHRESPONSE']._serialized_end=838
   _globals['_GETMATCHREQUEST']._serialized_start=840
   _globals['_GETMATCHREQUEST']._serialized_end=895
-  _globals['_GETMATCHRESPONSE']._serialized_start=897
-  _globals['_GETMATCHRESPONSE']._serialized_end=996
-  _globals['_ENDMATCHREQUEST']._serialized_start=999
-  _globals['_ENDMATCHREQUEST']._serialized_end=1136
-  _globals['_ENDMATCHRESPONSE']._serialized_start=1138
-  _globals['_ENDMATCHRESPONSE']._serialized_end=1244
-  _globals['_CANCELMATCHREQUEST']._serialized_start=1246
-  _globals['_CANCELMATCHREQUEST']._serialized_end=1302
-  _globals['_CANCELMATCHRESPONSE']._serialized_start=1304
-  _globals['_CANCELMATCHRESPONSE']._serialized_end=1325
-  _globals['_RENEWMATCHREQUEST']._serialized_start=1327
-  _globals['_RENEWMATCHREQUEST']._serialized_end=1382
-  _globals['_RENEWMATCHRESPONSE']._serialized_start=1384
-  _globals['_RENEWMATCHRESPONSE']._serialized_end=1440
-  _globals['_MATCHSERVICE']._serialized_start=1570
-  _globals['_MATCHSERVICE']._serialized_end=2112
+  _globals['_GETMATCHRESPONSE']._serialized_start=898
+  _globals['_GETMATCHRESPONSE']._serialized_end=1077
+  _globals['_ENDMATCHREQUEST']._serialized_start=1080
+  _globals['_ENDMATCHREQUEST']._serialized_end=1217
+  _globals['_ENDMATCHRESPONSE']._serialized_start=1219
+  _globals['_ENDMATCHRESPONSE']._serialized_end=1325
+  _globals['_CANCELMATCHREQUEST']._serialized_start=1327
+  _globals['_CANCELMATCHREQUEST']._serialized_end=1383
+  _globals['_CANCELMATCHRESPONSE']._serialized_start=1385
+  _globals['_CANCELMATCHRESPONSE']._serialized_end=1406
+  _globals['_RENEWMATCHREQUEST']._serialized_start=1408
+  _globals['_RENEWMATCHREQUEST']._serialized_end=1463
+  _globals['_RENEWMATCHRESPONSE']._serialized_start=1465
+  _globals['_RENEWMATCHRESPONSE']._serialized_end=1521
+  _globals['_MATCHSERVICE']._serialized_start=1651
+  _globals['_MATCHSERVICE']._serialized_end=2193
 # @@protoc_insertion_point(module_scope)

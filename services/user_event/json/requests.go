@@ -9,11 +9,12 @@ type RequestType string
 
 const (
 	Subscribe        RequestType = "Subscribe"
-	Unsubscribe      RequestType = "Unsubscribe"
 	Challenge        RequestType = "Challenge"
 	CancelChallenge  RequestType = "CancelChallenge"
 	AcceptChallenge  RequestType = "AcceptChallenge"
 	DeclineChallenge RequestType = "DeclineChallenge"
+	NotifyBusy       RequestType = "NotifyBusy"
+	NotifyFree       RequestType = "NotifyFree"
 )
 
 type rawRequest struct {
@@ -30,10 +31,6 @@ type SubscribePayload struct {
 	Users []int64 `json:"users"`
 }
 
-type UnsubscribePayload struct {
-	Users []int64 `json:"users"`
-}
-
 type ChallengePayload struct {
 	UserId int64 `json:"userId"`
 }
@@ -42,10 +39,19 @@ type CancelChallengePayload struct {
 }
 
 type AcceptChallengePayload struct {
-	UserId int64 `json:"userId"`
+	MessageId string `json:"messageId"`
+	UserId    int64  `json:"userId"`
 }
 
 type DeclineChallengePayload struct {
+	MessageId string `json:"messageId"`
+	UserId    int64  `json:"userId"`
+}
+
+type NotifyBusyPayload struct {
+}
+
+type NotifyFreePayload struct {
 }
 
 func ParseRequest(data []byte) (*Request, error) {
@@ -62,12 +68,6 @@ func ParseRequest(data []byte) (*Request, error) {
 			return nil, fmt.Errorf("failed to parse Subscribe payload: %w", err)
 		}
 		payload = p
-	case Unsubscribe:
-		var p UnsubscribePayload
-		if err := json.Unmarshal(raw.Payload, &p); err != nil {
-			return nil, fmt.Errorf("failed to parse Unsubscribe payload: %w", err)
-		}
-		payload = p
 	case Challenge:
 		var p ChallengePayload
 		if err := json.Unmarshal(raw.Payload, &p); err != nil {
@@ -76,10 +76,22 @@ func ParseRequest(data []byte) (*Request, error) {
 		payload = p
 	case CancelChallenge:
 		payload = CancelChallengePayload{}
+	case NotifyBusy:
+		payload = NotifyBusyPayload{}
+	case NotifyFree:
+		payload = NotifyFreePayload{}
 	case AcceptChallenge:
-		payload = AcceptChallengePayload{}
+		var p AcceptChallengePayload
+		if err := json.Unmarshal(raw.Payload, &p); err != nil {
+			return nil, fmt.Errorf("failed to parse Challenge payload: %w", err)
+		}
+		payload = p
 	case DeclineChallenge:
-		payload = DeclineChallengePayload{}
+		var p DeclineChallengePayload
+		if err := json.Unmarshal(raw.Payload, &p); err != nil {
+			return nil, fmt.Errorf("failed to parse DeclineChallenge payload: %w", err)
+		}
+		payload = p
 	default:
 		return nil, fmt.Errorf("unknown request type: %q", raw.Type)
 	}
