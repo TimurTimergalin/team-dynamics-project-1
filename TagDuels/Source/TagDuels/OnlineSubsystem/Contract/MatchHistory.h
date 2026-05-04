@@ -48,6 +48,8 @@ USTRUCT(BlueprintType)
 struct TAGDUELS_API FMatchHistory
 {
 	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly)
 	TArray<FRoundData> Rounds{};
 
 	UPROPERTY(BlueprintReadOnly)
