@@ -133,7 +133,7 @@ void MMEventClient::EstablishConnection(TSharedRef<FOnMatch> OnResponse, TShared
 	{
 		if (!Resolved)
 		{
-			Retry("Connection closed before receiving match: " + Reason, EOnlineErrorType::NonCritical, OnResponse, OnError);
+			Retry("Connection closed before receiving match: " + Reason, EOnlineErrorType::Critical, OnResponse, OnError);
 		} else {
 			Resolved = false;
 		}

@@ -6,6 +6,7 @@
 #include "Delegates.h"
 #include "Clients/MatchHistoryServiceClient.h"
 #include "Clients/MMEventClient.h"
+#include "Clients/UserEventClient.h"
 #include "Clients/RatingServiceClient.h"
 #include "Clients/UserServiceClient.h"
 #include "Contract/UserData.h"
@@ -27,7 +28,7 @@ public:
 	bool EgsAuthorize(FString AuthToken, int64 Id, FOnEmptyResponse OnResponse);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	bool GetPlayerData(FUserPlayerData& PlayerDataOut);
+	bool GetPlayerData(UPARAM(ref) FUserPlayerData& PlayerDataOut);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
 	bool GetMatchHistoryPage(FString PageToken, FOnMatchHistoryResponse OnResponse, FOnErroneousResponse OnError);
@@ -69,16 +70,53 @@ public:
 	bool DisconnectFromMMEvent();
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	void ConnectToUserEvent(FOnEmptyResponse OnResponse, FOnErroneousResponse OnError);
+	bool ConnectToUserEvent(
+		FOnStatusUpdated OnStatusChanged,
+		FOnChallengeReceived OnChallengeReceived,
+		FOnMatch OnMatchStarted,
+		FOnEmptyResponse OnChallengeDeclined,
+		FOnErroneousResponse OnError
+	);
+
+	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
+	bool DisconnectFromUserEvent();
+
+	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
+	bool SubscribeToUsers(TArray<int64> UserIds);
+
+	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
+	bool ChallengeUserEvent(int64 UserId);
+
+	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
+	bool CancelChallengeUserEvent();
+
+	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
+	bool AcceptChallengeUserEvent(FChallengeReceivedEvent Challenge);
+
+	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
+	bool DeclineChallengeUserEvent(FChallengeReceivedEvent Challenge);
+
+	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
+	bool NotifyBusy();
+
+	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
+	bool NotifyFree();
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystemDebug")
 	void SetPlayerData(const FString& Name, int64 PlayerId);
+
+	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
+	bool AddFriend(FOnEmptyResponse OnResponse, FOnErroneousResponse OnError);
+
+	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
+	bool RemoveFriend(FOnEmptyResponse OnResponse, FOnEmptyResponse OnError);
 
 private:
 	TOptional<UserServiceClient> UsClient{};
 	TOptional<MatchHistoryServiceClient> MhsClient{};
 	TOptional<RatingServiceClient> RsClient{};
 	TOptional<MMEventClient> MmeClient{};
+	TOptional<UserEventClient> UeClient{};
 	
 	TOptional<FUserPlayerData> PlayerData{};
 	TOptional<int64> ChallengedUserId{};

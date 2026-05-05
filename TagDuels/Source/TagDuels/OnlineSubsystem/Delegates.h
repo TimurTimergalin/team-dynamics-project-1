@@ -3,6 +3,7 @@
 #include "Contract/Match.h"
 #include "Contract/MatchHistory.h"
 #include "Contract/UserData.h"
+#include "Contract/UserEvent.h"
 #include "Delegates.generated.h"
 
 USTRUCT()
@@ -24,3 +25,7 @@ DECLARE_DYNAMIC_DELEGATE_OneParam(FOnUserListResponse, const FPlayersList&, Resp
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnMatch, FString, Address);
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnMatchEnd, FEndMatchResponse, NewRatings);
+
+DECLARE_DYNAMIC_DELEGATE_OneParam(FOnStatusUpdated, FStatusUpdatedEvent, Event);
+
+DECLARE_DYNAMIC_DELEGATE_OneParam(FOnChallengeReceived, FChallengeReceivedEvent, Event);

@@ -9,6 +9,7 @@ void UClientSideOnlineSubsystem::Initialize(FSubsystemCollectionBase& SubsystemC
 	MhsClient = CreateMatchHistoryServiceClient();
 	RsClient = CreateRatingServiceClient();
 	MmeClient = CreateMMEventClient();
+	UeClient = CreateUserEventClient();
 }
 
 bool UClientSideOnlineSubsystem::SteamAuthorize(FString /*AuthToken*/, int64 SteamId, FOnEmptyResponse OnResponse)
@@ -198,8 +199,106 @@ bool UClientSideOnlineSubsystem::DisconnectFromMMEvent()
 	return MmeClient->Close();
 }
 
-void UClientSideOnlineSubsystem::ConnectToUserEvent(FOnEmptyResponse OnResponse, FOnErroneousResponse OnError)
+bool UClientSideOnlineSubsystem::ConnectToUserEvent(
+	FOnStatusUpdated OnStatusChanged,
+	FOnChallengeReceived OnChallengeReceived,
+	FOnMatch OnMatchStarted,
+	FOnEmptyResponse OnChallengeDeclined,
+	FOnErroneousResponse OnError)
 {
+	if (!PlayerData.IsSet())
+	{
+		return false;
+	}
+	if (!UeClient.IsSet())
+	{
+		return false;
+	}
+	if (UeClient->IsConnected())
+	{
+		return false;
+	}
+	UeClient->EstablishConnection(
+		MakeShared<FOnStatusUpdated>(MoveTemp(OnStatusChanged)),
+		MakeShared<FOnChallengeReceived>(MoveTemp(OnChallengeReceived)),
+		MakeShared<FOnMatch>(MoveTemp(OnMatchStarted)),
+		MakeShared<FOnEmptyResponse>(MoveTemp(OnChallengeDeclined)),
+		MakeShared<FOnErroneousResponse>(MoveTemp(OnError)),
+		PlayerData->Id
+	);
+	return true;
+}
+
+bool UClientSideOnlineSubsystem::DisconnectFromUserEvent()
+{
+	if (!UeClient.IsSet())
+	{
+		return false;
+	}
+	return UeClient->Close();
+}
+
+bool UClientSideOnlineSubsystem::SubscribeToUsers(TArray<int64> UserIds)
+{
+	if (!UeClient.IsSet())
+	{
+		return false;
+	}
+	return UeClient->Subscribe(UserIds);
+}
+
+bool UClientSideOnlineSubsystem::ChallengeUserEvent(int64 UserId)
+{
+	if (!UeClient.IsSet())
+	{
+		return false;
+	}
+	return UeClient->Challenge(UserId);
+}
+
+bool UClientSideOnlineSubsystem::CancelChallengeUserEvent()
+{
+	if (!UeClient.IsSet())
+	{
+		return false;
+	}
+	return UeClient->CancelChallenge();
+}
+
+bool UClientSideOnlineSubsystem::AcceptChallengeUserEvent(FChallengeReceivedEvent Challenge)
+{
+	if (!UeClient.IsSet())
+	{
+		return false;
+	}
+	return UeClient->AcceptChallenge(Challenge);
+}
+
+bool UClientSideOnlineSubsystem::DeclineChallengeUserEvent(FChallengeReceivedEvent Challenge)
+{
+	if (!UeClient.IsSet())
+	{
+		return false;
+	}
+	return UeClient->DeclineChallenge(Challenge);
+}
+
+bool UClientSideOnlineSubsystem::NotifyBusy()
+{
+	if (!UeClient.IsSet())
+	{
+		return false;
+	}
+	return UeClient->NotifyBusy();
+}
+
+bool UClientSideOnlineSubsystem::NotifyFree()
+{
+	if (!UeClient.IsSet())
+	{
+		return false;
+	}
+	return UeClient->NotifyFree();
 }
 
 void UClientSideOnlineSubsystem::SetPlayerData(const FString& Name, int64 PlayerId)
@@ -208,4 +307,14 @@ void UClientSideOnlineSubsystem::SetPlayerData(const FString& Name, int64 Player
 	Pd.Id = PlayerId;
 	Pd.Name = Name;
 	PlayerData = Pd;
+}
+
+bool UClientSideOnlineSubsystem::AddFriend(FOnEmptyResponse OnResponse, FOnErroneousResponse OnError)
+{
+	return false;
+}
+
+bool UClientSideOnlineSubsystem::RemoveFriend(FOnEmptyResponse OnResponse, FOnEmptyResponse OnError)
+{
+	return false;
 }

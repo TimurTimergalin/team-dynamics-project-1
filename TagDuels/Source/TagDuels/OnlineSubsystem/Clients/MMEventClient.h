@@ -17,7 +17,7 @@ private:
 	void ExecuteOnError(const FString& Error, EOnlineErrorType Type, TSharedRef<FOnErroneousResponse> OnError);
 	void ExecuteOnMatch(const FString& GameServerAddress, TSharedRef<FOnMatch> OnMatchCallback);
 	void Retry(const FString& Error, EOnlineErrorType Type, TSharedRef<FOnMatch> OnResponse, TSharedRef<FOnErroneousResponse> OnError);
-	MMEventClient(const FString& Address);
+	explicit MMEventClient(const FString& Address);
 	
 	static constexpr int InitialConnectionRetries = 3; 
 	
@@ -27,7 +27,6 @@ private:
 	FString Address;
 	TSharedPtr<IWebSocket> Connection;
 	int ConnectionRetries = InitialConnectionRetries;
-	FString ConnectionId;
 	FString Fleet;
 	friend TOptional<MMEventClient> CreateMMEventClient();
 };
