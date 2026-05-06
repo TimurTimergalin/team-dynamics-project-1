@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-kv-config
+data:
+  redis.conf: |
+    port 6379
+    maxmemory 256mb
+    maxmemory-policy allkeys-lru

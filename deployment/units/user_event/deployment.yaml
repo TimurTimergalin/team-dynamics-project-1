@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-event
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-event
+  template:
+    metadata:
+      labels:
+        app: user-event
+      annotations:
+        linkerd.io/inject: enabled
+    spec:
+      imagePullSecrets:
+        - name: craas-4274eb52-inventive-macaw
+      containers:
+        - name: user-event
+          image: 4274eb52-inventive-macaw.registry.twcstorage.ru/tag-duels/user-event-server:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: websockets
+          envFrom:
+            - configMapRef:
+                name: user-event-env
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: user-kv-credentials
+                  key: REDIS_PASSWORD
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10

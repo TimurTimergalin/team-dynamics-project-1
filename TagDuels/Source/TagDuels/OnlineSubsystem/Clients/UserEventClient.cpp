@@ -123,6 +123,7 @@ namespace
 		TSharedRef<FOnChallengeReceived> OnChallengeReceived,
 		TSharedRef<FOnMatch> OnMatchStarted,
 		TSharedRef<FOnEmptyResponse> OnChallengeDeclined,
+		TSharedRef<FOnEmptyResponse> OnChallengeCancelled,
 		TSharedRef<FOnErroneousResponse> OnError
 	)
 	{
@@ -155,8 +156,10 @@ namespace
 			}
 			break;
 		case EventType::ChallengeDeclined:
-		case EventType::ChallengeCancelled:
 			OnChallengeDeclined->ExecuteIfBound();
+			break;
+		case EventType::ChallengeCancelled:
+			OnChallengeCancelled->ExecuteIfBound();
 			break;
 		case EventType::Error:
 			OnError->ExecuteIfBound(FOnlineSubsystemError{Ev.ErrorMessage.Get(TEXT("Unknown error")), EOnlineErrorType::NonCritical});
@@ -167,16 +170,18 @@ namespace
 
 void UserEventClient::EstablishConnection(TSharedRef<FOnStatusUpdated> OnStatusChanged,
                                           TSharedRef<FOnChallengeReceived> OnChallengeReceived, TSharedRef<FOnMatch> OnMatchStarted,
-                                          TSharedRef<FOnEmptyResponse> OnChallengeDeclined, TSharedRef<FOnErroneousResponse> OnError, int64 UserId_)
+                                          TSharedRef<FOnEmptyResponse> OnChallengeDeclined, TSharedRef<FOnEmptyResponse> OnChallengeCancelled,
+                                          TSharedRef<FOnErroneousResponse> OnError, int64 UserId_)
 {
 	UserId = UserId_;
 	Url = FString::Printf(TEXT("ws://%s/events?playerId=%lld"), *Address, UserId);
-	EstablishConnection(OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnError);
+	EstablishConnection(OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnChallengeCancelled, OnError);
 }
 
 void UserEventClient::Retry(const FString& Error, EOnlineErrorType Type, TSharedRef<FOnStatusUpdated> OnStatusChanged,
                             TSharedRef<FOnChallengeReceived> OnChallengeReceived, TSharedRef<FOnMatch> OnMatchStarted,
-                            TSharedRef<FOnEmptyResponse> OnChallengeDeclined, TSharedRef<FOnErroneousResponse> OnError)
+                            TSharedRef<FOnEmptyResponse> OnChallengeDeclined, TSharedRef<FOnEmptyResponse> OnChallengeCancelled,
+                            TSharedRef<FOnErroneousResponse> OnError)
 {
 	if (ConnectionRetries <= 0)
 	{
@@ -188,7 +193,7 @@ void UserEventClient::Retry(const FString& Error, EOnlineErrorType Type, TShared
 	} else
 	{
 		--ConnectionRetries;
-		EstablishConnection(OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnError);
+		EstablishConnection(OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnChallengeCancelled, OnError);
 	}
 }
 
@@ -218,27 +223,28 @@ bool UserEventClient::IsConnected()
 
 void UserEventClient::EstablishConnection(TSharedRef<FOnStatusUpdated> OnStatusChanged,
                                           TSharedRef<FOnChallengeReceived> OnChallengeReceived, TSharedRef<FOnMatch> OnMatchStarted,
-                                          TSharedRef<FOnEmptyResponse> OnChallengeDeclined, TSharedRef<FOnErroneousResponse> OnError)
+                                          TSharedRef<FOnEmptyResponse> OnChallengeDeclined, TSharedRef<FOnEmptyResponse> OnChallengeCancelled,
+                                          TSharedRef<FOnErroneousResponse> OnError)
 {
 	Connection = FWebSocketsModule::Get().CreateWebSocket(Url, TEXT(""));
 	Connection->OnConnected().AddLambda([this]()
 	{
 		ConnectionRetries = InitialConnectionRetries;
 	});
-	Connection->OnConnectionError().AddLambda([this, OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnError](const FString& Error)
+	Connection->OnConnectionError().AddLambda([this, OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnChallengeCancelled, OnError](const FString& Error)
 	{
-		Retry(Error, EOnlineErrorType::Critical, OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnError);
+		Retry(Error, EOnlineErrorType::Critical, OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnChallengeCancelled, OnError);
 	});
-	Connection->OnClosed().AddLambda([this, OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnError](int32 /*StatusCode*/, const FString& Reason, bool /*WasClean*/)
+	Connection->OnClosed().AddLambda([this, OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnChallengeCancelled, OnError](int32 /*StatusCode*/, const FString& Reason, bool /*WasClean*/)
 	{
 		if (!Resolved)
 		{
-			Retry(TEXT("Connection closed unexpectedly: ") + Reason, EOnlineErrorType::Critical, OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnError);
+			Retry(TEXT("Connection closed unexpectedly: ") + Reason, EOnlineErrorType::Critical, OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnChallengeCancelled, OnError);
 		} else {
 			Resolved = false;
 		}
 	});
-	Connection->OnMessage().AddLambda([this, OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnError](const FString& Message)
+	Connection->OnMessage().AddLambda([this, OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnChallengeCancelled, OnError](const FString& Message)
 	{
 		TSharedPtr<FJsonObject> JsonObject;
 		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Message);
@@ -274,11 +280,11 @@ void UserEventClient::EstablishConnection(TSharedRef<FOnStatusUpdated> OnStatusC
 		{
 			return;
 		}
-		AsyncTask(ENamedThreads::GameThread, [Events = MoveTemp(Events), OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnError]()
+		AsyncTask(ENamedThreads::GameThread, [Events = MoveTemp(Events), OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnChallengeCancelled, OnError]()
 		{
 			for (const Event& Ev : Events)
 			{
-				HandleEvent(Ev, OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnError);
+				HandleEvent(Ev, OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnChallengeCancelled, OnError);
 			}
 		});
 	});

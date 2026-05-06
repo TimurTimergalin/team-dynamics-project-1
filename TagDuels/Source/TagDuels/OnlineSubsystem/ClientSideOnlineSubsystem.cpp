@@ -295,6 +295,7 @@ bool UClientSideOnlineSubsystem::ConnectToUserEvent(
 	FOnChallengeReceived OnChallengeReceived,
 	FOnMatch OnMatchStarted,
 	FOnEmptyResponse OnChallengeDeclined,
+	FOnEmptyResponse OnChallengeCancelled,
 	FOnErroneousResponse OnError)
 {
 	if (!PlayerData.IsSet())
@@ -314,6 +315,7 @@ bool UClientSideOnlineSubsystem::ConnectToUserEvent(
 		MakeShared<FOnChallengeReceived>(MoveTemp(OnChallengeReceived)),
 		MakeShared<FOnMatch>(MoveTemp(OnMatchStarted)),
 		MakeShared<FOnEmptyResponse>(MoveTemp(OnChallengeDeclined)),
+		MakeShared<FOnEmptyResponse>(MoveTemp(OnChallengeCancelled)),
 		MakeShared<FOnErroneousResponse>(MoveTemp(OnError)),
 		PlayerData->Id
 	);

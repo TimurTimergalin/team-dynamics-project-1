@@ -12,6 +12,7 @@ public:
 		TSharedRef<FOnChallengeReceived> OnChallengeReceived,
 		TSharedRef<FOnMatch> OnMatchStarted,
 		TSharedRef<FOnEmptyResponse> OnChallengeDeclined,
+		TSharedRef<FOnEmptyResponse> OnChallengeCancelled,
 		TSharedRef<FOnErroneousResponse> OnError,
 		int64 UserId_
 	);
@@ -34,6 +35,7 @@ private:
 		TSharedRef<FOnChallengeReceived> OnChallengeReceived,
 		TSharedRef<FOnMatch> OnMatchStarted,
 		TSharedRef<FOnEmptyResponse> OnChallengeDeclined,
+		TSharedRef<FOnEmptyResponse> OnChallengeCancelled,
 		TSharedRef<FOnErroneousResponse> OnError
 	);
 	void Retry(
@@ -43,6 +45,7 @@ private:
 		TSharedRef<FOnChallengeReceived> OnChallengeReceived,
 		TSharedRef<FOnMatch> OnMatchStarted,
 		TSharedRef<FOnEmptyResponse> OnChallengeDeclined,
+		TSharedRef<FOnEmptyResponse> OnChallengeCancelled,
 		TSharedRef<FOnErroneousResponse> OnError
 	);
 	explicit UserEventClient(const FString& Address_);
