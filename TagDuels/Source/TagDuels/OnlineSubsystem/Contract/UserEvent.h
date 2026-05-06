@@ -35,3 +35,12 @@ struct FChallengeReceivedEvent
 
 	FString MessageId{};
 };
+
+USTRUCT(BlueprintType)
+struct FChallengeCancelledEvent
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly)
+	int64 UserId{};
+};

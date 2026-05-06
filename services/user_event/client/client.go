@@ -304,7 +304,7 @@ func (c *clientImpl) checkMailbox(ctx context.Context, out *[]*ueJson.Event, cle
 		case models.ChallengeDeclined:
 			event, err = ueJson.MakeEvent(ueJson.ChallengeDeclinedPayload{})
 		case models.ChallengeCancelled:
-			event, err = ueJson.MakeEvent(ueJson.ChallengeCancelledPayload{})
+			event, err = ueJson.MakeEvent(ueJson.ChallengeCancelledPayload{UserId: msg.SenderId})
 		default:
 			c.logger.Warn("checkMailbox: unknown message type", "type", msg.Type)
 			continue

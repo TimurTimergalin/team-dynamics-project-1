@@ -29,3 +29,5 @@ DECLARE_DYNAMIC_DELEGATE_OneParam(FOnMatchEnd, FEndMatchResponse, NewRatings);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnStatusUpdated, FStatusUpdatedEvent, Event);
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnChallengeReceived, FChallengeReceivedEvent, Event);
+
+DECLARE_DYNAMIC_DELEGATE_OneParam(FOnChallengeCancelled, FChallengeCancelledEvent, Event);

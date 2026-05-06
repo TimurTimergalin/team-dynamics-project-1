@@ -72,7 +72,7 @@ public:
 		FOnChallengeReceived OnChallengeReceived,
 		FOnMatch OnMatchStarted,
 		FOnEmptyResponse OnChallengeDeclined,
-		FOnEmptyResponse OnChallengeCancelled,
+		FOnChallengeCancelled OnChallengeCancelled,
 		FOnErroneousResponse OnError
 	);
 
