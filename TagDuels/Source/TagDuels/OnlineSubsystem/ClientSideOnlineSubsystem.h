@@ -34,13 +34,13 @@ public:
 	bool GetMatchHistoryPage(FString PageToken, FOnMatchHistoryResponse OnResponse, FOnErroneousResponse OnError);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	bool GetFriendsList(FString PageToken, FOnUserListResponse OnResponse, FOnInt64Response OnError);
+	bool GetFriendsList(FString PageToken, FOnUserListResponse OnResponse, FOnErroneousResponse OnError);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	bool GetOutgoingRequests(FString PageToken, FOnUserListResponse OnResponse, FOnInt64Response OnError);
+	bool GetOutgoingRequests(FString PageToken, FOnUserListResponse OnResponse, FOnErroneousResponse OnError);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	bool GetIncomingRequests(FString PageToken, FOnUserListResponse OnResponse, FOnInt64Response OnError);
+	bool GetIncomingRequests(FString PageToken, FOnUserListResponse OnResponse, FOnErroneousResponse OnError);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
 	bool GetRating(FOnInt64Response OnResponse, FOnErroneousResponse OnError);
@@ -53,12 +53,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
 	void DeclineOrDeleteFriend(int64 OtherUserId, FOnEmptyResponse OnResponse, FOnErroneousResponse OnError);
-
-	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	void ChallengeUser(int64 OtherUserId, FOnEmptyResponse OnResponse, FOnEmptyResponse OnError);
-
-	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	void CancelChallenge(FOnEmptyResponse OnResponse, FOnEmptyResponse OnError);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
 	bool ConnectToMMEvent(FOnMatch OnResponse, FOnErroneousResponse OnError);
@@ -107,12 +101,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystemDebug")
 	void SetPlayerData(const FString& Name, int64 PlayerId);
-
-	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	bool AddFriend(FOnEmptyResponse OnResponse, FOnErroneousResponse OnError);
-
-	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	bool RemoveFriend(FOnEmptyResponse OnResponse, FOnEmptyResponse OnError);
 
 private:
 	TOptional<UserServiceClient> UsClient{};

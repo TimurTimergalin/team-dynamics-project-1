@@ -33,6 +33,5 @@ struct FChallengeReceivedEvent
 	UPROPERTY(BlueprintReadOnly)
 	FString UserName{};
 
-	UPROPERTY(BlueprintReadOnly)
 	FString MessageId{};
 };

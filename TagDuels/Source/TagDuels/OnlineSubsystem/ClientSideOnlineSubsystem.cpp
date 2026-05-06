@@ -82,21 +82,66 @@ bool UClientSideOnlineSubsystem::GetMatchHistoryPage(FString PageToken, FOnMatch
 }
 
 bool UClientSideOnlineSubsystem::GetFriendsList(FString PageToken, FOnUserListResponse OnResponse,
-                                                FOnInt64Response OnError)
+                                                FOnErroneousResponse OnError)
 {
-	return false;
+	if (!UsClient || !PlayerData.IsSet())
+	{
+		return false;
+	}
+	WithRetry<FPlayersList>([this, PageToken]()
+	{
+		return UsClient->GetFriends(PlayerData.GetValue().Id, PageToken);
+	}, 3).Next([OnResponse, OnError](TOptional<FPlayersList> Result)
+	{
+		if (!Result.IsSet())
+		{
+			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to fetch friends list after 3 attempts"), EOnlineErrorType::NonCritical});
+		}
+		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Result.GetValue());
+	}).Next(FutureJoin);
+	return true;
 }
 
 bool UClientSideOnlineSubsystem::GetOutgoingRequests(FString PageToken, FOnUserListResponse OnResponse,
-                                                     FOnInt64Response OnError)
+                                                     FOnErroneousResponse OnError)
 {
-	return false;
+	if (!UsClient || !PlayerData.IsSet())
+	{
+		return false;
+	}
+	WithRetry<FPlayersList>([this, PageToken]()
+	{
+		return UsClient->GetOutgoingRequests(PlayerData.GetValue().Id, PageToken);
+	}, 3).Next([OnResponse, OnError](TOptional<FPlayersList> Result)
+	{
+		if (!Result.IsSet())
+		{
+			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to fetch outgoing requests after 3 attempts"), EOnlineErrorType::NonCritical});
+		}
+		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Result.GetValue());
+	}).Next(FutureJoin);
+	return true;
 }
 
 bool UClientSideOnlineSubsystem::GetIncomingRequests(FString PageToken, FOnUserListResponse OnResponse,
-                                                     FOnInt64Response OnError)
+                                                     FOnErroneousResponse OnError)
 {
-	return false;
+	if (!UsClient || !PlayerData.IsSet())
+	{
+		return false;
+	}
+	WithRetry<FPlayersList>([this, PageToken]()
+	{
+		return UsClient->GetIncomingRequests(PlayerData.GetValue().Id, PageToken);
+	}, 3).Next([OnResponse, OnError](TOptional<FPlayersList> Result)
+	{
+		if (!Result.IsSet())
+		{
+			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to fetch incoming requests after 3 attempts"), EOnlineErrorType::NonCritical});
+		}
+		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Result.GetValue());
+	}).Next(FutureJoin);
+	return true;
 }
 
 bool UClientSideOnlineSubsystem::GetRating(FOnInt64Response OnResponse, FOnErroneousResponse OnError)
@@ -162,19 +207,35 @@ bool UClientSideOnlineSubsystem::GetRatingById(int64 OtherUserId, FOnInt64Respon
 void UClientSideOnlineSubsystem::SendOrAcceptRequest(int64 OtherUserId, FOnEmptyResponse OnResponse,
                                                      FOnErroneousResponse OnError)
 {
+	if (!UsClient || !PlayerData.IsSet())
+	{
+		return;
+	}
+	UsClient->AddFriend(PlayerData.GetValue().Id, OtherUserId).Next([OnResponse, OnError](bool bSuccess)
+	{
+		if (!bSuccess)
+		{
+			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to send/accept friend request"), EOnlineErrorType::NonCritical});
+		}
+		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
+	}).Next(FutureJoin);
 }
 
 void UClientSideOnlineSubsystem::DeclineOrDeleteFriend(int64 OtherUserId, FOnEmptyResponse OnResponse,
                                                        FOnErroneousResponse OnError)
 {
-}
-
-void UClientSideOnlineSubsystem::ChallengeUser(int64 OtherUserId, FOnEmptyResponse OnResponse, FOnEmptyResponse OnError)
-{
-}
-
-void UClientSideOnlineSubsystem::CancelChallenge(FOnEmptyResponse OnResponse, FOnEmptyResponse OnError)
-{
+	if (!UsClient || !PlayerData.IsSet())
+	{
+		return;
+	}
+	UsClient->RemoveFriend(PlayerData.GetValue().Id, OtherUserId).Next([OnResponse, OnError](bool bSuccess)
+	{
+		if (!bSuccess)
+		{
+			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to decline/remove friend"), EOnlineErrorType::NonCritical});
+		}
+		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
+	}).Next(FutureJoin);
 }
 
 bool UClientSideOnlineSubsystem::ConnectToMMEvent(FOnMatch OnResponse, FOnErroneousResponse OnError)
@@ -337,14 +398,4 @@ void UClientSideOnlineSubsystem::SetPlayerData(const FString& Name, int64 Player
 	Pd.Id = PlayerId;
 	Pd.Name = Name;
 	PlayerData = Pd;
-}
-
-bool UClientSideOnlineSubsystem::AddFriend(FOnEmptyResponse OnResponse, FOnErroneousResponse OnError)
-{
-	return false;
-}
-
-bool UClientSideOnlineSubsystem::RemoveFriend(FOnEmptyResponse OnResponse, FOnEmptyResponse OnError)
-{
-	return false;
 }

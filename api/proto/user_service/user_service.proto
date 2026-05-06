@@ -127,7 +127,17 @@ service UserService {
         };
     }
 
-    rpc AddFriend(AddFriendRequest) returns (AddFriendResponse);
+    rpc AddFriend(AddFriendRequest) returns (AddFriendResponse) {
+        option (google.api.http) = {
+            post: "/v1/friends"
+            body: "*"
+        };
+    }
 
-    rpc RemoveFriend(RemoveFriendRequest) returns (RemoveFriendResponse);
+    rpc RemoveFriend(RemoveFriendRequest) returns (RemoveFriendResponse) {
+        option (google.api.http) = {
+            delete: "/v1/friends"
+            body: "*"
+        };
+    }
 }
