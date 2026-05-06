@@ -129,6 +129,36 @@ bool UClientSideOnlineSubsystem::GetRating(FOnInt64Response OnResponse, FOnErron
 	return true;
 }
 
+bool UClientSideOnlineSubsystem::GetRatingById(int64 OtherUserId, FOnInt64Response OnResponse, FOnErroneousResponse OnError)
+{
+	if (!RsClient)
+	{
+		return false;
+	}
+	if (!PlayerData.IsSet())
+	{
+		return false;
+	}
+	WithRetry<int64>([this, OtherUserId]()
+	{
+		return RsClient->GetRating(OtherUserId);
+	}, 3).Next([OnResponse, OnError](TOptional<int64> Rating)
+	{
+		if (!Rating.IsSet())
+		{
+			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to fetch rating after 3 attempts"), EOnlineErrorType::NonCritical});
+		}
+		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Rating.GetValue());
+	}).Next(FutureJoin).Next([](bool bWasBound)
+	{
+		if (!bWasBound)
+		{
+			UE_LOG(LogTemp, Error, TEXT("OnResponse or OnError for GetRating was not set"));
+		}
+	});
+	return true;
+}
+
 void UClientSideOnlineSubsystem::SendOrAcceptRequest(int64 OtherUserId, FOnEmptyResponse OnResponse,
                                                      FOnErroneousResponse OnError)
 {

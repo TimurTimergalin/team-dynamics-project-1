@@ -46,6 +46,9 @@ public:
 	bool GetRating(FOnInt64Response OnResponse, FOnErroneousResponse OnError);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
+	bool GetRatingById(int64 OtherUserId, FOnInt64Response OnResponse, FOnErroneousResponse OnError);
+
+	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
 	void SendOrAcceptRequest(int64 OtherUserId, FOnEmptyResponse OnResponse, FOnErroneousResponse OnError);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
