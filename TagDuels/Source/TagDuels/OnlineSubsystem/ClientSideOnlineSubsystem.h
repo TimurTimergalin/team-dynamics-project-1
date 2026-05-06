@@ -28,7 +28,7 @@ public:
 	bool EgsAuthorize(FString AuthToken, int64 Id, FOnEmptyResponse OnResponse);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	bool GetPlayerData(UPARAM(ref) FUserPlayerData& PlayerDataOut);
+	bool GetPlayerData(FUserPlayerData& PlayerDataOut);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
 	bool GetMatchHistoryPage(FString PageToken, FOnMatchHistoryResponse OnResponse, FOnErroneousResponse OnError);
