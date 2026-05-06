@@ -337,6 +337,7 @@ func (r *userKvRepoImpl) CancelChallenge(ctx context.Context, messageId string, 
 			)
 			pipe.MSet(ctx, []interface{}{
 				newMsgKeys.type_(), int64(models.ChallengeCancelled),
+				newMsgKeys.senderId(), from,
 			})
 			pipe.RPush(ctx, toKeys.mailbox(), newMsgId)
 			return nil

@@ -123,7 +123,7 @@ namespace
 		TSharedRef<FOnChallengeReceived> OnChallengeReceived,
 		TSharedRef<FOnMatch> OnMatchStarted,
 		TSharedRef<FOnEmptyResponse> OnChallengeDeclined,
-		TSharedRef<FOnEmptyResponse> OnChallengeCancelled,
+		TSharedRef<FOnChallengeCancelled> OnChallengeCancelled,
 		TSharedRef<FOnErroneousResponse> OnError
 	)
 	{
@@ -159,7 +159,12 @@ namespace
 			OnChallengeDeclined->ExecuteIfBound();
 			break;
 		case EventType::ChallengeCancelled:
-			OnChallengeCancelled->ExecuteIfBound();
+			if (Ev.UserId.IsSet())
+			{
+				FChallengeCancelledEvent CancelledEvent;
+				CancelledEvent.UserId = Ev.UserId.GetValue();
+				OnChallengeCancelled->ExecuteIfBound(CancelledEvent);
+			}
 			break;
 		case EventType::Error:
 			OnError->ExecuteIfBound(FOnlineSubsystemError{Ev.ErrorMessage.Get(TEXT("Unknown error")), EOnlineErrorType::NonCritical});
@@ -170,7 +175,7 @@ namespace
 
 void UserEventClient::EstablishConnection(TSharedRef<FOnStatusUpdated> OnStatusChanged,
                                           TSharedRef<FOnChallengeReceived> OnChallengeReceived, TSharedRef<FOnMatch> OnMatchStarted,
-                                          TSharedRef<FOnEmptyResponse> OnChallengeDeclined, TSharedRef<FOnEmptyResponse> OnChallengeCancelled,
+                                          TSharedRef<FOnEmptyResponse> OnChallengeDeclined, TSharedRef<FOnChallengeCancelled> OnChallengeCancelled,
                                           TSharedRef<FOnErroneousResponse> OnError, int64 UserId_)
 {
 	UserId = UserId_;
@@ -180,7 +185,7 @@ void UserEventClient::EstablishConnection(TSharedRef<FOnStatusUpdated> OnStatusC
 
 void UserEventClient::Retry(const FString& Error, EOnlineErrorType Type, TSharedRef<FOnStatusUpdated> OnStatusChanged,
                             TSharedRef<FOnChallengeReceived> OnChallengeReceived, TSharedRef<FOnMatch> OnMatchStarted,
-                            TSharedRef<FOnEmptyResponse> OnChallengeDeclined, TSharedRef<FOnEmptyResponse> OnChallengeCancelled,
+                            TSharedRef<FOnEmptyResponse> OnChallengeDeclined, TSharedRef<FOnChallengeCancelled> OnChallengeCancelled,
                             TSharedRef<FOnErroneousResponse> OnError)
 {
 	if (ConnectionRetries <= 0)
@@ -223,7 +228,7 @@ bool UserEventClient::IsConnected()
 
 void UserEventClient::EstablishConnection(TSharedRef<FOnStatusUpdated> OnStatusChanged,
                                           TSharedRef<FOnChallengeReceived> OnChallengeReceived, TSharedRef<FOnMatch> OnMatchStarted,
-                                          TSharedRef<FOnEmptyResponse> OnChallengeDeclined, TSharedRef<FOnEmptyResponse> OnChallengeCancelled,
+                                          TSharedRef<FOnEmptyResponse> OnChallengeDeclined, TSharedRef<FOnChallengeCancelled> OnChallengeCancelled,
                                           TSharedRef<FOnErroneousResponse> OnError)
 {
 	Connection = FWebSocketsModule::Get().CreateWebSocket(Url, TEXT(""));
