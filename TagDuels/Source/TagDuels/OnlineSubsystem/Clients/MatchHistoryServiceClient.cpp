@@ -9,15 +9,12 @@
 namespace
 {
     // Convert a protobuf JSON match result enum to our MatchResolution.
-    MatchResolution ParseMatchResult(int32 ProtoResult)
+    MatchResolution ParseMatchResult(const FString& ProtoResult)
     {
-        switch (ProtoResult)
-        {
-        case 1: return MatchResolution::FirstWins;   // MATCH_RESULT_PLAYER1_WIN
-        case 2: return MatchResolution::Draw;        // MATCH_RESULT_DRAW
-        case 3: return MatchResolution::SecondWins;  // MATCH_RESULT_PLAYER2_WIN
-        default: return MatchResolution::Draw;       // Unspecified or Cancelled -> Draw
-        }
+        if (ProtoResult == TEXT("MATCH_RESULT_PLAYER1_WIN")) return MatchResolution::FirstWins;
+        if (ProtoResult == TEXT("MATCH_RESULT_PLAYER2_WIN")) return MatchResolution::SecondWins;
+        if (ProtoResult == TEXT("MATCH_RESULT_DRAW"))        return MatchResolution::Draw;
+        return MatchResolution::Draw;
     }
 
     TOptional<FMatchHistory> ConvertMatch(const TSharedPtr<FJsonObject>& MatchObj)
@@ -32,18 +29,34 @@ namespace
         if (!MatchObj->TryGetObjectField(TEXT("player1"), Player1Obj) || !Player1Obj)
             return {};
 
-        if (!(*Player1Obj)->TryGetNumberField(TEXT("id"), History.Player1.Id)) return {};
+        FString IdStr;
+        if (!(*Player1Obj)->TryGetStringField(TEXT("id"), IdStr)) return {};
+        TOptional<int64> P1Id = StrToInt64(IdStr);
+        if (!P1Id.IsSet()) return {};
+        History.Player1.Id = P1Id.GetValue();
         if (!(*Player1Obj)->TryGetStringField(TEXT("name"), History.Player1.Name)) return {};
-        (*Player1Obj)->TryGetNumberField(TEXT("rating"), History.Player1.Rating); // optional, defaults to 0
+        FString RatingStr;
+        if ((*Player1Obj)->TryGetStringField(TEXT("rating"), RatingStr))
+        {
+            TOptional<int64> R = StrToInt64(RatingStr);
+            if (R.IsSet()) History.Player1.Rating = R.GetValue();
+        }
 
         // --- Player2 ---
         const TSharedPtr<FJsonObject>* Player2Obj = nullptr;
         if (!MatchObj->TryGetObjectField(TEXT("player2"), Player2Obj) || !Player2Obj)
             return {};
 
-        if (!(*Player2Obj)->TryGetNumberField(TEXT("id"), History.Player2.Id)) return {};
+        if (!(*Player2Obj)->TryGetStringField(TEXT("id"), IdStr)) return {};
+        TOptional<int64> P2Id = StrToInt64(IdStr);
+        if (!P2Id.IsSet()) return {};
+        History.Player2.Id = P2Id.GetValue();
         if (!(*Player2Obj)->TryGetStringField(TEXT("name"), History.Player2.Name)) return {};
-        (*Player2Obj)->TryGetNumberField(TEXT("rating"), History.Player2.Rating);
+        if ((*Player2Obj)->TryGetStringField(TEXT("rating"), RatingStr))
+        {
+            TOptional<int64> R = StrToInt64(RatingStr);
+            if (R.IsSet()) History.Player2.Rating = R.GetValue();
+        }
 
         // --- Rounds ---
         const TArray<TSharedPtr<FJsonValue>>* RoundsArray = nullptr;
@@ -73,24 +86,21 @@ namespace
         }
 
         // --- End Timestamp ---
-        int64 EndTimestamp = 0;
-        if (!MatchObj->TryGetNumberField(TEXT("endTimestamp"), EndTimestamp))
+        FString EndTimestampStr;
+        if (!MatchObj->TryGetStringField(TEXT("endTimestamp"), EndTimestampStr))
             return {};
-
-        // Convert milliseconds since epoch to FDateTime.
-        History.EndTime = FDateTime::FromUnixTimestamp(EndTimestamp / 1000) +
-                          FTimespan::FromMilliseconds(EndTimestamp % 1000);
+        TOptional<int64> EndTimestamp = StrToInt64(EndTimestampStr);
+        if (!EndTimestamp.IsSet()) return {};
+        History.EndTime = FDateTime::FromUnixTimestamp(EndTimestamp.GetValue() / 1000) +
+                          FTimespan::FromMilliseconds(EndTimestamp.GetValue() % 1000);
 
         // --- Match Result ---
-        int32 ResultVal = 0;
-        if (MatchObj->TryGetNumberField(TEXT("matchResult"), ResultVal))
-        {
-            History.Resolution = ParseMatchResult(ResultVal);
-        }
+        FString ResultStr;
+        if (MatchObj->TryGetStringField(TEXT("matchResult"), ResultStr))
+            History.Resolution = ParseMatchResult(ResultStr);
 
-        // --- Match ID ---
-        if (!MatchObj->TryGetStringField(TEXT("matchId"), History.MatchId))
-            return {};
+        // --- Match ID (optional) ---
+        MatchObj->TryGetStringField(TEXT("matchId"), History.MatchId);
 
         return History;
     }

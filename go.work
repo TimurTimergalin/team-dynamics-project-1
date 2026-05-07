@@ -5,6 +5,7 @@ use (
 	./lib/pg_lib
 	./lib/logging
 	./lib/grpc_lib
+	./services/auth_service
 	./services/fleet_manager
 	./services/match_history_service
 	./services/match_service

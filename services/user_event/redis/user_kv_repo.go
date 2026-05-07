@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
+	"log/slog"
 	"team_dynamics/user_event/models"
 )
 
@@ -28,11 +29,12 @@ type UserKvRepo interface {
 }
 
 type userKvRepoImpl struct {
-	rdb *redis.Client
+	rdb    *redis.Client
+	logger *slog.Logger
 }
 
-func MakeUserKvRepo(rdb *redis.Client) UserKvRepo {
-	return &userKvRepoImpl{rdb}
+func MakeUserKvRepo(rdb *redis.Client, logger *slog.Logger) UserKvRepo {
+	return &userKvRepoImpl{rdb: rdb, logger: logger}
 }
 
 func (r *userKvRepoImpl) Register(ctx context.Context, player *models.PlayerUserData) (bool, error) {
@@ -61,6 +63,11 @@ func (r *userKvRepoImpl) Register(ctx context.Context, player *models.PlayerUser
 		registered = true
 		return nil
 	}, keys.name())
+	if err != nil {
+		r.logger.Error("Register: failed", "player_id", player.Id, "error", err)
+	} else {
+		r.logger.Debug("Register: ok", "player_id", player.Id, "registered", registered)
+	}
 	return registered, err
 }
 
@@ -77,6 +84,11 @@ func (r *userKvRepoImpl) Subscribe(ctx context.Context, playerId int64, otherPla
 		}
 		return nil
 	})
+	if err != nil {
+		r.logger.Error("Subscribe: failed", "player_id", playerId, "error", err)
+	} else {
+		r.logger.Debug("Subscribe: ok", "player_id", playerId, "count", len(otherPlayersId))
+	}
 	return err
 }
 
@@ -134,18 +146,22 @@ func (r *userKvRepoImpl) NotifyBusy(ctx context.Context, playerId int64) error {
 	keys := PlayerKeySet{playerId}
 	_, err := r.rdb.Set(ctx, keys.status(), int64(models.Busy), 0).Result()
 	if err != nil {
-		return err
+		r.logger.Error("NotifyBusy: failed", "player_id", playerId, "error", err)
+	} else {
+		r.logger.Debug("NotifyBusy: ok", "player_id", playerId)
 	}
-	return nil
+	return err
 }
 
 func (r *userKvRepoImpl) NotifyFree(ctx context.Context, playerId int64) error {
 	keys := PlayerKeySet{playerId}
 	_, err := r.rdb.Set(ctx, keys.status(), int64(models.Online), 0).Result()
 	if err != nil {
-		return err
+		r.logger.Error("NotifyFree: failed", "player_id", playerId, "error", err)
+	} else {
+		r.logger.Debug("NotifyFree: ok", "player_id", playerId)
 	}
-	return nil
+	return err
 }
 
 func (r *userKvRepoImpl) CreateChallenge(ctx context.Context, from *models.PlayerUserData, to int64) (string, error) {
@@ -196,6 +212,11 @@ func (r *userKvRepoImpl) CreateChallenge(ctx context.Context, from *models.Playe
 		})
 		return err
 	}, toKeys.status(), fromKeys.status(), fromKeys.currentChallenge())
+	if err != nil {
+		r.logger.Error("CreateChallenge: failed", "from", from.Id, "to", to, "error", err)
+	} else {
+		r.logger.Debug("CreateChallenge: ok", "from", from.Id, "to", to, "msg_id", msgId)
+	}
 	return msgId, err
 }
 
@@ -267,12 +288,17 @@ func (r *userKvRepoImpl) AcceptChallenge(ctx context.Context, messageId string, 
 		result = &models.PlayerUserData{Id: senderId, Name: name, Rating: rating}
 		return nil
 	}, fromKeys.currentChallenge(), toKeys.status(), toKeys.currentChallenge())
+	if err != nil {
+		r.logger.Error("AcceptChallenge: failed", "from", from, "to", to, "msg_id", messageId, "error", err)
+	} else {
+		r.logger.Debug("AcceptChallenge: ok", "from", from, "to", to, "msg_id", messageId)
+	}
 	return result, err
 }
 
 func (r *userKvRepoImpl) DeclineChallenge(ctx context.Context, messageId string, from, to int64) error {
 	fromKeys := PlayerKeySet{from}
-	return r.rdb.Watch(ctx, func(tx *redis.Tx) error {
+	err := r.rdb.Watch(ctx, func(tx *redis.Tx) error {
 		current, err := tx.Get(ctx, fromKeys.currentChallenge()).Result()
 		if err != nil {
 			return err
@@ -301,6 +327,12 @@ func (r *userKvRepoImpl) DeclineChallenge(ctx context.Context, messageId string,
 		})
 		return err
 	}, fromKeys.currentChallenge())
+	if err != nil {
+		r.logger.Error("DeclineChallenge: failed", "from", from, "to", to, "msg_id", messageId, "error", err)
+	} else {
+		r.logger.Debug("DeclineChallenge: ok", "from", from, "to", to, "msg_id", messageId)
+	}
+	return err
 }
 
 func (r *userKvRepoImpl) CancelChallenge(ctx context.Context, messageId string, from, to int64) error {
@@ -344,16 +376,28 @@ func (r *userKvRepoImpl) CancelChallenge(ctx context.Context, messageId string, 
 		})
 		return err
 	}, fromKeys.currentChallenge())
+	if err != nil {
+		r.logger.Error("CancelChallenge: failed", "from", from, "to", to, "msg_id", messageId, "error", err)
+	} else {
+		r.logger.Debug("CancelChallenge: ok", "from", from, "to", to, "msg_id", messageId)
+	}
+	return err
 }
 
 func (r *userKvRepoImpl) Unregister(ctx context.Context, playerId int64) error {
 	keys := PlayerKeySet{playerId}
-	return r.rdb.Del(ctx, keys.keys()...).Err()
+	err := r.rdb.Del(ctx, keys.keys()...).Err()
+	if err != nil {
+		r.logger.Error("Unregister: failed", "player_id", playerId, "error", err)
+	} else {
+		r.logger.Debug("Unregister: ok", "player_id", playerId)
+	}
+	return err
 }
 
 func (r *userKvRepoImpl) SendAcceptMessage(ctx context.Context, playerId int64, address string) error {
 	playerKeys := PlayerKeySet{playerId}
-	return r.rdb.Watch(ctx, func(tx *redis.Tx) error {
+	err := r.rdb.Watch(ctx, func(tx *redis.Tx) error {
 		exists, err := tx.Exists(ctx, playerKeys.name()).Result()
 		if err != nil {
 			return err
@@ -373,6 +417,12 @@ func (r *userKvRepoImpl) SendAcceptMessage(ctx context.Context, playerId int64, 
 		})
 		return err
 	}, playerKeys.name())
+	if err != nil {
+		r.logger.Error("SendAcceptMessage: failed", "player_id", playerId, "error", err)
+	} else {
+		r.logger.Debug("SendAcceptMessage: ok", "player_id", playerId)
+	}
+	return err
 }
 
 func (r *userKvRepoImpl) ReadMessages(ctx context.Context, playerId int64) ([]*models.Message, error) {
@@ -460,6 +510,11 @@ func (r *userKvRepoImpl) CommitMessages(ctx context.Context, playerId int64, mes
 		}
 		return nil
 	})
+	if err != nil {
+		r.logger.Error("CommitMessages: failed", "player_id", playerId, "count", len(messages), "error", err)
+	} else {
+		r.logger.Debug("CommitMessages: ok", "player_id", playerId, "count", len(messages))
+	}
 	return err
 }
 
@@ -477,5 +532,10 @@ func (r *userKvRepoImpl) CleanupAfterFailedAccept(ctx context.Context, senderId,
 		pipe.Set(ctx, PlayerKeySet{receiverId}.status(), int64(models.Online), 0)
 		return nil
 	})
+	if err != nil {
+		r.logger.Error("CleanupAfterFailedAccept: failed", "sender_id", senderId, "receiver_id", receiverId, "error", err)
+	} else {
+		r.logger.Debug("CleanupAfterFailedAccept: ok", "sender_id", senderId, "receiver_id", receiverId)
+	}
 	return err
 }

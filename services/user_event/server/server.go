@@ -159,7 +159,7 @@ func main() {
 	}
 
 	redisClient := redis.NewClient(redisOpts)
-	userKvRepo := ueRedis.MakeUserKvRepo(redisClient)
+	userKvRepo := ueRedis.MakeUserKvRepo(redisClient, logger)
 
 	registerCh := make(chan client.Client, serverCfg.ChannelSizes)
 	disconnectCh := make(chan client.Client, serverCfg.ChannelSizes)
@@ -184,6 +184,6 @@ func main() {
 		userKvRepo, disconnectCh, logger, clientCfg, upgrader,
 	)
 
-	controller := controllers.NewUserEventController(ctx, hub, factory, serverCfg.ListenAddress)
+	controller := controllers.NewUserEventController(ctx, hub, factory, serverCfg.ListenAddress, logger)
 	controller.Run(ctx)
 }
