@@ -300,14 +300,17 @@ bool UClientSideOnlineSubsystem::ConnectToUserEvent(
 {
 	if (!PlayerData.IsSet())
 	{
+		UE_LOG(LogTemp, Error, TEXT("!PlayerData.IsSet()"));
 		return false;
 	}
 	if (!UeClient.IsSet())
 	{
+		UE_LOG(LogTemp, Error, TEXT("!UeClient.IsSet()"));
 		return false;
 	}
 	if (UeClient->IsConnected())
 	{
+		UE_LOG(LogTemp, Error, TEXT("UeClient->IsConnected()"));
 		return false;
 	}
 	UeClient->EstablishConnection(
