@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+      annotations:
+        linkerd.io/inject: enabled
+    spec:
+      imagePullSecrets:
+        - name: craas-4274eb52-inventive-macaw
+      containers:
+        - name: auth-service
+          image: 4274eb52-inventive-macaw.registry.twcstorage.ru/tag-duels/auth-service-server:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 50001
+              name: grpc
+            - containerPort: 8080
+              name: http
+          envFrom:
+            - configMapRef:
+                name: auth-service-env
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: auth-kv-credentials
+                  key: REDIS_PASSWORD
+            - name: STEAM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: steam-api
+                  key: API_KEY
+            - name: STEAM_APP_ID
+              valueFrom:
+                secretKeyRef:
+                  name: steam-api
+                  key: APP_ID
+            - name: KEY_PAIR_VERSION
+              valueFrom:
+                secretKeyRef:
+                  name: auth-key-pairs
+                  key: KEY_PAIR_VERSION
+          volumeMounts:
+            - name: key-pairs
+              mountPath: /secrets/keys
+              readOnly: true
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"
+          livenessProbe:
+            tcpSocket:
+              port: 50001
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            tcpSocket:
+              port: 50001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: key-pairs
+          secret:
+            secretName: auth-key-pairs
+            items:
+              - key: PRIMARY_PRIVATE_KEY
+                path: primary_private.pem
+              - key: PRIMARY_PUBLIC_KEY
+                path: primary_public.pem
+              - key: SECONDARY_PRIVATE_KEY
+                path: secondary_private.pem
+              - key: SECONDARY_PUBLIC_KEY
+                path: secondary_public.pem

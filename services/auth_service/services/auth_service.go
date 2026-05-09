@@ -1,0 +1,121 @@
+package services
+
+import (
+	"context"
+	"crypto/x509"
+	"encoding/pem"
+	"fmt"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	pb "team_dynamics/api/proto/auth_service"
+	pbCommon "team_dynamics/api/proto/user_common"
+	"team_dynamics/auth_service/models"
+	"team_dynamics/auth_service/repos"
+)
+
+type AuthService struct {
+	pb.UnimplementedAuthServiceServer
+	jwtService            JwtService
+	steamService          SteamService
+	authKvRepo            repos.AuthKvRepo
+	primaryPublicKeyPem   string
+	secondaryPublicKeyPem string
+	version               string
+}
+
+func marshalPublicKeyPem(keyPair models.KeyPair) (string, error) {
+	pubKeyBytes, err := x509.MarshalPKIXPublicKey(keyPair.PublicKey)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal public key: %w", err)
+	}
+	return string(pem.EncodeToMemory(&pem.Block{
+		Type:  "PUBLIC KEY",
+		Bytes: pubKeyBytes,
+	})), nil
+}
+
+func NewAuthService(jwtService JwtService, steamService SteamService, authKvRepo repos.AuthKvRepo, primaryKeyPair models.KeyPair, secondaryKeyPair models.KeyPair, version string) (*AuthService, error) {
+	primaryPem, err := marshalPublicKeyPem(primaryKeyPair)
+	if err != nil {
+		return nil, err
+	}
+	secondaryPem, err := marshalPublicKeyPem(secondaryKeyPair)
+	if err != nil {
+		return nil, err
+	}
+	return &AuthService{
+		jwtService:            jwtService,
+		steamService:          steamService,
+		authKvRepo:            authKvRepo,
+		primaryPublicKeyPem:   primaryPem,
+		secondaryPublicKeyPem: secondaryPem,
+		version:               version,
+	}, nil
+}
+
+func (s *AuthService) AuthExternal(ctx context.Context, req *pb.AuthExternalRequest) (*pb.AuthExternalResponse, error) {
+	if req.ExternalKey == nil || req.AuthToken == nil {
+		return nil, status.Error(codes.InvalidArgument, "external_key and auth_token are required")
+	}
+
+	switch key := req.ExternalKey.Key.(type) {
+	case *pbCommon.ExternalKey_SteamId:
+		steamId, err := s.steamService.Validate(ctx, *req.AuthToken)
+		if err != nil {
+			return nil, status.Errorf(codes.Unauthenticated, "steam validation failed: %v", err)
+		}
+		if steamId != key.SteamId {
+			return nil, status.Error(codes.Unauthenticated, "steam id mismatch")
+		}
+		access, refresh, err := s.jwtService.MakeTokenPair(models.UserId{SteamId: &steamId})
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "failed to create token pair: %v", err)
+		}
+		return &pb.AuthExternalResponse{Access: &access, Refresh: &refresh}, nil
+	default:
+		return nil, status.Error(codes.InvalidArgument, "unsupported external key type")
+	}
+}
+
+func (s *AuthService) Refresh(ctx context.Context, req *pb.RefreshRequest) (*pb.RefreshResponse, error) {
+	if req.Refresh == nil {
+		return nil, status.Error(codes.InvalidArgument, "refresh token is required")
+	}
+
+	payload, err := s.jwtService.Validate(*req.Refresh)
+	if err != nil {
+		return nil, status.Errorf(codes.Unauthenticated, "invalid refresh token: %v", err)
+	}
+
+	if payload.TokenId == nil {
+		return nil, status.Error(codes.Unauthenticated, "not a refresh token")
+	}
+
+	used, err := s.authKvRepo.MarkUsed(ctx, *payload.TokenId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to check token: %v", err)
+	}
+	if !used {
+		return nil, status.Error(codes.Unauthenticated, "refresh token already used")
+	}
+
+	if payload.UserId.SteamId == nil && payload.UserId.PlayerId == nil {
+		return nil, status.Error(codes.Unauthenticated, "token has no user id")
+	}
+
+	access, refresh, err := s.jwtService.MakeTokenPair(payload.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to create token pair: %v", err)
+	}
+	return &pb.RefreshResponse{Access: &access, Refresh: &refresh}, nil
+}
+
+func (s *AuthService) GetPublicKey(_ context.Context, _ *pb.GetPublicKeyRequest) (*pb.GetPublicKeyResponse, error) {
+	return &pb.GetPublicKeyResponse{
+		PrimaryPublicKey:   &s.primaryPublicKeyPem,
+		SecondaryPublicKey: &s.secondaryPublicKeyPem,
+		Version:            &s.version,
+	}, nil
+}
+
+var _ pb.AuthServiceServer = (*AuthService)(nil)

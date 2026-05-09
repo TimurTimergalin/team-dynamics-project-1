@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-kv
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-kv
+  template:
+    metadata:
+      labels:
+        app: auth-kv
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+          name: redis
+        volumeMounts:
+        - name: config
+          mountPath: /usr/local/etc/redis
+        - name: data
+          mountPath: /data
+        env:
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: auth-kv-credentials
+                key: REDIS_PASSWORD
+        command:
+          - /bin/sh
+          - -c
+          - |
+            redis-server /usr/local/etc/redis/redis.conf --requirepass $REDIS_PASSWORD
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: auth-kv-config
+      - name: data
+        persistentVolumeClaim:
+          claimName: auth-kv-data

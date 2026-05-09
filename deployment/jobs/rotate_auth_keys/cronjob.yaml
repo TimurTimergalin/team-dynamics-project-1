@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: rotate-auth-keys
+spec:
+  schedule: "0 3 * * 0"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: rotate-auth-keys-sa
+          imagePullSecrets:
+            - name: craas-4274eb52-inventive-macaw
+          restartPolicy: OnFailure
+          containers:
+            - name: rotate-auth-keys
+              image: 4274eb52-inventive-macaw.registry.twcstorage.ru/tag-duels/rotate-auth-keys:latest
+              imagePullPolicy: Always
+              env:
+                - name: NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+                - name: SECRET_NAME
+                  value: "auth-key-pairs"
+                - name: DEPLOYMENT_NAME
+                  value: "auth-service"
+                - name: PRIMARY_PRIVATE_KEY_FIELD
+                  value: "PRIMARY_PRIVATE_KEY"
+                - name: PRIMARY_PUBLIC_KEY_FIELD
+                  value: "PRIMARY_PUBLIC_KEY"
+                - name: SECONDARY_PRIVATE_KEY_FIELD
+                  value: "SECONDARY_PRIVATE_KEY"
+                - name: SECONDARY_PUBLIC_KEY_FIELD
+                  value: "SECONDARY_PUBLIC_KEY"
+                - name: KEY_PAIR_VERSION_FIELD
+                  value: "KEY_PAIR_VERSION"
+              resources:
+                requests:
+                  memory: "64Mi"
+                  cpu: "50m"
+                limits:
+                  memory: "128Mi"
+                  cpu: "100m"

@@ -3,6 +3,7 @@ syntax = "proto3";
 package auth_service;
 option go_package = "team_dynamics/api/proto/auth_service";
 
+import "google/api/annotations.proto";
 import "user_common/user_common.proto";
 
 message AuthExternalRequest {
@@ -27,11 +28,27 @@ message RefreshResponse {
 message GetPublicKeyRequest {}
 
 message GetPublicKeyResponse {
-    optional string public_key = 1;
+    optional string primary_public_key = 1;
+    optional string secondary_public_key = 2;
+    optional string version = 3;
 }
 
 service AuthService {
-    rpc AuthExternal(AuthExternalRequest) returns (AuthExternalResponse);
-    rpc Refresh(RefreshRequest) returns (RefreshResponse);
-    rpc GetPublicKey(GetPublicKeyRequest) returns (GetPublicKeyResponse);
+    rpc AuthExternal(AuthExternalRequest) returns (AuthExternalResponse) {
+        option (google.api.http) = {
+            post: "/v1/auth/external"
+            body: "*"
+        };
+    }
+    rpc Refresh(RefreshRequest) returns (RefreshResponse) {
+        option (google.api.http) = {
+            post: "/v1/auth/refresh"
+            body: "*"
+        };
+    }
+    rpc GetPublicKey(GetPublicKeyRequest) returns (GetPublicKeyResponse) {
+        option (google.api.http) = {
+            get: "/v1/auth/public-key"
+        };
+    }
 }

@@ -1,0 +1,11 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: rotate-auth-keys-rolebinding
+subjects:
+  - kind: ServiceAccount
+    name: rotate-auth-keys-sa
+roleRef:
+  kind: Role
+  name: rotate-auth-keys-role
+  apiGroup: rbac.authorization.k8s.io

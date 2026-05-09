@@ -5,17 +5,11 @@ option go_package = "team_dynamics/api/proto/auth_sidecar";
 
 import "user_common/user_common.proto";
 
-message GetTokenRequest {}
-
-message GetTokenResponse {
-  optional string token = 1;
-}
-
 message AnyUser {}
 
 message AuthorityMapEntry {
   oneof key {
-    string service_account = 1;
+    user_common.ExternalKey external_id = 1;
     uint64 user_id = 2;
     AnyUser any_user = 3;
   }
@@ -34,6 +28,5 @@ message AuthorizeResponse {
 }
 
 service AuthSidecar {
-  rpc GetToken(GetTokenRequest) returns (GetTokenResponse);
   rpc Authorize(AuthorizeRequest) returns (AuthorizeResponse);
 }
