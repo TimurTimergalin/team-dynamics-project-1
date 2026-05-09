@@ -11,24 +11,24 @@ data:
     );
     
     CREATE TABLE IF NOT EXISTS requests (
-        from BIGINT,
-        to BIGINT,
-        source BIGINT,
-        PRIMARY KEY (from, to),
-        FOREIGN KEY (from) REFERENCES users(id),
-        FOREIGN KEY (to) REFERENCES users(id)
+        "from" BIGINT,
+        "to" BIGINT,
+        "source" BIGINT,
+        PRIMARY KEY ("from", "to"),
+        FOREIGN KEY ("from") REFERENCES users(id),
+        FOREIGN KEY ("to") REFERENCES users(id)
     );
 
-    CREATE INDEX IF NOT EXIST idx_requests_primary_reversed ON requests (to, from)
+    CREATE INDEX IF NOT EXISTS idx_requests_primary_reversed ON requests ("to", "from");
     
     CREATE TABLE IF NOT EXISTS friends (
-        player1_id BIGINT,
-        player2_id BIGINT,
-        source BIGINT,
+        "player1_id" BIGINT,
+        "player2_id" BIGINT,
+        "source" BIGINT,
         PRIMARY KEY (player1_id, player2_id),
         FOREIGN KEY (player1_id) REFERENCES users(id),
         FOREIGN KEY (player2_id) REFERENCES users(id)
     );
     
-    CREATE INDEX IF NOT EXIST idx_friends_primary_reversed ON friends (player2_id, player1_id)
+    CREATE INDEX IF NOT EXISTS idx_friends_primary_reversed ON friends (player2_id, player1_id);
     

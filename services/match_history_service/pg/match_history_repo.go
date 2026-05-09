@@ -68,7 +68,8 @@ ORDER BY round_number ASC
 	for roundRows.Next() {
 		var r models.Round
 		var matchId string
-		err := roundRows.Scan(&matchId, &r.IsPlayer1Killer, &r.Length)
+		var timeMillis int64
+		err := roundRows.Scan(&matchId, &r.IsPlayer1Killer, &timeMillis)
 		if err != nil {
 			var pgErr *pgconn.PgError
 			if errors.As(err, &pgErr) {
@@ -84,6 +85,7 @@ ORDER BY round_number ASC
 			logger.Error("Error occurred wile round match", "error", err)
 			return nil, err, pglib.NoRetry
 		}
+		r.Length = time.Duration(timeMillis) * time.Millisecond
 		roundsMap[matchId] = append(roundsMap[matchId], &r)
 	}
 	results := make([]*models.AggregatedMatch, 0, len(matches))

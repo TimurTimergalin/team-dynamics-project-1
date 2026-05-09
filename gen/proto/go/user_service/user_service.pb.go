@@ -1015,7 +1015,7 @@ const file_user_service_user_service_proto_rawDesc = "" +
 	"\x19REMOVE_FRIEND_RESULT_NOOP\x10\x01\x12*\n" +
 	"&REMOVE_FRIEND_RESULT_REQUEST_CANCELLED\x10\x02\x12)\n" +
 	"%REMOVE_FRIEND_RESULT_REQUEST_DECLINED\x10\x03\x12'\n" +
-	"#REMOVE_FRIEND_RESULT_FRIEND_REMOVED\x10\x042\x80\x06\n" +
+	"#REMOVE_FRIEND_RESULT_FRIEND_REMOVED\x10\x042\xb7\x06\n" +
 	"\vUserService\x12d\n" +
 	"\vGetSelfData\x12 .user_service.GetSelfDataRequest\x1a!.user_service.GetSelfDataResponse\"\x10\x82\xd3\xe4\x93\x02\n" +
 	"\x12\b/v1/self\x12j\n" +
@@ -1023,9 +1023,9 @@ const file_user_service_user_service_proto_rawDesc = "" +
 	"\n" +
 	"GetFriends\x12\x1f.user_service.GetFriendsRequest\x1a .user_service.GetFriendsResponse\"\x13\x82\xd3\xe4\x93\x02\r\x12\v/v1/friends\x12\x88\x01\n" +
 	"\x13GetIncomingRequests\x12(.user_service.GetIncomingRequestsRequest\x1a).user_service.GetIncomingRequestsResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/v1/friends/incoming\x12\x88\x01\n" +
-	"\x13GetOutgoingRequests\x12(.user_service.GetOutgoingRequestsRequest\x1a).user_service.GetOutgoingRequestsResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/v1/friends/outgoing\x12L\n" +
-	"\tAddFriend\x12\x1e.user_service.AddFriendRequest\x1a\x1f.user_service.AddFriendResponse\x12U\n" +
-	"\fRemoveFriend\x12!.user_service.RemoveFriendRequest\x1a\".user_service.RemoveFriendResponseB&Z$team_dynamics/api/proto/user_serviceb\x06proto3"
+	"\x13GetOutgoingRequests\x12(.user_service.GetOutgoingRequestsRequest\x1a).user_service.GetOutgoingRequestsResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/v1/friends/outgoing\x12d\n" +
+	"\tAddFriend\x12\x1e.user_service.AddFriendRequest\x1a\x1f.user_service.AddFriendResponse\"\x16\x82\xd3\xe4\x93\x02\x10:\x01*\"\v/v1/friends\x12t\n" +
+	"\fRemoveFriend\x12!.user_service.RemoveFriendRequest\x1a\".user_service.RemoveFriendResponse\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/v1/friends/removeB&Z$team_dynamics/api/proto/user_serviceb\x06proto3"
 
 var (
 	file_user_service_user_service_proto_rawDescOnce sync.Once

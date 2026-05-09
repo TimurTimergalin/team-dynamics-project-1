@@ -58,7 +58,7 @@ func makeFleetLabelSelector(commonFleetLabelKey, commonFleetLabelValue string, f
 	res := map[string]string{
 		commonFleetLabelKey: commonFleetLabelValue,
 	}
-	if fleet != nil {
+	if fleet != nil && *fleet != "" {
 		res["location"] = *fleet
 	}
 	return res

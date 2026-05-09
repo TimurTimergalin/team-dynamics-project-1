@@ -97,6 +97,12 @@ namespace
 		else if (TypeStr == TEXT("ChallengeCancelled"))
 		{
 			Result.Type = EventType::ChallengeCancelled;
+			if (HasPayload)
+			{
+				double Id;
+				if ((*PayloadObject)->TryGetNumberField(TEXT("userId"), Id))
+					Result.UserId = static_cast<int64>(Id);
+			}
 		}
 		else if (TypeStr == TEXT("Error"))
 		{

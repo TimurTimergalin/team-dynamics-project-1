@@ -177,7 +177,7 @@ TFuture<bool> UserServiceClient::AddFriend(int64 UserId, int64 OtherUserId) cons
 
 TFuture<bool> UserServiceClient::RemoveFriend(int64 UserId, int64 OtherUserId) const
 {
-	return MakeHttpRequest(MutationRequest(TEXT("DELETE"), TEXT("/v1/friends"), UserId, OtherUserId)).Next(ConvertMutationResponse);
+	return MakeHttpRequest(MutationRequest(TEXT("POST"), TEXT("/v1/friends/remove"), UserId, OtherUserId)).Next(ConvertMutationResponse);
 }
 
 TOptional<UserServiceClient> CreateUserServiceClient()

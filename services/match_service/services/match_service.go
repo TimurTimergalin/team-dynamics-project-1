@@ -61,9 +61,6 @@ func validateInputMatch(match *pb.InputMatch, idx int) error {
 	if match == nil {
 		return fmt.Errorf("input match %d is nil", idx)
 	}
-	if match.Fleet == nil || *match.Fleet == "" {
-		return fmt.Errorf("input match %d: no fleet", idx)
-	}
 	if err := validatePlayerData(match.Player1); err != nil {
 		return fmt.Errorf("input match %d player1: %w", idx, err)
 	}

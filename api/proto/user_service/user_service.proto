@@ -136,7 +136,7 @@ service UserService {
 
     rpc RemoveFriend(RemoveFriendRequest) returns (RemoveFriendResponse) {
         option (google.api.http) = {
-            delete: "/v1/friends"
+            post: "/v1/friends/remove"
             body: "*"
         };
     }
