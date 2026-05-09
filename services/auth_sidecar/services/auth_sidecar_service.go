@@ -1,205 +1,97 @@
-package auth_sidecar
+package services
 
 import (
 	"context"
-	"crypto"
-	"fmt"
-	"os"
-	"strings"
+	"errors"
+	authPb "team_dynamics/api/proto/auth_service"
+	pbCommon "team_dynamics/api/proto/user_common"
+	pb "team_dynamics/api/proto/auth_sidecar"
+	"team_dynamics/auth_sidecar/downstream"
+	"team_dynamics/auth_sidecar/models"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	pb "path/to/your/generated/proto" // replace with actual import
 )
 
-// AuthSidecarService implements the gRPC service.
-type AuthSidecarService struct {
-	JwksFetcher      JwksFetcher      // for Kubernetes service account tokens
-	PublicKeyFetcher PublicKeyFetcher // for user tokens (staggered keys)
+type AuthSidecarService interface {
+	Authorize(ctx context.Context, req *pb.AuthorizeRequest) (*pb.AuthorizeResponse, error)
 }
 
-// JwksFetcher abstracts fetching a public key by key ID (kid) from the cluster's JWKS.
-type JwksFetcher interface {
-	GetKeyFromJwks(kid string) crypto.PublicKey
+type authSidecarServiceImpl struct {
+	jwtService    JwtService
+	roleService   RoleService
+	authClient    downstream.AuthServiceClient
+	cachedVersion string
 }
 
-// PublicKeyFetcher abstracts fetching all currently valid user‑auth public keys.
-type PublicKeyFetcher interface {
-	GetPublicKeys() []crypto.PublicKey
+func NewAuthSidecarService(jwtService JwtService, roleService RoleService, authClient downstream.AuthServiceClient) AuthSidecarService {
+	return &authSidecarServiceImpl{
+		jwtService:  jwtService,
+		roleService: roleService,
+		authClient:  authClient,
+	}
 }
 
-// tokenIdentity holds the extracted identity from a validated token
-type tokenIdentity struct {
-	// For service account tokens
-	serviceAccount *string // format: "namespace:name"
-
-	// For user tokens
-	userID *uint64 // extracted from subject "user:<id>"
-}
-
-// GetToken returns the pod's own Kubernetes service account token.
-func (s *AuthSidecarService) GetToken(ctx context.Context, req *pb.GetTokenRequest) (*pb.GetTokenResponse, error) {
-	tokenBytes, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
+func (s *authSidecarServiceImpl) fetchAndUpdateKeys(ctx context.Context) (bool, error) {
+	resp, err := s.authClient.GetPublicKey(ctx, &authPb.GetPublicKeyRequest{})
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to read token: %v", err)
+		return false, err
 	}
-	token := string(tokenBytes)
-	return &pb.GetTokenResponse{Token: &token}, nil
+	if resp.Version == nil || *resp.Version == s.cachedVersion {
+		return false, nil
+	}
+	if err := s.jwtService.UpdateKeys(resp); err != nil {
+		return false, err
+	}
+	s.cachedVersion = *resp.Version
+	return true, nil
 }
 
-// extractIdentity validates the token and returns the extracted identity
-func (s *AuthSidecarService) extractIdentity(tokenStr string) (*tokenIdentity, error) {
-	// Parse token without validation to inspect issuer and header
-	parser := jwt.NewParser(jwt.WithoutClaimsValidation())
-	unverified, _, err := parser.ParseUnverified(tokenStr, jwt.MapClaims{})
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "failed to parse token: %v", err)
-	}
-
-	claims, ok := unverified.Claims.(jwt.MapClaims)
-	if !ok {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid claims format")
-	}
-
-	issuer, ok := claims["iss"].(string)
-	if !ok {
-		return nil, status.Errorf(codes.InvalidArgument, "missing 'iss' claim")
-	}
-
-	var validatedClaims jwt.MapClaims
-	identity := &tokenIdentity{}
-
-	// Validate the token with the appropriate key source
-	switch issuer {
-	case "kubernetes/serviceaccount": // Kubernetes service account token
-		kid, ok := unverified.Header["kid"].(string)
-		if !ok {
-			return nil, status.Errorf(codes.InvalidArgument, "missing 'kid' in token header")
-		}
-		key := s.JwksFetcher.GetKeyFromJwks(kid)
-		if key == nil {
-			return nil, status.Errorf(codes.Unauthenticated, "key not found for kid: %s", kid)
-		}
-
-		validatedToken, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
-			return key, nil
-		})
-		if err != nil {
-			return nil, status.Errorf(codes.Unauthenticated, "invalid service account token: %v", err)
-		}
-
-		validatedClaims, ok = validatedToken.Claims.(jwt.MapClaims)
-		if !ok {
-			return nil, status.Errorf(codes.Internal, "invalid claims after validation")
-		}
-
-		// Extract service account name from subject
-		sub, ok := validatedClaims["sub"].(string)
-		if !ok {
-			return nil, status.Errorf(codes.InvalidArgument, "missing 'sub' in token")
-		}
-
-		// sub format: system:serviceaccount:<namespace>:<name>
-		parts := strings.Split(sub, ":")
-		if len(parts) != 4 {
-			return nil, status.Errorf(codes.InvalidArgument, "malformed 'sub' claim: %s", sub)
-		}
-		namespace := parts[2]
-		name := parts[3]
-		saWithNamespace := fmt.Sprintf("%s:%s", namespace, name)
-		identity.serviceAccount = &saWithNamespace
-
-	case "TagDuels/UserService": // User token issued by your auth service
-		keys := s.PublicKeyFetcher.GetPublicKeys()
-		var validatedToken *jwt.Token
-		for _, key := range keys {
-			token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
-				return key, nil
-			})
-			if err == nil {
-				validatedToken = token
-				break
-			}
-		}
-		if validatedToken == nil {
-			return nil, status.Errorf(codes.Unauthenticated, "invalid user token")
-		}
-
-		validatedClaims, ok = validatedToken.Claims.(jwt.MapClaims)
-		if !ok {
-			return nil, status.Errorf(codes.Internal, "invalid claims after validation")
-		}
-
-		// Extract user ID from subject "user:<id>"
-		sub, ok := validatedClaims["sub"].(string)
-		if !ok {
-			return nil, status.Errorf(codes.InvalidArgument, "missing 'sub' in token")
-		}
-
-		if !strings.HasPrefix(sub, "user:") {
-			return nil, status.Errorf(codes.InvalidArgument, "malformed subject, expected 'user:<id>', got: %s", sub)
-		}
-
-		idStr := strings.TrimPrefix(sub, "user:")
-		var userID uint64
-		if _, err := fmt.Sscanf(idStr, "%d", &userID); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "invalid user ID format: %s", idStr)
-		}
-		identity.userID = &userID
-
-	default:
-		return nil, status.Errorf(codes.InvalidArgument, "unknown issuer: %s", issuer)
-	}
-
-	return identity, nil
-}
-
-// Authorize validates a JWT and returns the role associated with its identity,
-// if present in the authority map.
-func (s *AuthSidecarService) Authorize(ctx context.Context, req *pb.AuthorizeRequest) (*pb.AuthorizeResponse, error) {
-	// If no token provided, return empty response (no role).
-	if req.Token == nil || *req.Token == "" {
-		return &pb.AuthorizeResponse{}, nil
-	}
-
-	// Extract identity from token (validation happens here)
-	identity, err := s.extractIdentity(*req.Token)
-	if err != nil {
-		return nil, err // Error already has appropriate gRPC status
-	}
-
-	// Match against authority map
-	var matchedRole *string
-	for _, entry := range req.AuthorityMap {
-		switch key := entry.Key.(type) {
-		case *pb.AuthorityMapEntry_ServiceAccount:
-			// Service account match
-			if identity.serviceAccount != nil && *identity.serviceAccount == key.ServiceAccount {
-				matchedRole = entry.Role
-				break
-			}
-
-		case *pb.AuthorityMapEntry_UserId:
-			// User ID match
-			if identity.userID != nil && *identity.userID == key.UserId {
-				matchedRole = entry.Role
-				break
-			}
-
+func protoToAuthorityMap(entries []*pb.AuthorityMapEntry) models.AuthorityMap {
+	am := make(models.AuthorityMap)
+	for _, entry := range entries {
+		var key models.UserId
+		switch k := entry.Key.(type) {
 		case *pb.AuthorityMapEntry_AnyUser:
-			// Any user match - grants role to any authenticated user
-			if identity.userID != nil {
-				matchedRole = entry.Role
-				break
+			key = models.UserId{}
+		case *pb.AuthorityMapEntry_ExternalId:
+			if steamKey, ok := k.ExternalId.Key.(*pbCommon.ExternalKey_SteamId); ok {
+				steamId := steamKey.SteamId
+				key = models.UserId{SteamId: &steamId}
 			}
+		case *pb.AuthorityMapEntry_UserId:
+			playerId := int64(k.UserId)
+			key = models.UserId{PlayerId: &playerId}
+		}
+		am[key] = append(am[key], entry.Roles...)
+	}
+	return am
+}
+
+func (s *authSidecarServiceImpl) Authorize(ctx context.Context, req *pb.AuthorizeRequest) (*pb.AuthorizeResponse, error) {
+	if req.Token == nil {
+		return nil, status.Error(codes.Unauthenticated, "token is required")
+	}
+
+	userId, err := s.jwtService.Validate(*req.Token)
+	if err != nil {
+		if !errors.Is(err, ErrKeysOutdated) {
+			return nil, status.Errorf(codes.Unauthenticated, "invalid token: %v", err)
+		}
+		updated, fetchErr := s.fetchAndUpdateKeys(ctx)
+		if fetchErr != nil {
+			return nil, status.Errorf(codes.Internal, "failed to fetch keys: %v", fetchErr)
+		}
+		if !updated {
+			return nil, status.Error(codes.Unauthenticated, "invalid token")
+		}
+		userId, err = s.jwtService.Validate(*req.Token)
+		if err != nil {
+			return nil, status.Errorf(codes.Unauthenticated, "invalid token: %v", err)
 		}
 	}
 
-	// Return the role (if any) in the response
-	resp := &pb.AuthorizeResponse{}
-	if matchedRole != nil {
-		resp.Role = matchedRole
-	}
-	return resp, nil
+	return &pb.AuthorizeResponse{
+		Roles: s.roleService.ResolveRoles(protoToAuthorityMap(req.AuthorityMap), *userId),
+	}, nil
 }

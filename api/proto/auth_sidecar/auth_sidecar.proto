@@ -23,8 +23,6 @@ message AuthorizeRequest {
 
 message AuthorizeResponse {
   repeated string roles = 1;
-  optional uint64 user_id = 2;
-  optional user_common.ExternalKey external_key = 3;
 }
 
 service AuthSidecar {

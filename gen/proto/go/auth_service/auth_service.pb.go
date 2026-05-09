@@ -7,6 +7,7 @@
 package auth_service
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -259,10 +260,12 @@ func (*GetPublicKeyRequest) Descriptor() ([]byte, []int) {
 }
 
 type GetPublicKeyResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PublicKey     *string                `protobuf:"bytes,1,opt,name=public_key,json=publicKey,proto3,oneof" json:"public_key,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	PrimaryPublicKey   *string                `protobuf:"bytes,1,opt,name=primary_public_key,json=primaryPublicKey,proto3,oneof" json:"primary_public_key,omitempty"`
+	SecondaryPublicKey *string                `protobuf:"bytes,2,opt,name=secondary_public_key,json=secondaryPublicKey,proto3,oneof" json:"secondary_public_key,omitempty"`
+	Version            *string                `protobuf:"bytes,3,opt,name=version,proto3,oneof" json:"version,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *GetPublicKeyResponse) Reset() {
@@ -295,9 +298,23 @@ func (*GetPublicKeyResponse) Descriptor() ([]byte, []int) {
 	return file_auth_service_auth_service_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *GetPublicKeyResponse) GetPublicKey() string {
-	if x != nil && x.PublicKey != nil {
-		return *x.PublicKey
+func (x *GetPublicKeyResponse) GetPrimaryPublicKey() string {
+	if x != nil && x.PrimaryPublicKey != nil {
+		return *x.PrimaryPublicKey
+	}
+	return ""
+}
+
+func (x *GetPublicKeyResponse) GetSecondaryPublicKey() string {
+	if x != nil && x.SecondaryPublicKey != nil {
+		return *x.SecondaryPublicKey
+	}
+	return ""
+}
+
+func (x *GetPublicKeyResponse) GetVersion() string {
+	if x != nil && x.Version != nil {
+		return *x.Version
 	}
 	return ""
 }
@@ -306,7 +323,7 @@ var File_auth_service_auth_service_proto protoreflect.FileDescriptor
 
 const file_auth_service_auth_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1fauth_service/auth_service.proto\x12\fauth_service\x1a\x1duser_common/user_common.proto\"\x9b\x01\n" +
+	"\x1fauth_service/auth_service.proto\x12\fauth_service\x1a\x1cgoogle/api/annotations.proto\x1a\x1duser_common/user_common.proto\"\x9b\x01\n" +
 	"\x13AuthExternalRequest\x12@\n" +
 	"\fexternal_key\x18\x01 \x01(\v2\x18.user_common.ExternalKeyH\x00R\vexternalKey\x88\x01\x01\x12\"\n" +
 	"\n" +
@@ -329,15 +346,19 @@ const file_auth_service_auth_service_proto_rawDesc = "" +
 	"\a_accessB\n" +
 	"\n" +
 	"\b_refresh\"\x15\n" +
-	"\x13GetPublicKeyRequest\"I\n" +
-	"\x14GetPublicKeyResponse\x12\"\n" +
+	"\x13GetPublicKeyRequest\"\xdb\x01\n" +
+	"\x14GetPublicKeyResponse\x121\n" +
+	"\x12primary_public_key\x18\x01 \x01(\tH\x00R\x10primaryPublicKey\x88\x01\x01\x125\n" +
+	"\x14secondary_public_key\x18\x02 \x01(\tH\x01R\x12secondaryPublicKey\x88\x01\x01\x12\x1d\n" +
+	"\aversion\x18\x03 \x01(\tH\x02R\aversion\x88\x01\x01B\x15\n" +
+	"\x13_primary_public_keyB\x17\n" +
+	"\x15_secondary_public_keyB\n" +
 	"\n" +
-	"public_key\x18\x01 \x01(\tH\x00R\tpublicKey\x88\x01\x01B\r\n" +
-	"\v_public_key2\x83\x02\n" +
-	"\vAuthService\x12U\n" +
-	"\fAuthExternal\x12!.auth_service.AuthExternalRequest\x1a\".auth_service.AuthExternalResponse\x12F\n" +
-	"\aRefresh\x12\x1c.auth_service.RefreshRequest\x1a\x1d.auth_service.RefreshResponse\x12U\n" +
-	"\fGetPublicKey\x12!.auth_service.GetPublicKeyRequest\x1a\".auth_service.GetPublicKeyResponseB&Z$team_dynamics/api/proto/auth_serviceb\x06proto3"
+	"\b_version2\xdb\x02\n" +
+	"\vAuthService\x12s\n" +
+	"\fAuthExternal\x12!.auth_service.AuthExternalRequest\x1a\".auth_service.AuthExternalResponse\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/auth/external\x12c\n" +
+	"\aRefresh\x12\x1c.auth_service.RefreshRequest\x1a\x1d.auth_service.RefreshResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/v1/auth/refresh\x12r\n" +
+	"\fGetPublicKey\x12!.auth_service.GetPublicKeyRequest\x1a\".auth_service.GetPublicKeyResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/auth/public-keyB&Z$team_dynamics/api/proto/auth_serviceb\x06proto3"
 
 var (
 	file_auth_service_auth_service_proto_rawDescOnce sync.Once

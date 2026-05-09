@@ -34,11 +34,6 @@ class AuthSidecarStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.GetToken = channel.unary_unary(
-                '/auth_sidecar.AuthSidecar/GetToken',
-                request_serializer=auth__sidecar_dot_auth__sidecar__pb2.GetTokenRequest.SerializeToString,
-                response_deserializer=auth__sidecar_dot_auth__sidecar__pb2.GetTokenResponse.FromString,
-                _registered_method=True)
         self.Authorize = channel.unary_unary(
                 '/auth_sidecar.AuthSidecar/Authorize',
                 request_serializer=auth__sidecar_dot_auth__sidecar__pb2.AuthorizeRequest.SerializeToString,
@@ -49,12 +44,6 @@ class AuthSidecarStub(object):
 class AuthSidecarServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def GetToken(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
     def Authorize(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -64,11 +53,6 @@ class AuthSidecarServicer(object):
 
 def add_AuthSidecarServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'GetToken': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetToken,
-                    request_deserializer=auth__sidecar_dot_auth__sidecar__pb2.GetTokenRequest.FromString,
-                    response_serializer=auth__sidecar_dot_auth__sidecar__pb2.GetTokenResponse.SerializeToString,
-            ),
             'Authorize': grpc.unary_unary_rpc_method_handler(
                     servicer.Authorize,
                     request_deserializer=auth__sidecar_dot_auth__sidecar__pb2.AuthorizeRequest.FromString,
@@ -84,33 +68,6 @@ def add_AuthSidecarServicer_to_server(servicer, server):
  # This class is part of an EXPERIMENTAL API.
 class AuthSidecar(object):
     """Missing associated documentation comment in .proto file."""
-
-    @staticmethod
-    def GetToken(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/auth_sidecar.AuthSidecar/GetToken',
-            auth__sidecar_dot_auth__sidecar__pb2.GetTokenRequest.SerializeToString,
-            auth__sidecar_dot_auth__sidecar__pb2.GetTokenResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
 
     @staticmethod
     def Authorize(request,

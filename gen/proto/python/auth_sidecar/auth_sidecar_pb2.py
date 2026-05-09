@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from user_common import user_common_pb2 as user__common_dot_user__common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1f\x61uth_sidecar/auth_sidecar.proto\x12\x0c\x61uth_sidecar\x1a\x1duser_common/user_common.proto\"\x11\n\x0fGetTokenRequest\"0\n\x10GetTokenResponse\x12\x12\n\x05token\x18\x01 \x01(\tH\x00\x88\x01\x01\x42\x08\n\x06_token\"\t\n\x07\x41nyUser\"\x82\x01\n\x11\x41uthorityMapEntry\x12\x19\n\x0fservice_account\x18\x01 \x01(\tH\x00\x12\x11\n\x07user_id\x18\x02 \x01(\x04H\x00\x12)\n\x08\x61ny_user\x18\x03 \x01(\x0b\x32\x15.auth_sidecar.AnyUserH\x00\x12\r\n\x05roles\x18\n \x03(\tB\x05\n\x03key\"h\n\x10\x41uthorizeRequest\x12\x36\n\rauthority_map\x18\x01 \x03(\x0b\x32\x1f.auth_sidecar.AuthorityMapEntry\x12\x12\n\x05token\x18\x02 \x01(\tH\x00\x88\x01\x01\x42\x08\n\x06_token\"\x8a\x01\n\x11\x41uthorizeResponse\x12\r\n\x05roles\x18\x01 \x03(\t\x12\x14\n\x07user_id\x18\x02 \x01(\x04H\x00\x88\x01\x01\x12\x33\n\x0c\x65xternal_key\x18\x03 \x01(\x0b\x32\x18.user_common.ExternalKeyH\x01\x88\x01\x01\x42\n\n\x08_user_idB\x0f\n\r_external_key2\xa6\x01\n\x0b\x41uthSidecar\x12I\n\x08GetToken\x12\x1d.auth_sidecar.GetTokenRequest\x1a\x1e.auth_sidecar.GetTokenResponse\x12L\n\tAuthorize\x12\x1e.auth_sidecar.AuthorizeRequest\x1a\x1f.auth_sidecar.AuthorizeResponseB&Z$team_dynamics/api/proto/auth_sidecarb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1f\x61uth_sidecar/auth_sidecar.proto\x12\x0c\x61uth_sidecar\x1a\x1duser_common/user_common.proto\"\t\n\x07\x41nyUser\"\x98\x01\n\x11\x41uthorityMapEntry\x12/\n\x0b\x65xternal_id\x18\x01 \x01(\x0b\x32\x18.user_common.ExternalKeyH\x00\x12\x11\n\x07user_id\x18\x02 \x01(\x04H\x00\x12)\n\x08\x61ny_user\x18\x03 \x01(\x0b\x32\x15.auth_sidecar.AnyUserH\x00\x12\r\n\x05roles\x18\n \x03(\tB\x05\n\x03key\"h\n\x10\x41uthorizeRequest\x12\x36\n\rauthority_map\x18\x01 \x03(\x0b\x32\x1f.auth_sidecar.AuthorityMapEntry\x12\x12\n\x05token\x18\x02 \x01(\tH\x00\x88\x01\x01\x42\x08\n\x06_token\"\"\n\x11\x41uthorizeResponse\x12\r\n\x05roles\x18\x01 \x03(\t2[\n\x0b\x41uthSidecar\x12L\n\tAuthorize\x12\x1e.auth_sidecar.AuthorizeRequest\x1a\x1f.auth_sidecar.AuthorizeResponseB&Z$team_dynamics/api/proto/auth_sidecarb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,18 +33,14 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'auth_sidecar.auth_sidecar_p
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'Z$team_dynamics/api/proto/auth_sidecar'
-  _globals['_GETTOKENREQUEST']._serialized_start=80
-  _globals['_GETTOKENREQUEST']._serialized_end=97
-  _globals['_GETTOKENRESPONSE']._serialized_start=99
-  _globals['_GETTOKENRESPONSE']._serialized_end=147
-  _globals['_ANYUSER']._serialized_start=149
-  _globals['_ANYUSER']._serialized_end=158
-  _globals['_AUTHORITYMAPENTRY']._serialized_start=161
-  _globals['_AUTHORITYMAPENTRY']._serialized_end=291
-  _globals['_AUTHORIZEREQUEST']._serialized_start=293
-  _globals['_AUTHORIZEREQUEST']._serialized_end=397
-  _globals['_AUTHORIZERESPONSE']._serialized_start=400
-  _globals['_AUTHORIZERESPONSE']._serialized_end=538
-  _globals['_AUTHSIDECAR']._serialized_start=541
-  _globals['_AUTHSIDECAR']._serialized_end=707
+  _globals['_ANYUSER']._serialized_start=80
+  _globals['_ANYUSER']._serialized_end=89
+  _globals['_AUTHORITYMAPENTRY']._serialized_start=92
+  _globals['_AUTHORITYMAPENTRY']._serialized_end=244
+  _globals['_AUTHORIZEREQUEST']._serialized_start=246
+  _globals['_AUTHORIZEREQUEST']._serialized_end=350
+  _globals['_AUTHORIZERESPONSE']._serialized_start=352
+  _globals['_AUTHORIZERESPONSE']._serialized_end=386
+  _globals['_AUTHSIDECAR']._serialized_start=388
+  _globals['_AUTHSIDECAR']._serialized_end=479
 # @@protoc_insertion_point(module_scope)

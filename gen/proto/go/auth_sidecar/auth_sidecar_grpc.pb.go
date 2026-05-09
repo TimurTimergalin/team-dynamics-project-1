@@ -19,7 +19,6 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthSidecar_GetToken_FullMethodName  = "/auth_sidecar.AuthSidecar/GetToken"
 	AuthSidecar_Authorize_FullMethodName = "/auth_sidecar.AuthSidecar/Authorize"
 )
 
@@ -27,7 +26,6 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthSidecarClient interface {
-	GetToken(ctx context.Context, in *GetTokenRequest, opts ...grpc.CallOption) (*GetTokenResponse, error)
 	Authorize(ctx context.Context, in *AuthorizeRequest, opts ...grpc.CallOption) (*AuthorizeResponse, error)
 }
 
@@ -37,16 +35,6 @@ type authSidecarClient struct {
 
 func NewAuthSidecarClient(cc grpc.ClientConnInterface) AuthSidecarClient {
 	return &authSidecarClient{cc}
-}
-
-func (c *authSidecarClient) GetToken(ctx context.Context, in *GetTokenRequest, opts ...grpc.CallOption) (*GetTokenResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetTokenResponse)
-	err := c.cc.Invoke(ctx, AuthSidecar_GetToken_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *authSidecarClient) Authorize(ctx context.Context, in *AuthorizeRequest, opts ...grpc.CallOption) (*AuthorizeResponse, error) {
@@ -63,7 +51,6 @@ func (c *authSidecarClient) Authorize(ctx context.Context, in *AuthorizeRequest,
 // All implementations must embed UnimplementedAuthSidecarServer
 // for forward compatibility.
 type AuthSidecarServer interface {
-	GetToken(context.Context, *GetTokenRequest) (*GetTokenResponse, error)
 	Authorize(context.Context, *AuthorizeRequest) (*AuthorizeResponse, error)
 	mustEmbedUnimplementedAuthSidecarServer()
 }
@@ -75,9 +62,6 @@ type AuthSidecarServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAuthSidecarServer struct{}
 
-func (UnimplementedAuthSidecarServer) GetToken(context.Context, *GetTokenRequest) (*GetTokenResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetToken not implemented")
-}
 func (UnimplementedAuthSidecarServer) Authorize(context.Context, *AuthorizeRequest) (*AuthorizeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Authorize not implemented")
 }
@@ -100,24 +84,6 @@ func RegisterAuthSidecarServer(s grpc.ServiceRegistrar, srv AuthSidecarServer) {
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&AuthSidecar_ServiceDesc, srv)
-}
-
-func _AuthSidecar_GetToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetTokenRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AuthSidecarServer).GetToken(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AuthSidecar_GetToken_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthSidecarServer).GetToken(ctx, req.(*GetTokenRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _AuthSidecar_Authorize_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -145,10 +111,6 @@ var AuthSidecar_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "auth_sidecar.AuthSidecar",
 	HandlerType: (*AuthSidecarServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "GetToken",
-			Handler:    _AuthSidecar_GetToken_Handler,
-		},
 		{
 			MethodName: "Authorize",
 			Handler:    _AuthSidecar_Authorize_Handler,

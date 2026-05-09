@@ -22,10 +22,11 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
+from google.api import annotations_pb2 as google_dot_api_dot_annotations__pb2
 from user_common import user_common_pb2 as user__common_dot_user__common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1f\x61uth_service/auth_service.proto\x12\x0c\x61uth_service\x1a\x1duser_common/user_common.proto\"\x83\x01\n\x13\x41uthExternalRequest\x12\x33\n\x0c\x65xternal_key\x18\x01 \x01(\x0b\x32\x18.user_common.ExternalKeyH\x00\x88\x01\x01\x12\x17\n\nauth_token\x18\x02 \x01(\tH\x01\x88\x01\x01\x42\x0f\n\r_external_keyB\r\n\x0b_auth_token\"X\n\x14\x41uthExternalResponse\x12\x13\n\x06\x61\x63\x63\x65ss\x18\x01 \x01(\tH\x00\x88\x01\x01\x12\x14\n\x07refresh\x18\x02 \x01(\tH\x01\x88\x01\x01\x42\t\n\x07_accessB\n\n\x08_refresh\"2\n\x0eRefreshRequest\x12\x14\n\x07refresh\x18\x01 \x01(\tH\x00\x88\x01\x01\x42\n\n\x08_refresh\"S\n\x0fRefreshResponse\x12\x13\n\x06\x61\x63\x63\x65ss\x18\x01 \x01(\tH\x00\x88\x01\x01\x12\x14\n\x07refresh\x18\x02 \x01(\tH\x01\x88\x01\x01\x42\t\n\x07_accessB\n\n\x08_refresh\"\x15\n\x13GetPublicKeyRequest\">\n\x14GetPublicKeyResponse\x12\x17\n\npublic_key\x18\x01 \x01(\tH\x00\x88\x01\x01\x42\r\n\x0b_public_key2\x83\x02\n\x0b\x41uthService\x12U\n\x0c\x41uthExternal\x12!.auth_service.AuthExternalRequest\x1a\".auth_service.AuthExternalResponse\x12\x46\n\x07Refresh\x12\x1c.auth_service.RefreshRequest\x1a\x1d.auth_service.RefreshResponse\x12U\n\x0cGetPublicKey\x12!.auth_service.GetPublicKeyRequest\x1a\".auth_service.GetPublicKeyResponseB&Z$team_dynamics/api/proto/auth_serviceb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1f\x61uth_service/auth_service.proto\x12\x0c\x61uth_service\x1a\x1cgoogle/api/annotations.proto\x1a\x1duser_common/user_common.proto\"\x83\x01\n\x13\x41uthExternalRequest\x12\x33\n\x0c\x65xternal_key\x18\x01 \x01(\x0b\x32\x18.user_common.ExternalKeyH\x00\x88\x01\x01\x12\x17\n\nauth_token\x18\x02 \x01(\tH\x01\x88\x01\x01\x42\x0f\n\r_external_keyB\r\n\x0b_auth_token\"X\n\x14\x41uthExternalResponse\x12\x13\n\x06\x61\x63\x63\x65ss\x18\x01 \x01(\tH\x00\x88\x01\x01\x12\x14\n\x07refresh\x18\x02 \x01(\tH\x01\x88\x01\x01\x42\t\n\x07_accessB\n\n\x08_refresh\"2\n\x0eRefreshRequest\x12\x14\n\x07refresh\x18\x01 \x01(\tH\x00\x88\x01\x01\x42\n\n\x08_refresh\"S\n\x0fRefreshResponse\x12\x13\n\x06\x61\x63\x63\x65ss\x18\x01 \x01(\tH\x00\x88\x01\x01\x12\x14\n\x07refresh\x18\x02 \x01(\tH\x01\x88\x01\x01\x42\t\n\x07_accessB\n\n\x08_refresh\"\x15\n\x13GetPublicKeyRequest\"\xac\x01\n\x14GetPublicKeyResponse\x12\x1f\n\x12primary_public_key\x18\x01 \x01(\tH\x00\x88\x01\x01\x12!\n\x14secondary_public_key\x18\x02 \x01(\tH\x01\x88\x01\x01\x12\x14\n\x07version\x18\x03 \x01(\tH\x02\x88\x01\x01\x42\x15\n\x13_primary_public_keyB\x17\n\x15_secondary_public_keyB\n\n\x08_version2\xdb\x02\n\x0b\x41uthService\x12s\n\x0c\x41uthExternal\x12!.auth_service.AuthExternalRequest\x1a\".auth_service.AuthExternalResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\"\x11/v1/auth/external:\x01*\x12\x63\n\x07Refresh\x12\x1c.auth_service.RefreshRequest\x1a\x1d.auth_service.RefreshResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\"\x10/v1/auth/refresh:\x01*\x12r\n\x0cGetPublicKey\x12!.auth_service.GetPublicKeyRequest\x1a\".auth_service.GetPublicKeyResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/auth/public-keyB&Z$team_dynamics/api/proto/auth_serviceb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,18 +34,24 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'auth_service.auth_service_p
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'Z$team_dynamics/api/proto/auth_service'
-  _globals['_AUTHEXTERNALREQUEST']._serialized_start=81
-  _globals['_AUTHEXTERNALREQUEST']._serialized_end=212
-  _globals['_AUTHEXTERNALRESPONSE']._serialized_start=214
-  _globals['_AUTHEXTERNALRESPONSE']._serialized_end=302
-  _globals['_REFRESHREQUEST']._serialized_start=304
-  _globals['_REFRESHREQUEST']._serialized_end=354
-  _globals['_REFRESHRESPONSE']._serialized_start=356
-  _globals['_REFRESHRESPONSE']._serialized_end=439
-  _globals['_GETPUBLICKEYREQUEST']._serialized_start=441
-  _globals['_GETPUBLICKEYREQUEST']._serialized_end=462
-  _globals['_GETPUBLICKEYRESPONSE']._serialized_start=464
-  _globals['_GETPUBLICKEYRESPONSE']._serialized_end=526
-  _globals['_AUTHSERVICE']._serialized_start=529
-  _globals['_AUTHSERVICE']._serialized_end=788
+  _globals['_AUTHSERVICE'].methods_by_name['AuthExternal']._loaded_options = None
+  _globals['_AUTHSERVICE'].methods_by_name['AuthExternal']._serialized_options = b'\202\323\344\223\002\026\"\021/v1/auth/external:\001*'
+  _globals['_AUTHSERVICE'].methods_by_name['Refresh']._loaded_options = None
+  _globals['_AUTHSERVICE'].methods_by_name['Refresh']._serialized_options = b'\202\323\344\223\002\025\"\020/v1/auth/refresh:\001*'
+  _globals['_AUTHSERVICE'].methods_by_name['GetPublicKey']._loaded_options = None
+  _globals['_AUTHSERVICE'].methods_by_name['GetPublicKey']._serialized_options = b'\202\323\344\223\002\025\022\023/v1/auth/public-key'
+  _globals['_AUTHEXTERNALREQUEST']._serialized_start=111
+  _globals['_AUTHEXTERNALREQUEST']._serialized_end=242
+  _globals['_AUTHEXTERNALRESPONSE']._serialized_start=244
+  _globals['_AUTHEXTERNALRESPONSE']._serialized_end=332
+  _globals['_REFRESHREQUEST']._serialized_start=334
+  _globals['_REFRESHREQUEST']._serialized_end=384
+  _globals['_REFRESHRESPONSE']._serialized_start=386
+  _globals['_REFRESHRESPONSE']._serialized_end=469
+  _globals['_GETPUBLICKEYREQUEST']._serialized_start=471
+  _globals['_GETPUBLICKEYREQUEST']._serialized_end=492
+  _globals['_GETPUBLICKEYRESPONSE']._serialized_start=495
+  _globals['_GETPUBLICKEYRESPONSE']._serialized_end=667
+  _globals['_AUTHSERVICE']._serialized_start=670
+  _globals['_AUTHSERVICE']._serialized_end=1017
 # @@protoc_insertion_point(module_scope)

@@ -22,86 +22,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type GetTokenRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetTokenRequest) Reset() {
-	*x = GetTokenRequest{}
-	mi := &file_auth_sidecar_auth_sidecar_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetTokenRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetTokenRequest) ProtoMessage() {}
-
-func (x *GetTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_sidecar_auth_sidecar_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetTokenRequest.ProtoReflect.Descriptor instead.
-func (*GetTokenRequest) Descriptor() ([]byte, []int) {
-	return file_auth_sidecar_auth_sidecar_proto_rawDescGZIP(), []int{0}
-}
-
-type GetTokenResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Token         *string                `protobuf:"bytes,1,opt,name=token,proto3,oneof" json:"token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetTokenResponse) Reset() {
-	*x = GetTokenResponse{}
-	mi := &file_auth_sidecar_auth_sidecar_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetTokenResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetTokenResponse) ProtoMessage() {}
-
-func (x *GetTokenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_sidecar_auth_sidecar_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetTokenResponse.ProtoReflect.Descriptor instead.
-func (*GetTokenResponse) Descriptor() ([]byte, []int) {
-	return file_auth_sidecar_auth_sidecar_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *GetTokenResponse) GetToken() string {
-	if x != nil && x.Token != nil {
-		return *x.Token
-	}
-	return ""
-}
-
 type AnyUser struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -110,7 +30,7 @@ type AnyUser struct {
 
 func (x *AnyUser) Reset() {
 	*x = AnyUser{}
-	mi := &file_auth_sidecar_auth_sidecar_proto_msgTypes[2]
+	mi := &file_auth_sidecar_auth_sidecar_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -122,7 +42,7 @@ func (x *AnyUser) String() string {
 func (*AnyUser) ProtoMessage() {}
 
 func (x *AnyUser) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_sidecar_auth_sidecar_proto_msgTypes[2]
+	mi := &file_auth_sidecar_auth_sidecar_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -135,14 +55,14 @@ func (x *AnyUser) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AnyUser.ProtoReflect.Descriptor instead.
 func (*AnyUser) Descriptor() ([]byte, []int) {
-	return file_auth_sidecar_auth_sidecar_proto_rawDescGZIP(), []int{2}
+	return file_auth_sidecar_auth_sidecar_proto_rawDescGZIP(), []int{0}
 }
 
 type AuthorityMapEntry struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Key:
 	//
-	//	*AuthorityMapEntry_ServiceAccount
+	//	*AuthorityMapEntry_ExternalId
 	//	*AuthorityMapEntry_UserId
 	//	*AuthorityMapEntry_AnyUser
 	Key           isAuthorityMapEntry_Key `protobuf_oneof:"key"`
@@ -153,7 +73,7 @@ type AuthorityMapEntry struct {
 
 func (x *AuthorityMapEntry) Reset() {
 	*x = AuthorityMapEntry{}
-	mi := &file_auth_sidecar_auth_sidecar_proto_msgTypes[3]
+	mi := &file_auth_sidecar_auth_sidecar_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -165,7 +85,7 @@ func (x *AuthorityMapEntry) String() string {
 func (*AuthorityMapEntry) ProtoMessage() {}
 
 func (x *AuthorityMapEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_sidecar_auth_sidecar_proto_msgTypes[3]
+	mi := &file_auth_sidecar_auth_sidecar_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -178,7 +98,7 @@ func (x *AuthorityMapEntry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthorityMapEntry.ProtoReflect.Descriptor instead.
 func (*AuthorityMapEntry) Descriptor() ([]byte, []int) {
-	return file_auth_sidecar_auth_sidecar_proto_rawDescGZIP(), []int{3}
+	return file_auth_sidecar_auth_sidecar_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *AuthorityMapEntry) GetKey() isAuthorityMapEntry_Key {
@@ -188,13 +108,13 @@ func (x *AuthorityMapEntry) GetKey() isAuthorityMapEntry_Key {
 	return nil
 }
 
-func (x *AuthorityMapEntry) GetServiceAccount() string {
+func (x *AuthorityMapEntry) GetExternalId() *user_common.ExternalKey {
 	if x != nil {
-		if x, ok := x.Key.(*AuthorityMapEntry_ServiceAccount); ok {
-			return x.ServiceAccount
+		if x, ok := x.Key.(*AuthorityMapEntry_ExternalId); ok {
+			return x.ExternalId
 		}
 	}
-	return ""
+	return nil
 }
 
 func (x *AuthorityMapEntry) GetUserId() uint64 {
@@ -226,8 +146,8 @@ type isAuthorityMapEntry_Key interface {
 	isAuthorityMapEntry_Key()
 }
 
-type AuthorityMapEntry_ServiceAccount struct {
-	ServiceAccount string `protobuf:"bytes,1,opt,name=service_account,json=serviceAccount,proto3,oneof"`
+type AuthorityMapEntry_ExternalId struct {
+	ExternalId *user_common.ExternalKey `protobuf:"bytes,1,opt,name=external_id,json=externalId,proto3,oneof"`
 }
 
 type AuthorityMapEntry_UserId struct {
@@ -238,7 +158,7 @@ type AuthorityMapEntry_AnyUser struct {
 	AnyUser *AnyUser `protobuf:"bytes,3,opt,name=any_user,json=anyUser,proto3,oneof"`
 }
 
-func (*AuthorityMapEntry_ServiceAccount) isAuthorityMapEntry_Key() {}
+func (*AuthorityMapEntry_ExternalId) isAuthorityMapEntry_Key() {}
 
 func (*AuthorityMapEntry_UserId) isAuthorityMapEntry_Key() {}
 
@@ -254,7 +174,7 @@ type AuthorizeRequest struct {
 
 func (x *AuthorizeRequest) Reset() {
 	*x = AuthorizeRequest{}
-	mi := &file_auth_sidecar_auth_sidecar_proto_msgTypes[4]
+	mi := &file_auth_sidecar_auth_sidecar_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -266,7 +186,7 @@ func (x *AuthorizeRequest) String() string {
 func (*AuthorizeRequest) ProtoMessage() {}
 
 func (x *AuthorizeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_sidecar_auth_sidecar_proto_msgTypes[4]
+	mi := &file_auth_sidecar_auth_sidecar_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -279,7 +199,7 @@ func (x *AuthorizeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthorizeRequest.ProtoReflect.Descriptor instead.
 func (*AuthorizeRequest) Descriptor() ([]byte, []int) {
-	return file_auth_sidecar_auth_sidecar_proto_rawDescGZIP(), []int{4}
+	return file_auth_sidecar_auth_sidecar_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *AuthorizeRequest) GetAuthorityMap() []*AuthorityMapEntry {
@@ -297,17 +217,15 @@ func (x *AuthorizeRequest) GetToken() string {
 }
 
 type AuthorizeResponse struct {
-	state         protoimpl.MessageState   `protogen:"open.v1"`
-	Roles         []string                 `protobuf:"bytes,1,rep,name=roles,proto3" json:"roles,omitempty"`
-	UserId        *uint64                  `protobuf:"varint,2,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
-	ExternalKey   *user_common.ExternalKey `protobuf:"bytes,3,opt,name=external_key,json=externalKey,proto3,oneof" json:"external_key,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Roles         []string               `protobuf:"bytes,1,rep,name=roles,proto3" json:"roles,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AuthorizeResponse) Reset() {
 	*x = AuthorizeResponse{}
-	mi := &file_auth_sidecar_auth_sidecar_proto_msgTypes[5]
+	mi := &file_auth_sidecar_auth_sidecar_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -319,7 +237,7 @@ func (x *AuthorizeResponse) String() string {
 func (*AuthorizeResponse) ProtoMessage() {}
 
 func (x *AuthorizeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_sidecar_auth_sidecar_proto_msgTypes[5]
+	mi := &file_auth_sidecar_auth_sidecar_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -332,7 +250,7 @@ func (x *AuthorizeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthorizeResponse.ProtoReflect.Descriptor instead.
 func (*AuthorizeResponse) Descriptor() ([]byte, []int) {
-	return file_auth_sidecar_auth_sidecar_proto_rawDescGZIP(), []int{5}
+	return file_auth_sidecar_auth_sidecar_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *AuthorizeResponse) GetRoles() []string {
@@ -342,32 +260,15 @@ func (x *AuthorizeResponse) GetRoles() []string {
 	return nil
 }
 
-func (x *AuthorizeResponse) GetUserId() uint64 {
-	if x != nil && x.UserId != nil {
-		return *x.UserId
-	}
-	return 0
-}
-
-func (x *AuthorizeResponse) GetExternalKey() *user_common.ExternalKey {
-	if x != nil {
-		return x.ExternalKey
-	}
-	return nil
-}
-
 var File_auth_sidecar_auth_sidecar_proto protoreflect.FileDescriptor
 
 const file_auth_sidecar_auth_sidecar_proto_rawDesc = "" +
 	"\n" +
-	"\x1fauth_sidecar/auth_sidecar.proto\x12\fauth_sidecar\x1a\x1duser_common/user_common.proto\"\x11\n" +
-	"\x0fGetTokenRequest\"7\n" +
-	"\x10GetTokenResponse\x12\x19\n" +
-	"\x05token\x18\x01 \x01(\tH\x00R\x05token\x88\x01\x01B\b\n" +
-	"\x06_token\"\t\n" +
-	"\aAnyUser\"\xaa\x01\n" +
-	"\x11AuthorityMapEntry\x12)\n" +
-	"\x0fservice_account\x18\x01 \x01(\tH\x00R\x0eserviceAccount\x12\x19\n" +
+	"\x1fauth_sidecar/auth_sidecar.proto\x12\fauth_sidecar\x1a\x1duser_common/user_common.proto\"\t\n" +
+	"\aAnyUser\"\xbc\x01\n" +
+	"\x11AuthorityMapEntry\x12;\n" +
+	"\vexternal_id\x18\x01 \x01(\v2\x18.user_common.ExternalKeyH\x00R\n" +
+	"externalId\x12\x19\n" +
 	"\auser_id\x18\x02 \x01(\x04H\x00R\x06userId\x122\n" +
 	"\bany_user\x18\x03 \x01(\v2\x15.auth_sidecar.AnyUserH\x00R\aanyUser\x12\x14\n" +
 	"\x05roles\x18\n" +
@@ -376,16 +277,10 @@ const file_auth_sidecar_auth_sidecar_proto_rawDesc = "" +
 	"\x10AuthorizeRequest\x12D\n" +
 	"\rauthority_map\x18\x01 \x03(\v2\x1f.auth_sidecar.AuthorityMapEntryR\fauthorityMap\x12\x19\n" +
 	"\x05token\x18\x02 \x01(\tH\x00R\x05token\x88\x01\x01B\b\n" +
-	"\x06_token\"\xa6\x01\n" +
+	"\x06_token\")\n" +
 	"\x11AuthorizeResponse\x12\x14\n" +
-	"\x05roles\x18\x01 \x03(\tR\x05roles\x12\x1c\n" +
-	"\auser_id\x18\x02 \x01(\x04H\x00R\x06userId\x88\x01\x01\x12@\n" +
-	"\fexternal_key\x18\x03 \x01(\v2\x18.user_common.ExternalKeyH\x01R\vexternalKey\x88\x01\x01B\n" +
-	"\n" +
-	"\b_user_idB\x0f\n" +
-	"\r_external_key2\xa6\x01\n" +
-	"\vAuthSidecar\x12I\n" +
-	"\bGetToken\x12\x1d.auth_sidecar.GetTokenRequest\x1a\x1e.auth_sidecar.GetTokenResponse\x12L\n" +
+	"\x05roles\x18\x01 \x03(\tR\x05roles2[\n" +
+	"\vAuthSidecar\x12L\n" +
 	"\tAuthorize\x12\x1e.auth_sidecar.AuthorizeRequest\x1a\x1f.auth_sidecar.AuthorizeResponseB&Z$team_dynamics/api/proto/auth_sidecarb\x06proto3"
 
 var (
@@ -400,26 +295,22 @@ func file_auth_sidecar_auth_sidecar_proto_rawDescGZIP() []byte {
 	return file_auth_sidecar_auth_sidecar_proto_rawDescData
 }
 
-var file_auth_sidecar_auth_sidecar_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_auth_sidecar_auth_sidecar_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_auth_sidecar_auth_sidecar_proto_goTypes = []any{
-	(*GetTokenRequest)(nil),         // 0: auth_sidecar.GetTokenRequest
-	(*GetTokenResponse)(nil),        // 1: auth_sidecar.GetTokenResponse
-	(*AnyUser)(nil),                 // 2: auth_sidecar.AnyUser
-	(*AuthorityMapEntry)(nil),       // 3: auth_sidecar.AuthorityMapEntry
-	(*AuthorizeRequest)(nil),        // 4: auth_sidecar.AuthorizeRequest
-	(*AuthorizeResponse)(nil),       // 5: auth_sidecar.AuthorizeResponse
-	(*user_common.ExternalKey)(nil), // 6: user_common.ExternalKey
+	(*AnyUser)(nil),                 // 0: auth_sidecar.AnyUser
+	(*AuthorityMapEntry)(nil),       // 1: auth_sidecar.AuthorityMapEntry
+	(*AuthorizeRequest)(nil),        // 2: auth_sidecar.AuthorizeRequest
+	(*AuthorizeResponse)(nil),       // 3: auth_sidecar.AuthorizeResponse
+	(*user_common.ExternalKey)(nil), // 4: user_common.ExternalKey
 }
 var file_auth_sidecar_auth_sidecar_proto_depIdxs = []int32{
-	2, // 0: auth_sidecar.AuthorityMapEntry.any_user:type_name -> auth_sidecar.AnyUser
-	3, // 1: auth_sidecar.AuthorizeRequest.authority_map:type_name -> auth_sidecar.AuthorityMapEntry
-	6, // 2: auth_sidecar.AuthorizeResponse.external_key:type_name -> user_common.ExternalKey
-	0, // 3: auth_sidecar.AuthSidecar.GetToken:input_type -> auth_sidecar.GetTokenRequest
-	4, // 4: auth_sidecar.AuthSidecar.Authorize:input_type -> auth_sidecar.AuthorizeRequest
-	1, // 5: auth_sidecar.AuthSidecar.GetToken:output_type -> auth_sidecar.GetTokenResponse
-	5, // 6: auth_sidecar.AuthSidecar.Authorize:output_type -> auth_sidecar.AuthorizeResponse
-	5, // [5:7] is the sub-list for method output_type
-	3, // [3:5] is the sub-list for method input_type
+	4, // 0: auth_sidecar.AuthorityMapEntry.external_id:type_name -> user_common.ExternalKey
+	0, // 1: auth_sidecar.AuthorityMapEntry.any_user:type_name -> auth_sidecar.AnyUser
+	1, // 2: auth_sidecar.AuthorizeRequest.authority_map:type_name -> auth_sidecar.AuthorityMapEntry
+	2, // 3: auth_sidecar.AuthSidecar.Authorize:input_type -> auth_sidecar.AuthorizeRequest
+	3, // 4: auth_sidecar.AuthSidecar.Authorize:output_type -> auth_sidecar.AuthorizeResponse
+	4, // [4:5] is the sub-list for method output_type
+	3, // [3:4] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
 	3, // [3:3] is the sub-list for extension extendee
 	0, // [0:3] is the sub-list for field type_name
@@ -430,21 +321,19 @@ func file_auth_sidecar_auth_sidecar_proto_init() {
 	if File_auth_sidecar_auth_sidecar_proto != nil {
 		return
 	}
-	file_auth_sidecar_auth_sidecar_proto_msgTypes[1].OneofWrappers = []any{}
-	file_auth_sidecar_auth_sidecar_proto_msgTypes[3].OneofWrappers = []any{
-		(*AuthorityMapEntry_ServiceAccount)(nil),
+	file_auth_sidecar_auth_sidecar_proto_msgTypes[1].OneofWrappers = []any{
+		(*AuthorityMapEntry_ExternalId)(nil),
 		(*AuthorityMapEntry_UserId)(nil),
 		(*AuthorityMapEntry_AnyUser)(nil),
 	}
-	file_auth_sidecar_auth_sidecar_proto_msgTypes[4].OneofWrappers = []any{}
-	file_auth_sidecar_auth_sidecar_proto_msgTypes[5].OneofWrappers = []any{}
+	file_auth_sidecar_auth_sidecar_proto_msgTypes[2].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_sidecar_auth_sidecar_proto_rawDesc), len(file_auth_sidecar_auth_sidecar_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
