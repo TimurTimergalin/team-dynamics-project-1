@@ -109,7 +109,7 @@ func getMatchesFirstPageImpl(ctx context.Context, tx pgx.Tx, userId int64) (*[]*
 SELECT match_id, player1_id, player2_id, player1_name, player2_name,
 player1_rating, player2_rating, end_timestamp, result
 FROM matches
-WHERE player1_id = $1 OR player2_id = $1
+WHERE (player1_id = $1 OR player2_id = $1) AND result != 3
 ORDER BY end_timestamp DESC
 LIMIT 10
 `, userId)
@@ -127,7 +127,7 @@ func getMatchesSecondPageImpl(ctx context.Context, tx pgx.Tx, userId int64, page
 SELECT match_id, player1_id, player2_id, player1_name, player2_name,
 player1_rating, player2_rating, end_timestamp, result
 FROM matches
-WHERE (player1_id = $1 OR player2_id = $1) AND end_timestamp < $2
+WHERE (player1_id = $1 OR player2_id = $1) AND end_timestamp < $2 AND result != 3
 ORDER BY end_timestamp DESC
 LIMIT 10
 `, userId, pageKey.Before)
