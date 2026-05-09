@@ -7,7 +7,7 @@ TFuture<FHttpResponsePtr> MakeHttpRequest(TSharedPtr<IHttpRequest> Request)
 	TSharedPtr<TPromise<FHttpResponsePtr>> Promise = MakeShared<TPromise<FHttpResponsePtr>>();
 	TFuture<FHttpResponsePtr> future = Promise->GetFuture();
 
-	Request->OnProcessRequestComplete().BindLambda([Promise](FHttpRequestPtr, FHttpResponsePtr Response, bool bWasSuccessful) mutable
+	Request->OnProcessRequestComplete().BindLambda([Promise, Request](FHttpRequestPtr, FHttpResponsePtr Response, bool bWasSuccessful) mutable
 	{
 		Promise->SetValue(bWasSuccessful && Response.IsValid() ? Response : nullptr);
 		if (bWasSuccessful && Response.IsValid()) {
