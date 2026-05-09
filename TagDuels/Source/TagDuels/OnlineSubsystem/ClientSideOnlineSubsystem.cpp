@@ -98,7 +98,7 @@ bool UClientSideOnlineSubsystem::GetFriendsList(FString PageToken, FOnUserListRe
 			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to fetch friends list after 3 attempts"), EOnlineErrorType::NonCritical});
 		}
 		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Result.GetValue());
-	}).Next(FutureJoin);
+	});
 	return true;
 }
 
@@ -119,7 +119,7 @@ bool UClientSideOnlineSubsystem::GetOutgoingRequests(FString PageToken, FOnUserL
 			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to fetch outgoing requests after 3 attempts"), EOnlineErrorType::NonCritical});
 		}
 		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Result.GetValue());
-	}).Next(FutureJoin);
+	});
 	return true;
 }
 
@@ -140,7 +140,7 @@ bool UClientSideOnlineSubsystem::GetIncomingRequests(FString PageToken, FOnUserL
 			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to fetch incoming requests after 3 attempts"), EOnlineErrorType::NonCritical});
 		}
 		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Result.GetValue());
-	}).Next(FutureJoin);
+	});
 	return true;
 }
 
@@ -218,7 +218,7 @@ void UClientSideOnlineSubsystem::SendOrAcceptRequest(int64 OtherUserId, FOnEmpty
 			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to send/accept friend request"), EOnlineErrorType::NonCritical});
 		}
 		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
-	}).Next(FutureJoin);
+	});
 }
 
 void UClientSideOnlineSubsystem::DeclineOrDeleteFriend(int64 OtherUserId, FOnEmptyResponse OnResponse,
@@ -235,7 +235,7 @@ void UClientSideOnlineSubsystem::DeclineOrDeleteFriend(int64 OtherUserId, FOnEmp
 			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to decline/remove friend"), EOnlineErrorType::NonCritical});
 		}
 		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
-	}).Next(FutureJoin);
+	});
 }
 
 bool UClientSideOnlineSubsystem::ConnectToMMEvent(FOnMatch OnResponse, FOnErroneousResponse OnError)
@@ -300,14 +300,17 @@ bool UClientSideOnlineSubsystem::ConnectToUserEvent(
 {
 	if (!PlayerData.IsSet())
 	{
+		UE_LOG(LogTemp, Error, TEXT("!PlayerData.IsSet()"));
 		return false;
 	}
 	if (!UeClient.IsSet())
 	{
+		UE_LOG(LogTemp, Error, TEXT("!UeClient.IsSet()"));
 		return false;
 	}
 	if (UeClient->IsConnected())
 	{
+		UE_LOG(LogTemp, Error, TEXT("UeClient->IsConnected()"));
 		return false;
 	}
 	UeClient->EstablishConnection(
