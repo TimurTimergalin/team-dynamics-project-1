@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from user_common import user_common_pb2 as user__common_dot_user__common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1f\x61uth_sidecar/auth_sidecar.proto\x12\x0c\x61uth_sidecar\x1a\x1duser_common/user_common.proto\"\t\n\x07\x41nyUser\"\x98\x01\n\x11\x41uthorityMapEntry\x12/\n\x0b\x65xternal_id\x18\x01 \x01(\x0b\x32\x18.user_common.ExternalKeyH\x00\x12\x11\n\x07user_id\x18\x02 \x01(\x04H\x00\x12)\n\x08\x61ny_user\x18\x03 \x01(\x0b\x32\x15.auth_sidecar.AnyUserH\x00\x12\r\n\x05roles\x18\n \x03(\tB\x05\n\x03key\"h\n\x10\x41uthorizeRequest\x12\x36\n\rauthority_map\x18\x01 \x03(\x0b\x32\x1f.auth_sidecar.AuthorityMapEntry\x12\x12\n\x05token\x18\x02 \x01(\tH\x00\x88\x01\x01\x42\x08\n\x06_token\"\"\n\x11\x41uthorizeResponse\x12\r\n\x05roles\x18\x01 \x03(\t2[\n\x0b\x41uthSidecar\x12L\n\tAuthorize\x12\x1e.auth_sidecar.AuthorizeRequest\x1a\x1f.auth_sidecar.AuthorizeResponseB&Z$team_dynamics/api/proto/auth_sidecarb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1f\x61uth_sidecar/auth_sidecar.proto\x12\x0c\x61uth_sidecar\x1a\x1duser_common/user_common.proto\"\t\n\x07\x41nyUser\"\xb3\x01\n\x11\x41uthorityMapEntry\x12/\n\x0b\x65xternal_id\x18\x01 \x01(\x0b\x32\x18.user_common.ExternalKeyH\x00\x12\x11\n\x07user_id\x18\x02 \x01(\x04H\x00\x12)\n\x08\x61ny_user\x18\x03 \x01(\x0b\x32\x15.auth_sidecar.AnyUserH\x00\x12\x19\n\x0fservice_account\x18\x04 \x01(\tH\x00\x12\r\n\x05roles\x18\n \x03(\tB\x05\n\x03key\"\x95\x01\n\x10\x41uthorizeRequest\x12\x36\n\rauthority_map\x18\x01 \x03(\x0b\x32\x1f.auth_sidecar.AuthorityMapEntry\x12\x12\n\x05token\x18\x02 \x01(\tH\x00\x88\x01\x01\x12+\n\ntoken_type\x18\x03 \x01(\x0e\x32\x17.auth_sidecar.TokenTypeB\x08\n\x06_token\"\x8e\x01\n\x11\x41uthorizeResponse\x12\r\n\x05roles\x18\x01 \x03(\t\x12\x11\n\x07user_id\x18\x02 \x01(\x04H\x00\x12/\n\x0b\x65xternal_id\x18\x03 \x01(\x0b\x32\x18.user_common.ExternalKeyH\x00\x12\x19\n\x0fservice_account\x18\x04 \x01(\tH\x00\x42\x0b\n\tprincipal\"\x1a\n\x18GetServiceAccountRequest\"k\n\x19GetServiceAccountResponse\x12\x12\n\x05token\x18\x01 \x01(\tH\x00\x88\x01\x01\x12\x1c\n\x0fservice_account\x18\x02 \x01(\tH\x01\x88\x01\x01\x42\x08\n\x06_tokenB\x12\n\x10_service_account*@\n\tTokenType\x12\x13\n\x0fTOKEN_TYPE_USER\x10\x00\x12\x1e\n\x1aTOKEN_TYPE_SERVICE_ACCOUNT\x10\x01\x32\xc1\x01\n\x0b\x41uthSidecar\x12L\n\tAuthorize\x12\x1e.auth_sidecar.AuthorizeRequest\x1a\x1f.auth_sidecar.AuthorizeResponse\x12\x64\n\x11GetServiceAccount\x12&.auth_sidecar.GetServiceAccountRequest\x1a\'.auth_sidecar.GetServiceAccountResponseB&Z$team_dynamics/api/proto/auth_sidecarb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,14 +33,20 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'auth_sidecar.auth_sidecar_p
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'Z$team_dynamics/api/proto/auth_sidecar'
+  _globals['_TOKENTYPE']._serialized_start=707
+  _globals['_TOKENTYPE']._serialized_end=771
   _globals['_ANYUSER']._serialized_start=80
   _globals['_ANYUSER']._serialized_end=89
   _globals['_AUTHORITYMAPENTRY']._serialized_start=92
-  _globals['_AUTHORITYMAPENTRY']._serialized_end=244
-  _globals['_AUTHORIZEREQUEST']._serialized_start=246
-  _globals['_AUTHORIZEREQUEST']._serialized_end=350
-  _globals['_AUTHORIZERESPONSE']._serialized_start=352
-  _globals['_AUTHORIZERESPONSE']._serialized_end=386
-  _globals['_AUTHSIDECAR']._serialized_start=388
-  _globals['_AUTHSIDECAR']._serialized_end=479
+  _globals['_AUTHORITYMAPENTRY']._serialized_end=271
+  _globals['_AUTHORIZEREQUEST']._serialized_start=274
+  _globals['_AUTHORIZEREQUEST']._serialized_end=423
+  _globals['_AUTHORIZERESPONSE']._serialized_start=426
+  _globals['_AUTHORIZERESPONSE']._serialized_end=568
+  _globals['_GETSERVICEACCOUNTREQUEST']._serialized_start=570
+  _globals['_GETSERVICEACCOUNTREQUEST']._serialized_end=596
+  _globals['_GETSERVICEACCOUNTRESPONSE']._serialized_start=598
+  _globals['_GETSERVICEACCOUNTRESPONSE']._serialized_end=705
+  _globals['_AUTHSIDECAR']._serialized_start=774
+  _globals['_AUTHSIDECAR']._serialized_end=967
 # @@protoc_insertion_point(module_scope)

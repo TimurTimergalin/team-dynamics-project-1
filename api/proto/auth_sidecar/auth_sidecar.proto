@@ -12,19 +12,39 @@ message AuthorityMapEntry {
     user_common.ExternalKey external_id = 1;
     uint64 user_id = 2;
     AnyUser any_user = 3;
+    string service_account = 4;
   }
   repeated string roles = 10;
+}
+
+enum TokenType {
+  TOKEN_TYPE_USER = 0;
+  TOKEN_TYPE_SERVICE_ACCOUNT = 1;
 }
 
 message AuthorizeRequest {
   repeated AuthorityMapEntry authority_map = 1;
   optional string token = 2;
+  TokenType token_type = 3;
 }
 
 message AuthorizeResponse {
   repeated string roles = 1;
+  oneof principal {
+    uint64 user_id = 2;
+    user_common.ExternalKey external_id = 3;
+    string service_account = 4;
+  }
+}
+
+message GetServiceAccountRequest {}
+
+message GetServiceAccountResponse {
+  optional string token = 1;
+  optional string service_account = 2;
 }
 
 service AuthSidecar {
   rpc Authorize(AuthorizeRequest) returns (AuthorizeResponse);
+  rpc GetServiceAccount(GetServiceAccountRequest) returns (GetServiceAccountResponse);
 }

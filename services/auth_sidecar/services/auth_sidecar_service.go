@@ -7,6 +7,7 @@ import (
 	pbCommon "team_dynamics/api/proto/user_common"
 	pb "team_dynamics/api/proto/auth_sidecar"
 	"team_dynamics/auth_sidecar/downstream"
+	"team_dynamics/auth_sidecar/k8s"
 	"team_dynamics/auth_sidecar/models"
 
 	"google.golang.org/grpc/codes"
@@ -21,14 +22,16 @@ type authSidecarServiceImpl struct {
 	jwtService    JwtService
 	roleService   RoleService
 	authClient    downstream.AuthServiceClient
+	k8sOps        k8s.Ops
 	cachedVersion string
 }
 
-func NewAuthSidecarService(jwtService JwtService, roleService RoleService, authClient downstream.AuthServiceClient) AuthSidecarService {
+func NewAuthSidecarService(jwtService JwtService, roleService RoleService, authClient downstream.AuthServiceClient, k8sOps k8s.Ops) AuthSidecarService {
 	return &authSidecarServiceImpl{
 		jwtService:  jwtService,
 		roleService: roleService,
 		authClient:  authClient,
+		k8sOps:      k8sOps,
 	}
 }
 
@@ -50,18 +53,20 @@ func (s *authSidecarServiceImpl) fetchAndUpdateKeys(ctx context.Context) (bool, 
 func protoToAuthorityMap(entries []*pb.AuthorityMapEntry) models.AuthorityMap {
 	am := make(models.AuthorityMap)
 	for _, entry := range entries {
-		var key models.UserId
+		var key models.Principal
 		switch k := entry.Key.(type) {
 		case *pb.AuthorityMapEntry_AnyUser:
-			key = models.UserId{}
+			key = models.AnyUserPrincipal()
 		case *pb.AuthorityMapEntry_ExternalId:
 			if steamKey, ok := k.ExternalId.Key.(*pbCommon.ExternalKey_SteamId); ok {
 				steamId := steamKey.SteamId
-				key = models.UserId{SteamId: &steamId}
+				key = models.UserPrincipal(models.UserId{SteamId: &steamId})
 			}
 		case *pb.AuthorityMapEntry_UserId:
 			playerId := int64(k.UserId)
-			key = models.UserId{PlayerId: &playerId}
+			key = models.UserPrincipal(models.UserId{PlayerId: &playerId})
+		case *pb.AuthorityMapEntry_ServiceAccount:
+			key = models.ServiceAccountPrincipal(k.ServiceAccount)
 		}
 		am[key] = append(am[key], entry.Roles...)
 	}
@@ -71,6 +76,19 @@ func protoToAuthorityMap(entries []*pb.AuthorityMapEntry) models.AuthorityMap {
 func (s *authSidecarServiceImpl) Authorize(ctx context.Context, req *pb.AuthorizeRequest) (*pb.AuthorizeResponse, error) {
 	if req.Token == nil {
 		return nil, status.Error(codes.Unauthenticated, "token is required")
+	}
+
+	am := protoToAuthorityMap(req.AuthorityMap)
+
+	if req.TokenType == pb.TokenType_TOKEN_TYPE_SERVICE_ACCOUNT {
+		sa, err := s.k8sOps.ValidateServiceAccountToken(ctx, *req.Token)
+		if err != nil {
+			return nil, status.Errorf(codes.Unauthenticated, "invalid service account token: %v", err)
+		}
+		return &pb.AuthorizeResponse{
+			Roles:     s.roleService.ResolveRolesForServiceAccount(am, sa),
+			Principal: &pb.AuthorizeResponse_ServiceAccount{ServiceAccount: sa},
+		}, nil
 	}
 
 	userId, err := s.jwtService.Validate(*req.Token)
@@ -91,7 +109,18 @@ func (s *authSidecarServiceImpl) Authorize(ctx context.Context, req *pb.Authoriz
 		}
 	}
 
-	return &pb.AuthorizeResponse{
-		Roles: s.roleService.ResolveRoles(protoToAuthorityMap(req.AuthorityMap), *userId),
-	}, nil
+	resp := &pb.AuthorizeResponse{
+		Roles: s.roleService.ResolveRolesForUser(am, *userId),
+	}
+	if userId.PlayerId != nil {
+		playerId := uint64(*userId.PlayerId)
+		resp.Principal = &pb.AuthorizeResponse_UserId{UserId: playerId}
+	} else if userId.SteamId != nil {
+		resp.Principal = &pb.AuthorizeResponse_ExternalId{
+			ExternalId: &pbCommon.ExternalKey{
+				Key: &pbCommon.ExternalKey_SteamId{SteamId: *userId.SteamId},
+			},
+		}
+	}
+	return resp, nil
 }
