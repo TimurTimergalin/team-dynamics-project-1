@@ -159,13 +159,12 @@ func main() {
 	}
 
 	redisClient := redis.NewClient(redisOpts)
+	handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{AddSource: true, Level: slog.LevelDebug})
+	logger := slog.New(handler)
 	userKvRepo := ueRedis.MakeUserKvRepo(redisClient, logger)
 
 	registerCh := make(chan client.Client, serverCfg.ChannelSizes)
 	disconnectCh := make(chan client.Client, serverCfg.ChannelSizes)
-
-	handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{AddSource: true, Level: slog.LevelDebug})
-	logger := slog.New(handler)
 
 	upgrader := &websocket.Upgrader{
 		ReadBufferSize:  1024,

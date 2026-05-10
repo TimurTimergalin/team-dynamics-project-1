@@ -157,7 +157,9 @@ func (s *matchServiceImpl) StartMatch(ctx context.Context, request *pb.StartMatc
 		match := models.Match{
 			Player1Id: player1.Id,
 			Player2Id: player2.Id,
-			Fleet:     *input.Fleet,
+		}
+		if input.Fleet != nil {
+			match.Fleet = *input.Fleet
 		}
 
 		// Call repo

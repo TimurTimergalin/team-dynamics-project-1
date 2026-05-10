@@ -46,7 +46,7 @@ func (c *clientImpl) terminate(ctx context.Context) {
 	} else {
 		c.logger.Debug("connection closed")
 	}
-	if err := c.userKvRepo.Unregister(ctx, c.player.Id); err != nil {
+	if err := c.userKvRepo.Unregister(context.Background(), c.player.Id); err != nil {
 		c.logger.Error("failed to remove connection", "player_id", c.player.Id, "error", err)
 	} else {
 		c.logger.Debug("connection removed", "player_id", c.player.Id)
@@ -64,6 +64,7 @@ func (c *clientImpl) onPanic(rec any, out *[]*ueJson.Event, cleanup *[]func() er
 }
 
 func (c *clientImpl) onSubscribe(ctx context.Context, payload ueJson.SubscribePayload, out *[]*ueJson.Event, cleanup *[]func() error) bool {
+	c.logger.Debug("Subscribe called")
 	if err := c.userKvRepo.Subscribe(ctx, c.player.Id, payload.Users); err != nil {
 		c.logger.Error("failed to subscribe", "error", err)
 		if event, err := ueJson.MakeEvent(ueJson.ErrorPayload{Message: err.Error()}); err == nil {
@@ -71,6 +72,7 @@ func (c *clientImpl) onSubscribe(ctx context.Context, payload ueJson.SubscribePa
 		}
 		return false
 	}
+	c.lastKnownStatuses = make(map[int64]models.PlayerStatus)
 	return c.checkSubscriptionsStatus(ctx, out, cleanup)
 }
 
@@ -266,6 +268,7 @@ func (c *clientImpl) checkSubscriptionsStatus(ctx context.Context, out *[]*ueJso
 		}
 		c.lastKnownStatuses[userId] = status
 		var jsonStatus ueJson.UserStatus
+		c.logger.Debug("Status of user changed", "userId", userId, "receiverId", c.player.Id)
 		switch status {
 		case models.Online:
 			jsonStatus = ueJson.Online

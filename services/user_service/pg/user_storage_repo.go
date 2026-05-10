@@ -294,11 +294,21 @@ func addFriendImpl(ctx context.Context, tx pgx.Tx, userId int64, otherUserId int
 		return nil, models.AddFriendNoop, nil, pglib.NoRetry
 	}
 
+	// Check if already friends
+	p1, p2 := userId, otherUserId
+	if p1 > p2 {
+		p1, p2 = p2, p1
+	}
+	var alreadyFriends bool
+	err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM friends WHERE player1_id = $1 AND player2_id = $2)`, p1, p2).Scan(&alreadyFriends)
+	if err != nil {
+		return nil, models.AddFriendNoop, err, pglib.NormalRetry
+	}
+	if alreadyFriends {
+		return nil, models.AddFriendNoop, nil, pglib.NoRetry
+	}
+
 	if hasIncoming {
-		p1, p2 := userId, otherUserId
-		if p1 > p2 {
-			p1, p2 = p2, p1
-		}
 		_, err = tx.Exec(ctx, `
 INSERT INTO friends (player1_id, player2_id, source)
 VALUES ($1, $2, $3)

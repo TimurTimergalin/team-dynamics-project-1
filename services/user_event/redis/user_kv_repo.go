@@ -338,7 +338,7 @@ func (r *userKvRepoImpl) DeclineChallenge(ctx context.Context, messageId string,
 func (r *userKvRepoImpl) CancelChallenge(ctx context.Context, messageId string, from, to int64) error {
 	fromKeys := PlayerKeySet{from}
 	toKeys := PlayerKeySet{to}
-	return r.rdb.Watch(ctx, func(tx *redis.Tx) error {
+	err := r.rdb.Watch(ctx, func(tx *redis.Tx) error {
 		current, err := tx.Get(ctx, fromKeys.currentChallenge()).Result()
 		if err != nil {
 			return err
