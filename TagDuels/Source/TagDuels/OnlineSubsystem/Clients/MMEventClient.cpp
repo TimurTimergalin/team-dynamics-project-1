@@ -71,7 +71,7 @@ namespace
 
 MMEventClient::MMEventClient(const FString& Address): Address(Address)
 {
-	Fleet = "Moscow"; // Пока хардкод
+	Fleet = "Moscow";
 }
 
 void MMEventClient::ExecuteOnError(const FString& Error, EOnlineErrorType Type, TSharedRef<FOnErroneousResponse> OnError)

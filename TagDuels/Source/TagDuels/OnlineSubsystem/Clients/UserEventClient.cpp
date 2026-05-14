@@ -125,6 +125,7 @@ namespace
 
 	void HandleEvent(
 		const Event& Ev,
+		int64 UserId,
 		TSharedRef<FOnStatusUpdated> OnStatusChanged,
 		TSharedRef<FOnChallengeReceived> OnChallengeReceived,
 		TSharedRef<FOnMatch> OnMatchStarted,
@@ -158,7 +159,7 @@ namespace
 		case EventType::MatchStarted:
 			if (Ev.Address.IsSet())
 			{
-				OnMatchStarted->ExecuteIfBound(Ev.Address.GetValue());
+				OnMatchStarted->ExecuteIfBound(Ev.Address.GetValue() + FString::Printf(TEXT("?player_id=%lld"), UserId));
 			}
 			break;
 		case EventType::ChallengeDeclined:
@@ -291,11 +292,11 @@ void UserEventClient::EstablishConnection(TSharedRef<FOnStatusUpdated> OnStatusC
 		{
 			return;
 		}
-		AsyncTask(ENamedThreads::GameThread, [Events = MoveTemp(Events), OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnChallengeCancelled, OnError]()
+		AsyncTask(ENamedThreads::GameThread, [UserId = this->UserId, Events = MoveTemp(Events), OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnChallengeCancelled, OnError]()
 		{
 			for (const Event& Ev : Events)
 			{
-				HandleEvent(Ev, OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnChallengeCancelled, OnError);
+				HandleEvent(Ev, UserId, OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnChallengeCancelled, OnError);
 			}
 		});
 	});
