@@ -26,6 +26,7 @@ type ExternalKey struct {
 	// Types that are valid to be assigned to Key:
 	//
 	//	*ExternalKey_SteamId
+	//	*ExternalKey_EosId
 	Key           isExternalKey_Key `protobuf_oneof:"key"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -77,6 +78,15 @@ func (x *ExternalKey) GetSteamId() int64 {
 	return 0
 }
 
+func (x *ExternalKey) GetEosId() string {
+	if x != nil {
+		if x, ok := x.Key.(*ExternalKey_EosId); ok {
+			return x.EosId
+		}
+	}
+	return ""
+}
+
 type isExternalKey_Key interface {
 	isExternalKey_Key()
 }
@@ -85,7 +95,13 @@ type ExternalKey_SteamId struct {
 	SteamId int64 `protobuf:"varint,1,opt,name=steam_id,json=steamId,proto3,oneof"`
 }
 
+type ExternalKey_EosId struct {
+	EosId string `protobuf:"bytes,2,opt,name=eos_id,json=eosId,proto3,oneof"`
+}
+
 func (*ExternalKey_SteamId) isExternalKey_Key() {}
+
+func (*ExternalKey_EosId) isExternalKey_Key() {}
 
 type UserData struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -143,9 +159,10 @@ var File_user_common_user_common_proto protoreflect.FileDescriptor
 
 const file_user_common_user_common_proto_rawDesc = "" +
 	"\n" +
-	"\x1duser_common/user_common.proto\x12\vuser_common\"1\n" +
+	"\x1duser_common/user_common.proto\x12\vuser_common\"J\n" +
 	"\vExternalKey\x12\x1b\n" +
-	"\bsteam_id\x18\x01 \x01(\x03H\x00R\asteamIdB\x05\n" +
+	"\bsteam_id\x18\x01 \x01(\x03H\x00R\asteamId\x12\x17\n" +
+	"\x06eos_id\x18\x02 \x01(\tH\x00R\x05eosIdB\x05\n" +
 	"\x03key\"H\n" +
 	"\bUserData\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\x03H\x00R\x02id\x88\x01\x01\x12\x17\n" +
@@ -185,6 +202,7 @@ func file_user_common_user_common_proto_init() {
 	}
 	file_user_common_user_common_proto_msgTypes[0].OneofWrappers = []any{
 		(*ExternalKey_SteamId)(nil),
+		(*ExternalKey_EosId)(nil),
 	}
 	file_user_common_user_common_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}

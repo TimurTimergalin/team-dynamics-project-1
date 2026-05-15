@@ -5,7 +5,7 @@ metadata:
 rules:
   - apiGroups: [""]
     resources: ["secrets"]
-    verbs: ["get", "patch"]
+    verbs: ["get", "patch", "create"]
   - apiGroups: ["apps"]
     resources: ["deployments"]
     verbs: ["get", "patch"]

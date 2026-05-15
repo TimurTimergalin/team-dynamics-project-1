@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1duser_common/user_common.proto\x12\x0buser_common\"(\n\x0b\x45xternalKey\x12\x12\n\x08steam_id\x18\x01 \x01(\x03H\x00\x42\x05\n\x03key\">\n\x08UserData\x12\x0f\n\x02id\x18\x01 \x01(\x03H\x00\x88\x01\x01\x12\x11\n\x04name\x18\x02 \x01(\tH\x01\x88\x01\x01\x42\x05\n\x03_idB\x07\n\x05_nameB%Z#team_dynamics/api/proto/user_commonb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1duser_common/user_common.proto\x12\x0buser_common\":\n\x0b\x45xternalKey\x12\x12\n\x08steam_id\x18\x01 \x01(\x03H\x00\x12\x10\n\x06\x65os_id\x18\x02 \x01(\tH\x00\x42\x05\n\x03key\">\n\x08UserData\x12\x0f\n\x02id\x18\x01 \x01(\x03H\x00\x88\x01\x01\x12\x11\n\x04name\x18\x02 \x01(\tH\x01\x88\x01\x01\x42\x05\n\x03_idB\x07\n\x05_nameB%Z#team_dynamics/api/proto/user_commonb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,7 +33,7 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'Z#team_dynamics/api/proto/user_common'
   _globals['_EXTERNALKEY']._serialized_start=46
-  _globals['_EXTERNALKEY']._serialized_end=86
-  _globals['_USERDATA']._serialized_start=88
-  _globals['_USERDATA']._serialized_end=150
+  _globals['_EXTERNALKEY']._serialized_end=104
+  _globals['_USERDATA']._serialized_start=106
+  _globals['_USERDATA']._serialized_end=168
 # @@protoc_insertion_point(module_scope)

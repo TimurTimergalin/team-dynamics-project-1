@@ -36,11 +36,21 @@ def main():
     v1 = client.CoreV1Api()
     apps_v1 = client.AppsV1Api()
 
-    secret = v1.read_namespaced_secret(SECRET_NAME, NAMESPACE)
-    data = secret.data or {}
-
-    current_primary_private = data.get(PRIMARY_PRIVATE_KEY)
-    current_primary_public = data.get(PRIMARY_PUBLIC_KEY)
+    try:
+        secret = v1.read_namespaced_secret(SECRET_NAME, NAMESPACE)
+        data = secret.data or {}
+        current_primary_private = data.get(PRIMARY_PRIVATE_KEY)
+        current_primary_public = data.get(PRIMARY_PUBLIC_KEY)
+    except client.exceptions.ApiException as e:
+        if e.status != 404:
+            raise
+        secret = client.V1Secret(
+            metadata=client.V1ObjectMeta(name=SECRET_NAME, namespace=NAMESPACE),
+            data={},
+        )
+        data = {}
+        current_primary_private = None
+        current_primary_public = None
 
     new_private_pem, new_public_pem = generate_key_pair()
     new_version = base64.b64encode(str(uuid.uuid4()).encode()).decode()
@@ -58,15 +68,21 @@ def main():
     secret.data[PRIMARY_PUBLIC_KEY] = base64.b64encode(new_public_pem).decode()
     secret.data[KEY_PAIR_VERSION] = new_version
 
-    v1.patch_namespaced_secret(SECRET_NAME, NAMESPACE, secret)
+    if data:
+        v1.patch_namespaced_secret(SECRET_NAME, NAMESPACE, secret)
+    else:
+        v1.create_namespaced_secret(NAMESPACE, secret)
     print(f"Secret {SECRET_NAME} updated successfully")
 
-    deployment = apps_v1.read_namespaced_deployment(DEPLOYMENT_NAME, NAMESPACE)
-    annotations = deployment.spec.template.metadata.annotations or {}
-    annotations["kubectl.kubernetes.io/restartedAt"] = datetime.datetime.utcnow().isoformat()
-    deployment.spec.template.metadata.annotations = annotations
-    apps_v1.patch_namespaced_deployment(DEPLOYMENT_NAME, NAMESPACE, deployment)
-    print(f"Deployment {DEPLOYMENT_NAME} restarted successfully")
+    if os.environ.get("REDEPLOY", "true").lower() != "false":
+        deployment = apps_v1.read_namespaced_deployment(DEPLOYMENT_NAME, NAMESPACE)
+        annotations = deployment.spec.template.metadata.annotations or {}
+        annotations["kubectl.kubernetes.io/restartedAt"] = datetime.datetime.utcnow().isoformat()
+        deployment.spec.template.metadata.annotations = annotations
+        apps_v1.patch_namespaced_deployment(DEPLOYMENT_NAME, NAMESPACE, deployment)
+        print(f"Deployment {DEPLOYMENT_NAME} restarted successfully")
+    else:
+        print(f"Skipping redeploy of {DEPLOYMENT_NAME} (REDEPLOY=false)")
 
 
 if __name__ == "__main__":
