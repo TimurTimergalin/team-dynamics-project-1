@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+package match_history_service_v2;
+option go_package = "team_dynamics/api/proto/match_history_service_v2";
+
+import "google/api/annotations.proto";
+
+// ---- shared types ----
+
+message ParticipantData {
+    optional int64 id = 1;
+    optional string name = 2;
+    optional int64 rating = 3;
+}
+
+message Round {
+    optional bool is_player1_killer = 1;
+    optional int64 time_millis = 2;
+}
+
+enum MatchResult {
+    MATCH_RESULT_UNSPECIFIED = 0;
+    MATCH_RESULT_PLAYER1_WIN = 1;
+    MATCH_RESULT_DRAW = 2;
+    MATCH_RESULT_PLAYER2_WIN = 3;
+    MATCH_RESULT_CANCELLED = 4;
+}
+
+message MatchData {
+    optional ParticipantData player1 = 1;
+    optional ParticipantData player2 = 2;
+    repeated Round rounds = 3;
+    optional int64 end_timestamp = 4;
+    MatchResult match_result = 5;
+    optional string match_id = 6;
+}
+
+// ---- rating types ----
+
+message RatingData {
+    optional double rating_value = 1;
+    optional int64 display_value = 2;
+}
+
+// ---- GetMatchHistory ----
+
+message GetMatchHistoryRequest {
+    optional string pagekey = 1;
+    optional int64 user_id = 2;
+}
+
+message GetMatchHistoryResponse {
+    repeated MatchData matches = 1;
+    optional string pagekey = 2;
+}
+
+// ---- GetRating ----
+
+message GetRatingRequest {
+    optional int64 user_id = 1;
+}
+
+message GetRatingResponse {
+    optional RatingData rating = 1;
+}
+
+// ---- SaveMatch (combined setter) ----
+
+message SaveMatchRequest {
+    optional MatchData match = 1;
+}
+
+message SaveMatchResponse {
+    optional RatingData player1_rating = 1;
+    optional RatingData player2_rating = 2;
+}
+
+// ---- service ----
+
+service MatchHistoryServiceV2 {
+    rpc GetMatchHistory(GetMatchHistoryRequest) returns (GetMatchHistoryResponse) {
+        option (google.api.http) = {
+            get: "/v1/match_history"
+        };
+    }
+
+    rpc GetRating(GetRatingRequest) returns (GetRatingResponse) {
+        option (google.api.http) = {
+            get: "/v1/ratings/{user_id}"
+        };
+    }
+
+    rpc SaveMatch(SaveMatchRequest) returns (SaveMatchResponse);
+}
