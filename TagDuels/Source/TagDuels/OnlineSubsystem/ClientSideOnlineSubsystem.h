@@ -4,10 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Delegates.h"
-#include "Clients/MatchHistoryServiceClient.h"
+#include "Clients/MatchHistoryServiceV2Client.h"
 #include "Clients/MMEventClient.h"
 #include "Clients/UserEventClient.h"
-#include "Clients/RatingServiceClient.h"
 #include "Clients/UserServiceClient.h"
 #include "Contract/UserData.h"
 #include "Subsystems/GameInstanceSubsystem.h"
@@ -105,8 +104,7 @@ public:
 
 private:
 	TOptional<UserServiceClient> UsClient{};
-	TOptional<MatchHistoryServiceClient> MhsClient{};
-	TOptional<RatingServiceClient> RsClient{};
+	TOptional<MatchHistoryServiceV2Client> MhsV2Client{};
 	TOptional<MMEventClient> MmeClient{};
 	TOptional<UserEventClient> UeClient{};
 	

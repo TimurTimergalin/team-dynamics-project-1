@@ -6,8 +6,7 @@ void UClientSideOnlineSubsystem::Initialize(FSubsystemCollectionBase& SubsystemC
 {
 	Super::Initialize(SubsystemCollectionBase);
 	UsClient = CreateUserServiceClient();
-	MhsClient = CreateMatchHistoryServiceClient();
-	RsClient = CreateRatingServiceClient();
+	MhsV2Client = CreateMatchHistoryServiceV2Client();
 	MmeClient = CreateMMEventClient();
 	UeClient = CreateUserEventClient();
 }
@@ -52,7 +51,7 @@ bool UClientSideOnlineSubsystem::GetPlayerData(FUserPlayerData& PlayerDataOut)
 bool UClientSideOnlineSubsystem::GetMatchHistoryPage(FString PageToken, FOnMatchHistoryResponse OnResponse,
                                                      FOnErroneousResponse OnError)
 {
-	if (!MhsClient)
+	if (!MhsV2Client)
 	{
 		return false;
 	}
@@ -63,7 +62,7 @@ bool UClientSideOnlineSubsystem::GetMatchHistoryPage(FString PageToken, FOnMatch
 
 	WithRetry<FMatchHistoryPage>([this, PageToken]()
 	{
-		return MhsClient->GetMatchHistory(PlayerData.GetValue().Id, PageToken);
+		return MhsV2Client->GetMatchHistory(PlayerData.GetValue().Id, PageToken);
 	}, 3).Next([this, OnResponse, OnError](TOptional<FMatchHistoryPage> Page)
 	{
 		if (!Page.IsSet())
@@ -146,7 +145,7 @@ bool UClientSideOnlineSubsystem::GetIncomingRequests(FString PageToken, FOnUserL
 
 bool UClientSideOnlineSubsystem::GetRating(FOnInt64Response OnResponse, FOnErroneousResponse OnError)
 {
-	if (!RsClient)
+	if (!MhsV2Client)
 	{
 		return false;
 	}
@@ -156,7 +155,7 @@ bool UClientSideOnlineSubsystem::GetRating(FOnInt64Response OnResponse, FOnErron
 	}
 	WithRetry<int64>([this]()
 	{
-		return RsClient->GetRating(PlayerData.GetValue().Id);
+		return MhsV2Client->GetRating(PlayerData.GetValue().Id);
 	}, 3).Next([OnResponse, OnError](TOptional<int64> Rating)
 	{
 		if (!Rating.IsSet())
@@ -176,7 +175,7 @@ bool UClientSideOnlineSubsystem::GetRating(FOnInt64Response OnResponse, FOnErron
 
 bool UClientSideOnlineSubsystem::GetRatingById(int64 OtherUserId, FOnInt64Response OnResponse, FOnErroneousResponse OnError)
 {
-	if (!RsClient)
+	if (!MhsV2Client)
 	{
 		return false;
 	}
@@ -186,7 +185,7 @@ bool UClientSideOnlineSubsystem::GetRatingById(int64 OtherUserId, FOnInt64Respon
 	}
 	WithRetry<int64>([this, OtherUserId]()
 	{
-		return RsClient->GetRating(OtherUserId);
+		return MhsV2Client->GetRating(OtherUserId);
 	}, 3).Next([OnResponse, OnError](TOptional<int64> Rating)
 	{
 		if (!Rating.IsSet())

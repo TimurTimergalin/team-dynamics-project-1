@@ -5,7 +5,7 @@ option go_package = "team_dynamics/api/proto/match_service";
 
 import "google/api/annotations.proto";
 import "fleet_manager/fleet_manager.proto";
-import "match_history_service/match_history_service.proto";
+import "match_history_service_v2/match_history_service_v2.proto";
 
 message PlayerData {
   optional int64 player_id = 1;
@@ -53,7 +53,7 @@ message GetMatchResponse {
 message EndMatchRequest {
   optional string match_id = 1;
   optional int64 winner_id = 2;
-  repeated match_history_service.Round rounds = 3;
+  repeated match_history_service_v2.Round rounds = 3;
 }
 
 message EndMatchResponse {

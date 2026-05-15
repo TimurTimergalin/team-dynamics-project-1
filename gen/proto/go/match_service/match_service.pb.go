@@ -13,7 +13,7 @@ import (
 	reflect "reflect"
 	sync "sync"
 	fleet_manager "team_dynamics/api/proto/fleet_manager"
-	match_history_service "team_dynamics/api/proto/match_history_service"
+	match_history_service_v2 "team_dynamics/api/proto/match_history_service_v2"
 	unsafe "unsafe"
 )
 
@@ -454,10 +454,10 @@ func (x *GetMatchResponse) GetPlayer2Id() int64 {
 }
 
 type EndMatchRequest struct {
-	state         protoimpl.MessageState         `protogen:"open.v1"`
-	MatchId       *string                        `protobuf:"bytes,1,opt,name=match_id,json=matchId,proto3,oneof" json:"match_id,omitempty"`
-	WinnerId      *int64                         `protobuf:"varint,2,opt,name=winner_id,json=winnerId,proto3,oneof" json:"winner_id,omitempty"`
-	Rounds        []*match_history_service.Round `protobuf:"bytes,3,rep,name=rounds,proto3" json:"rounds,omitempty"`
+	state         protoimpl.MessageState            `protogen:"open.v1"`
+	MatchId       *string                           `protobuf:"bytes,1,opt,name=match_id,json=matchId,proto3,oneof" json:"match_id,omitempty"`
+	WinnerId      *int64                            `protobuf:"varint,2,opt,name=winner_id,json=winnerId,proto3,oneof" json:"winner_id,omitempty"`
+	Rounds        []*match_history_service_v2.Round `protobuf:"bytes,3,rep,name=rounds,proto3" json:"rounds,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -506,7 +506,7 @@ func (x *EndMatchRequest) GetWinnerId() int64 {
 	return 0
 }
 
-func (x *EndMatchRequest) GetRounds() []*match_history_service.Round {
+func (x *EndMatchRequest) GetRounds() []*match_history_service_v2.Round {
 	if x != nil {
 		return x.Rounds
 	}
@@ -737,7 +737,7 @@ var File_match_service_match_service_proto protoreflect.FileDescriptor
 
 const file_match_service_match_service_proto_rawDesc = "" +
 	"\n" +
-	"!match_service/match_service.proto\x12\rmatch_service\x1a\x1cgoogle/api/annotations.proto\x1a!fleet_manager/fleet_manager.proto\x1a1match_history_service/match_history_service.proto\"\xd5\x01\n" +
+	"!match_service/match_service.proto\x12\rmatch_service\x1a\x1cgoogle/api/annotations.proto\x1a!fleet_manager/fleet_manager.proto\x1a7match_history_service_v2/match_history_service_v2.proto\"\xd5\x01\n" +
 	"\n" +
 	"PlayerData\x12 \n" +
 	"\tplayer_id\x18\x01 \x01(\x03H\x00R\bplayerId\x88\x01\x01\x12$\n" +
@@ -781,11 +781,11 @@ const file_match_service_match_service_proto_rawDesc = "" +
 	"player2_id\x18\x03 \x01(\x03H\x02R\tplayer2Id\x88\x01\x01B\x12\n" +
 	"\x10_connection_infoB\r\n" +
 	"\v_player1_idB\r\n" +
-	"\v_player2_id\"\xa4\x01\n" +
+	"\v_player2_id\"\xa7\x01\n" +
 	"\x0fEndMatchRequest\x12\x1e\n" +
 	"\bmatch_id\x18\x01 \x01(\tH\x00R\amatchId\x88\x01\x01\x12 \n" +
-	"\twinner_id\x18\x02 \x01(\x03H\x01R\bwinnerId\x88\x01\x01\x124\n" +
-	"\x06rounds\x18\x03 \x03(\v2\x1c.match_history_service.RoundR\x06roundsB\v\n" +
+	"\twinner_id\x18\x02 \x01(\x03H\x01R\bwinnerId\x88\x01\x01\x127\n" +
+	"\x06rounds\x18\x03 \x03(\v2\x1f.match_history_service_v2.RoundR\x06roundsB\v\n" +
 	"\t_match_idB\f\n" +
 	"\n" +
 	"_winner_id\"\x82\x01\n" +
@@ -834,22 +834,22 @@ func file_match_service_match_service_proto_rawDescGZIP() []byte {
 var file_match_service_match_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_match_service_match_service_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_match_service_match_service_proto_goTypes = []any{
-	(PlayerFailResponse)(0),              // 0: match_service.PlayerFailResponse
-	(*PlayerData)(nil),                   // 1: match_service.PlayerData
-	(*InputMatch)(nil),                   // 2: match_service.InputMatch
-	(*StartMatchRequest)(nil),            // 3: match_service.StartMatchRequest
-	(*MatchCreationResult)(nil),          // 4: match_service.MatchCreationResult
-	(*StartMatchResponse)(nil),           // 5: match_service.StartMatchResponse
-	(*GetMatchRequest)(nil),              // 6: match_service.GetMatchRequest
-	(*GetMatchResponse)(nil),             // 7: match_service.GetMatchResponse
-	(*EndMatchRequest)(nil),              // 8: match_service.EndMatchRequest
-	(*EndMatchResponse)(nil),             // 9: match_service.EndMatchResponse
-	(*CancelMatchRequest)(nil),           // 10: match_service.CancelMatchRequest
-	(*CancelMatchResponse)(nil),          // 11: match_service.CancelMatchResponse
-	(*RenewMatchRequest)(nil),            // 12: match_service.RenewMatchRequest
-	(*RenewMatchResponse)(nil),           // 13: match_service.RenewMatchResponse
-	(*fleet_manager.ConnectionInfo)(nil), // 14: fleet_manager.ConnectionInfo
-	(*match_history_service.Round)(nil),  // 15: match_history_service.Round
+	(PlayerFailResponse)(0),                // 0: match_service.PlayerFailResponse
+	(*PlayerData)(nil),                     // 1: match_service.PlayerData
+	(*InputMatch)(nil),                     // 2: match_service.InputMatch
+	(*StartMatchRequest)(nil),              // 3: match_service.StartMatchRequest
+	(*MatchCreationResult)(nil),            // 4: match_service.MatchCreationResult
+	(*StartMatchResponse)(nil),             // 5: match_service.StartMatchResponse
+	(*GetMatchRequest)(nil),                // 6: match_service.GetMatchRequest
+	(*GetMatchResponse)(nil),               // 7: match_service.GetMatchResponse
+	(*EndMatchRequest)(nil),                // 8: match_service.EndMatchRequest
+	(*EndMatchResponse)(nil),               // 9: match_service.EndMatchResponse
+	(*CancelMatchRequest)(nil),             // 10: match_service.CancelMatchRequest
+	(*CancelMatchResponse)(nil),            // 11: match_service.CancelMatchResponse
+	(*RenewMatchRequest)(nil),              // 12: match_service.RenewMatchRequest
+	(*RenewMatchResponse)(nil),             // 13: match_service.RenewMatchResponse
+	(*fleet_manager.ConnectionInfo)(nil),   // 14: fleet_manager.ConnectionInfo
+	(*match_history_service_v2.Round)(nil), // 15: match_history_service_v2.Round
 }
 var file_match_service_match_service_proto_depIdxs = []int32{
 	1,  // 0: match_service.InputMatch.player1:type_name -> match_service.PlayerData
@@ -859,7 +859,7 @@ var file_match_service_match_service_proto_depIdxs = []int32{
 	0,  // 4: match_service.MatchCreationResult.player2_fail_response:type_name -> match_service.PlayerFailResponse
 	4,  // 5: match_service.StartMatchResponse.results:type_name -> match_service.MatchCreationResult
 	14, // 6: match_service.GetMatchResponse.connection_info:type_name -> fleet_manager.ConnectionInfo
-	15, // 7: match_service.EndMatchRequest.rounds:type_name -> match_history_service.Round
+	15, // 7: match_service.EndMatchRequest.rounds:type_name -> match_history_service_v2.Round
 	3,  // 8: match_service.MatchService.StartMatch:input_type -> match_service.StartMatchRequest
 	6,  // 9: match_service.MatchService.GetMatch:input_type -> match_service.GetMatchRequest
 	8,  // 10: match_service.MatchService.EndMatch:input_type -> match_service.EndMatchRequest

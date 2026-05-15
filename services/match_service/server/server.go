@@ -121,20 +121,15 @@ func getMatchServiceConfig() (*config.MatchServiceConfig, error) {
 	if fmAddr == "" {
 		return nil, errors.New("FLEET_MANAGER_ADDRESS environment variable not set")
 	}
-	rsAddr := os.Getenv("RATING_SERVICE_ADDRESS")
-	if rsAddr == "" {
-		return nil, errors.New("RATING_SERVICE_ADDRESS environment variable not set")
-	}
-	mhsAddr := os.Getenv("MATCH_HISTORY_SERVICE_ADDRESS")
-	if mhsAddr == "" {
-		return nil, errors.New("MATCH_HISTORY_SERVICE_ADDRESS environment variable not set")
+	mhsV2Addr := os.Getenv("MATCH_HISTORY_SERVICE_V2_ADDRESS")
+	if mhsV2Addr == "" {
+		return nil, errors.New("MATCH_HISTORY_SERVICE_V2_ADDRESS environment variable not set")
 	}
 	return &config.MatchServiceConfig{
-		ListenAddress:              listenAddr,
-		HttpListenAddress:          httpListenAddr,
-		FleetManagerAddress:        fmAddr,
-		RatingServiceAddress:       rsAddr,
-		MatchHistoryServiceAddress: mhsAddr,
+		ListenAddress:                listenAddr,
+		HttpListenAddress:            httpListenAddr,
+		FleetManagerAddress:          fmAddr,
+		MatchHistoryServiceV2Address: mhsV2Addr,
 	}, nil
 }
 
@@ -154,9 +149,8 @@ func main() {
 	controller := &controllers.MatchServiceController{
 		Service: services.MakeMatchService(
 			msRedis.MakeMatchKvRepo(redisClient),
-				downstream.NewFleetManagerClientFactory(matchServiceConfig.FleetManagerAddress),
-			downstream.NewRatingServiceClientFactory(matchServiceConfig.RatingServiceAddress),
-			downstream.NewMatchHistoryServiceClientFactory(matchServiceConfig.MatchHistoryServiceAddress),
+			downstream.NewFleetManagerClientFactory(matchServiceConfig.FleetManagerAddress),
+			downstream.NewMatchHistoryServiceV2ClientFactory(matchServiceConfig.MatchHistoryServiceV2Address),
 		),
 	}
 

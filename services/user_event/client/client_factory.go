@@ -6,7 +6,7 @@ import (
 	"github.com/gorilla/websocket"
 	"log/slog"
 	"net/http"
-	rsPb "team_dynamics/api/proto/rating_service"
+	v2Pb "team_dynamics/api/proto/match_history_service_v2"
 	usPb "team_dynamics/api/proto/user_service"
 	"team_dynamics/user_event/connection"
 	"team_dynamics/user_event/downstream"
@@ -22,7 +22,7 @@ type Factory interface {
 
 type clientFactoryImpl struct {
 	usFactory    downstream.UserServiceClientFactory
-	rsFactory    downstream.RatingServiceClientFactory
+	v2Factory    downstream.MatchHistoryServiceV2ClientFactory
 	msFactory    downstream.MatchServiceClientFactory
 	userKvRepo   redis.UserKvRepo
 	disconnectCh chan<- Client
@@ -33,7 +33,7 @@ type clientFactoryImpl struct {
 
 func NewClientFactory(
 	usFactory downstream.UserServiceClientFactory,
-	rsFactory downstream.RatingServiceClientFactory,
+	v2Factory downstream.MatchHistoryServiceV2ClientFactory,
 	msFactory downstream.MatchServiceClientFactory,
 	userKvRepo redis.UserKvRepo,
 	disconnectCh chan<- Client,
@@ -43,7 +43,7 @@ func NewClientFactory(
 ) Factory {
 	return &clientFactoryImpl{
 		usFactory,
-		rsFactory,
+		v2Factory,
 		msFactory,
 		userKvRepo,
 		disconnectCh,
@@ -80,7 +80,7 @@ func (f *clientFactoryImpl) getPlayerData(ctx context.Context, playerID int64) (
 	}()
 
 	go func() {
-		resp, err := f.rsFactory.GetRating(ctx, &rsPb.GetRatingRequest{UserId: &playerID})
+		resp, err := f.v2Factory.GetRating(ctx, &v2Pb.GetRatingRequest{UserId: &playerID})
 		if err != nil {
 			ratingCh <- ratingResult{err: err}
 			return

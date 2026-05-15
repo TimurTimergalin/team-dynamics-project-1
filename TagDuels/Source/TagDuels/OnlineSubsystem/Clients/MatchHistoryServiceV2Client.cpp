@@ -8,14 +8,14 @@
 
 namespace
 {
-    MatchResolution ParseMatchResult(const FString& ProtoResult)
+    MatchResolution ParseMatchResultV2(const FString& ProtoResult)
     {
         if (ProtoResult == TEXT("MATCH_RESULT_PLAYER1_WIN")) return MatchResolution::FirstWins;
         if (ProtoResult == TEXT("MATCH_RESULT_PLAYER2_WIN")) return MatchResolution::SecondWins;
         return MatchResolution::Draw;
     }
 
-    TOptional<FMatchHistory> ConvertMatch(const TSharedPtr<FJsonObject>& MatchObj)
+    TOptional<FMatchHistory> ConvertMatchV2(const TSharedPtr<FJsonObject>& MatchObj)
     {
         if (!MatchObj.IsValid()) return {};
 
@@ -74,7 +74,7 @@ namespace
 
         FString ResultStr;
         if (MatchObj->TryGetStringField(TEXT("matchResult"), ResultStr))
-            History.Resolution = ParseMatchResult(ResultStr);
+            History.Resolution = ParseMatchResultV2(ResultStr);
 
         MatchObj->TryGetStringField(TEXT("matchId"), History.MatchId);
 
@@ -114,7 +114,7 @@ namespace
                 const TSharedPtr<FJsonObject>* MatchObj = nullptr;
                 if (!MatchValue->TryGetObject(MatchObj) || !MatchObj) continue;
 
-                auto Converted = ConvertMatch(*MatchObj);
+                auto Converted = ConvertMatchV2(*MatchObj);
                 if (Converted.IsSet())
                     Page.Matches.Add(Converted.GetValue());
                 else
@@ -125,7 +125,7 @@ namespace
         return Page;
     }
 
-    TOptional<int64> ConvertGetRatingResponse(FHttpResponsePtr Response)
+    TOptional<int64> ConvertGetRatingResponseV2(FHttpResponsePtr Response)
     {
         if (!Response.IsValid())
         {
@@ -199,7 +199,7 @@ TFuture<TOptional<FMatchHistoryPage>> MatchHistoryServiceV2Client::GetMatchHisto
 
 TFuture<TOptional<int64>> MatchHistoryServiceV2Client::GetRating(int64 UserId) const
 {
-    return MakeHttpRequest(CreateGetRatingRequest(UserId)).Next(ConvertGetRatingResponse);
+    return MakeHttpRequest(CreateGetRatingRequest(UserId)).Next(ConvertGetRatingResponseV2);
 }
 
 TOptional<MatchHistoryServiceV2Client> CreateMatchHistoryServiceV2Client()

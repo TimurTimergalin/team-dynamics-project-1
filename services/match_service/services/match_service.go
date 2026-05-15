@@ -6,16 +6,15 @@ import (
 	"fmt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"strconv"
 	"sync"
 	fmPb "team_dynamics/api/proto/fleet_manager"
-	mhsPb "team_dynamics/api/proto/match_history_service"
+	v2Pb "team_dynamics/api/proto/match_history_service_v2"
 	pb "team_dynamics/api/proto/match_service"
-	rsPb "team_dynamics/api/proto/rating_service"
 	"team_dynamics/logging"
 	"team_dynamics/match_service/downstream"
 	"team_dynamics/match_service/models"
 	"team_dynamics/match_service/redis"
+	"strconv"
 	"time"
 )
 
@@ -28,14 +27,13 @@ type MatchService interface {
 }
 
 type matchServiceImpl struct {
-	repo       redis.MatchKvRepo
-	fmFactory  downstream.FleetManagerClientFactory
-	rsFactory  downstream.RatingServiceClientFactory
-	mhsFactory downstream.MatchHistoryServiceClientFactory
+	repo        redis.MatchKvRepo
+	fmFactory   downstream.FleetManagerClientFactory
+	mhsV2Factory downstream.MatchHistoryServiceV2ClientFactory
 }
 
-func MakeMatchService(repo redis.MatchKvRepo, fmFactory downstream.FleetManagerClientFactory, rsFactory downstream.RatingServiceClientFactory, mhsFactory downstream.MatchHistoryServiceClientFactory) MatchService {
-	return &matchServiceImpl{repo, fmFactory, rsFactory, mhsFactory}
+func MakeMatchService(repo redis.MatchKvRepo, fmFactory downstream.FleetManagerClientFactory, mhsV2Factory downstream.MatchHistoryServiceV2ClientFactory) MatchService {
+	return &matchServiceImpl{repo, fmFactory, mhsV2Factory}
 }
 
 func validatePlayerData(data *pb.PlayerData) error {
@@ -330,81 +328,58 @@ func (s *matchServiceImpl) EndMatch(ctx context.Context, request *pb.EndMatchReq
 	}
 
 	// Determine match outcome
-	var result rsPb.MatchResult
-	var historyResult mhsPb.MatchResult
+	var historyResult v2Pb.MatchResult
 	if request.WinnerId == nil {
-		// Draw
-		result = rsPb.MatchResult_MATCH_RESULT_DRAW
-		historyResult = mhsPb.MatchResult_MATCH_RESULT_DRAW
+		historyResult = v2Pb.MatchResult_MATCH_RESULT_DRAW
 	} else {
 		winnerId := *request.WinnerId
 		switch winnerId {
 		case player1.Id:
-			result = rsPb.MatchResult_MATCH_RESULT_WINNER
-			historyResult = mhsPb.MatchResult_MATCH_RESULT_PLAYER1_WIN
+			historyResult = v2Pb.MatchResult_MATCH_RESULT_PLAYER1_WIN
 		case player2.Id:
-			result = rsPb.MatchResult_MATCH_RESULT_LOSER
-			historyResult = mhsPb.MatchResult_MATCH_RESULT_PLAYER2_WIN
+			historyResult = v2Pb.MatchResult_MATCH_RESULT_PLAYER2_WIN
 		default:
 			logger.Debug("EndMatch: winner_id does not match any player", "winnerId", winnerId, "player1Id", player1.Id, "player2Id", player2.Id)
 			return nil, status.Error(codes.InvalidArgument, "winner_id does not match either player")
 		}
 	}
 
-	// Prepare rating service request
-	ratingReq := &rsPb.UpdateRatingRequest{
-		Player1Id:   &player1.Id,
-		Player2Id:   &player2.Id,
-		MatchResult: result,
-		MatchId:     &match.MatchId,
-	}
-
-	// Prepare match history request
+	// Prepare match history v2 request (SaveMatch handles both history and rating)
 	nowMillis := time.Now().UnixMilli()
-	endTimestamp := nowMillis
-	p1Data := &mhsPb.ParticipantData{
+	p1Data := &v2Pb.ParticipantData{
 		Id:     &player1.Id,
 		Name:   &player1.Name,
 		Rating: &player1.Rating,
 	}
-	p2Data := &mhsPb.ParticipantData{
+	p2Data := &v2Pb.ParticipantData{
 		Id:     &player2.Id,
 		Name:   &player2.Name,
 		Rating: &player2.Rating,
 	}
-	matchData := &mhsPb.MatchData{
+
+	matchData := &v2Pb.MatchData{
 		Player1:      p1Data,
 		Player2:      p2Data,
 		Rounds:       request.Rounds,
-		EndTimestamp: &endTimestamp,
+		EndTimestamp: &nowMillis,
 		MatchResult:  historyResult,
 		MatchId:      &match.MatchId,
 	}
-	historyReq := &mhsPb.SaveMatchRequest{
-		Match: matchData,
-	}
 
-	// Call both services concurrently
-	var ratingErr, historyErr error
-	var ratingResp *rsPb.UpdateRatingResponse
+	// Call v2 SaveMatch (handles both history and rating atomically)
+	var saveResp *v2Pb.SaveMatchResponse
+	var saveErr error
 	var wg sync.WaitGroup
-	wg.Add(2)
-
+	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		ratingResp, ratingErr = s.rsFactory.UpdateRating(ctx, ratingReq)
+		saveResp, saveErr = s.mhsV2Factory.SaveMatch(ctx, &v2Pb.SaveMatchRequest{Match: matchData})
 	}()
-	go func() {
-		defer wg.Done()
-		_, historyErr = s.mhsFactory.SaveMatch(ctx, historyReq)
-	}()
-
 	wg.Wait()
 
-	// If either fails, return conflict error
-	if ratingErr != nil || historyErr != nil {
-		logger.Debug("EndMatch: downstream service error", "ratingErr", ratingErr, "historyErr", historyErr)
-		return nil, status.Errorf(codes.Aborted, "failed to record match result: rating error=%v, history error=%v", ratingErr, historyErr)
+	if saveErr != nil {
+		logger.Debug("EndMatch: SaveMatch v2 error", "error", saveErr)
+		return nil, status.Errorf(codes.Aborted, "failed to record match result: %v", saveErr)
 	}
 
 	// Mark match as finished in Redis
@@ -414,12 +389,12 @@ func (s *matchServiceImpl) EndMatch(ctx context.Context, request *pb.EndMatchReq
 	}
 
 	endResp := &pb.EndMatchResponse{}
-	if ratingResp != nil {
-		if ratingResp.Player1Rating != nil {
-			endResp.NewRating_1 = ratingResp.Player1Rating.DisplayValue
+	if saveResp != nil {
+		if saveResp.Player1Rating != nil {
+			endResp.NewRating_1 = saveResp.Player1Rating.DisplayValue
 		}
-		if ratingResp.Player2Rating != nil {
-			endResp.NewRating_2 = ratingResp.Player2Rating.DisplayValue
+		if saveResp.Player2Rating != nil {
+			endResp.NewRating_2 = saveResp.Player2Rating.DisplayValue
 		}
 	}
 	return endResp, nil
@@ -433,45 +408,12 @@ func (s *matchServiceImpl) CancelMatch(ctx context.Context, request *pb.CancelMa
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	// Retrieve match and players by match id
-	match, player1, player2, err := s.repo.GetMatchById(ctx, *request.MatchId)
+	match, _, _, err := s.repo.GetMatchById(ctx, *request.MatchId)
 	if err != nil || match == nil {
 		logger.Debug("CancelMatch: match not found or error", "matchId", *request.MatchId, "error", err)
 		return &pb.CancelMatchResponse{}, nil
 	}
 
-	// Build match history request with cancelled status
-	nowMillis := time.Now().UnixMilli()
-	p1Data := &mhsPb.ParticipantData{
-		Id:     &player1.Id,
-		Name:   &player1.Name,
-		Rating: &player1.Rating,
-	}
-	p2Data := &mhsPb.ParticipantData{
-		Id:     &player2.Id,
-		Name:   &player2.Name,
-		Rating: &player2.Rating,
-	}
-	matchData := &mhsPb.MatchData{
-		Player1:      p1Data,
-		Player2:      p2Data,
-		Rounds:       []*mhsPb.Round{},
-		EndTimestamp: &nowMillis,
-		MatchResult:  mhsPb.MatchResult_MATCH_RESULT_CANCELLED,
-		MatchId:      &match.MatchId,
-	}
-	historyReq := &mhsPb.SaveMatchRequest{
-		Match: matchData,
-	}
-
-	// Save cancelled match to history
-	_, err = s.mhsFactory.SaveMatch(ctx, historyReq)
-	if err != nil {
-		logger.Debug("CancelMatch: SaveMatch failed", "matchId", match.MatchId, "error", err)
-		return nil, status.Errorf(codes.Aborted, "failed to save cancelled match to history: %v", err)
-	}
-
-	// Remove match from Redis
 	if err := s.repo.RemoveMatch(ctx, match.MatchId); err != nil {
 		logger.Debug("CancelMatch: RemoveMatch failed", "matchId", match.MatchId, "error", err)
 		return nil, status.Errorf(codes.Aborted, "failed to remove match: %v", err)

@@ -18,11 +18,11 @@ import (
 )
 
 type MMEventConfig struct {
-	ListenAddress        string
-	MatchServiceAddress  string
-	RatingServiceAddress string
-	UserServiceAddress   string
-	ChannelSizes         int
+	ListenAddress               string
+	MatchServiceAddress         string
+	MatchHistoryServiceV2Address string
+	UserServiceAddress          string
+	ChannelSizes                int
 }
 
 func getRedisOptions() (*redis.Options, error) {
@@ -120,9 +120,9 @@ func getMMEventConfig() (*MMEventConfig, error) {
 	if matchAddr == "" {
 		return nil, errors.New("MATCH_SERVICE_ADDRESS environment variable not set")
 	}
-	ratingAddr := os.Getenv("RATING_SERVICE_ADDRESS")
-	if ratingAddr == "" {
-		return nil, errors.New("RATING_SERVICE_ADDRESS environment variable not set")
+	v2Addr := os.Getenv("MATCH_HISTORY_SERVICE_V2_ADDRESS")
+	if v2Addr == "" {
+		return nil, errors.New("MATCH_HISTORY_SERVICE_V2_ADDRESS environment variable not set")
 	}
 	userAddr := os.Getenv("USER_SERVICE_ADDRESS")
 	if userAddr == "" {
@@ -138,11 +138,11 @@ func getMMEventConfig() (*MMEventConfig, error) {
 	}
 
 	return &MMEventConfig{
-		ListenAddress:        listenAddr,
-		MatchServiceAddress:  matchAddr,
-		RatingServiceAddress: ratingAddr,
-		UserServiceAddress:   userAddr,
-		ChannelSizes:         channelSizes,
+		ListenAddress:                listenAddr,
+		MatchServiceAddress:          matchAddr,
+		MatchHistoryServiceV2Address: v2Addr,
+		UserServiceAddress:           userAddr,
+		ChannelSizes:                 channelSizes,
 	}, nil
 }
 
@@ -250,7 +250,7 @@ func main() {
 	hub := client.NewHub(disconnectCh, registerCh, logger, clientConfig)
 	factory := client.NewClientFactory(
 		downstream.NewMatchServiceClientFactory(mmeCfg.MatchServiceAddress),
-		downstream.NewRatingServiceClientFactory(mmeCfg.RatingServiceAddress),
+		downstream.NewMatchHistoryServiceV2ClientFactory(mmeCfg.MatchHistoryServiceV2Address),
 		downstream.NewUserServiceClientFactory(mmeCfg.UserServiceAddress),
 		mmPoolRepo, disconnectCh, logger, clientConfig, upgrader,
 	)

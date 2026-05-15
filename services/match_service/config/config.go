@@ -1,9 +1,8 @@
 package config
 
 type MatchServiceConfig struct {
-	ListenAddress              string
-	HttpListenAddress          string
-	FleetManagerAddress        string
-	RatingServiceAddress       string
-	MatchHistoryServiceAddress string
+	ListenAddress                 string
+	HttpListenAddress             string
+	FleetManagerAddress           string
+	MatchHistoryServiceV2Address  string
 }

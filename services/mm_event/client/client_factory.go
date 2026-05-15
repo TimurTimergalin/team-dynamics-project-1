@@ -8,8 +8,8 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	v2Pb "team_dynamics/api/proto/match_history_service_v2"
 	msPb "team_dynamics/api/proto/match_service"
-	rsPb "team_dynamics/api/proto/rating_service"
 	usPb "team_dynamics/api/proto/user_service"
 	"team_dynamics/mm_event/connection"
 	"team_dynamics/mm_event/downstream"
@@ -25,7 +25,7 @@ type Factory interface {
 
 type clientFactoryImpl struct {
 	msFactory    downstream.MatchServiceClientFactory
-	rsFactory    downstream.RatingServiceClientFactory
+	v2Factory    downstream.MatchHistoryServiceV2ClientFactory
 	usFactory    downstream.UserServiceClientFactory
 	mmPoolRepo   redis.MMPoolRepo
 	disconnectCh chan<- Client
@@ -36,7 +36,7 @@ type clientFactoryImpl struct {
 
 func NewClientFactory(
 	msFactory downstream.MatchServiceClientFactory,
-	rsFactory downstream.RatingServiceClientFactory,
+	v2Factory downstream.MatchHistoryServiceV2ClientFactory,
 	usFactory downstream.UserServiceClientFactory,
 	mmPoolRepo redis.MMPoolRepo,
 	disconnectCh chan<- Client,
@@ -46,7 +46,7 @@ func NewClientFactory(
 ) Factory {
 	return &clientFactoryImpl{
 		msFactory,
-		rsFactory,
+		v2Factory,
 		usFactory,
 		mmPoolRepo,
 		disconnectCh,
@@ -68,7 +68,7 @@ func (f *clientFactoryImpl) getUserData(ctx context.Context, playerID int64) (*s
 }
 
 func (f *clientFactoryImpl) getUserRating(ctx context.Context, playerID int64) (float64, int64, error) {
-	resp, err := f.rsFactory.GetRating(ctx, &rsPb.GetRatingRequest{UserId: &playerID})
+	resp, err := f.v2Factory.GetRating(ctx, &v2Pb.GetRatingRequest{UserId: &playerID})
 	if err != nil {
 		return 0, 0, err
 	}

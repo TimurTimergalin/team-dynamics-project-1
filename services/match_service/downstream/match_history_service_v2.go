@@ -27,3 +27,4 @@ func (f *matchHistoryServiceV2ClientFactory) SaveMatch(ctx context.Context, req 
 	defer conn.Close()
 	return pb.NewMatchHistoryServiceV2Client(conn).SaveMatch(ctx, req)
 }
+
