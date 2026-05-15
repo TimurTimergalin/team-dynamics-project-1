@@ -30,11 +30,6 @@ message AuthorizeRequest {
 
 message AuthorizeResponse {
   repeated string roles = 1;
-  oneof principal {
-    uint64 user_id = 2;
-    user_common.ExternalKey external_id = 3;
-    string service_account = 4;
-  }
 }
 
 message GetServiceAccountRequest {}

@@ -17,11 +17,12 @@ type FleetManagerService interface {
 }
 
 type fleetManagerServiceImpl struct {
-	k8sOps k8s.Ops
+	k8sOps      k8s.Ops
+	authService AuthService
 }
 
-func MakeFleetManagerService(k8sOps k8s.Ops) FleetManagerService {
-	return &fleetManagerServiceImpl{k8sOps}
+func MakeFleetManagerService(k8sOps k8s.Ops, authService AuthService) FleetManagerService {
+	return &fleetManagerServiceImpl{k8sOps, authService}
 }
 
 func validatePlayerAnnotations(player *pb.PlayerAnnotations) error {
@@ -99,6 +100,9 @@ func (s *fleetManagerServiceImpl) Allocate(ctx context.Context, request *pb.Allo
 		logger.Debug("Allocate: invalid request", "error", err)
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid request: %v", err))
 	}
+	if !s.authService.AuthorizeAllocate(ctx, request) {
+		return nil, status.Error(codes.PermissionDenied, "unauthorized")
+	}
 	address, _, err := s.k8sOps.GetServerByMatchId(ctx, request.GetMatchId())
 	if err == nil {
 		logger.Debug("Allocate: server already exists", "matchId", request.GetMatchId(), "address", address)
@@ -155,6 +159,9 @@ func (s *fleetManagerServiceImpl) GetServer(ctx context.Context, request *pb.Get
 	if err := validateGetServerRequest(request); err != nil {
 		logger.Debug("GetServer: invalid request", "error", err)
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid request: %v", err))
+	}
+	if !s.authService.AuthorizeGetServer(ctx, request) {
+		return nil, status.Error(codes.PermissionDenied, "unauthorized")
 	}
 	address, fleet, err := s.k8sOps.GetServerByMatchId(ctx, request.GetMatchId())
 	if err != nil {

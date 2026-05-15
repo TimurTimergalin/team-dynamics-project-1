@@ -2,15 +2,11 @@ package auth_sdk
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	pb "team_dynamics/api/proto/auth_sidecar"
-	pbCommon "team_dynamics/api/proto/user_common"
 )
-
-var ErrPrincipalMismatch = errors.New("token principal does not match expected principal")
 
 type ServiceAccountInfo struct {
 	Token          string
@@ -18,19 +14,14 @@ type ServiceAccountInfo struct {
 }
 
 type AuthorizeResult struct {
-	Roles     []string
-	Principal isPrincipal
+	Roles map[string]struct{}
 }
 
-type isPrincipal interface{ isPrincipal() }
-
-type UserIdPrincipal struct{ UserId uint64 }
-type SteamIdPrincipal struct{ SteamId int64 }
-type ServiceAccountPrincipal struct{ ServiceAccount string }
-
-func (UserIdPrincipal) isPrincipal()         {}
-func (SteamIdPrincipal) isPrincipal()        {}
-func (ServiceAccountPrincipal) isPrincipal() {}
+// HasRole checks if the specified role exists in the authorization result
+func (r *AuthorizeResult) HasRole(role string) bool {
+	_, exists := r.Roles[role]
+	return exists
+}
 
 type AuthSidecarClient struct {
 	address string
@@ -68,7 +59,7 @@ func (c *AuthSidecarClient) GetServiceAccount(ctx context.Context) (*ServiceAcco
 	}, nil
 }
 
-func (c *AuthSidecarClient) AuthorizeService(ctx context.Context, token string, expectedSA string, authorityMap []*pb.AuthorityMapEntry) (*AuthorizeResult, error) {
+func (c *AuthSidecarClient) AuthorizeService(ctx context.Context, token string, authorityMap []*pb.AuthorityMapEntry) (*AuthorizeResult, error) {
 	conn, err := c.dial()
 	if err != nil {
 		return nil, err
@@ -83,15 +74,10 @@ func (c *AuthSidecarClient) AuthorizeService(ctx context.Context, token string, 
 	if err != nil {
 		return nil, fmt.Errorf("AuthorizeService failed: %w", err)
 	}
-	result := toAuthorizeResult(resp)
-	sa, ok := result.Principal.(ServiceAccountPrincipal)
-	if !ok || sa.ServiceAccount != expectedSA {
-		return nil, ErrPrincipalMismatch
-	}
-	return result, nil
+	return toAuthorizeResult(resp), nil
 }
 
-func (c *AuthSidecarClient) AuthorizeUser(ctx context.Context, token string, expectedPrincipal isPrincipal, authorityMap []*pb.AuthorityMapEntry) (*AuthorizeResult, error) {
+func (c *AuthSidecarClient) AuthorizeUser(ctx context.Context, token string, authorityMap []*pb.AuthorityMapEntry) (*AuthorizeResult, error) {
 	conn, err := c.dial()
 	if err != nil {
 		return nil, err
@@ -106,26 +92,13 @@ func (c *AuthSidecarClient) AuthorizeUser(ctx context.Context, token string, exp
 	if err != nil {
 		return nil, fmt.Errorf("AuthorizeUser failed: %w", err)
 	}
-	result := toAuthorizeResult(resp)
-	if result.Principal != expectedPrincipal {
-		return nil, ErrPrincipalMismatch
-	}
-	return result, nil
+	return toAuthorizeResult(resp), nil
 }
 
 func toAuthorizeResult(resp *pb.AuthorizeResponse) *AuthorizeResult {
-	result := &AuthorizeResult{Roles: resp.Roles}
-	switch p := resp.Principal.(type) {
-	case *pb.AuthorizeResponse_UserId:
-		result.Principal = UserIdPrincipal{UserId: p.UserId}
-	case *pb.AuthorizeResponse_ExternalId:
-		if p.ExternalId != nil {
-			if steamKey, ok := p.ExternalId.Key.(*pbCommon.ExternalKey_SteamId); ok {
-				result.Principal = SteamIdPrincipal{SteamId: steamKey.SteamId}
-			}
-		}
-	case *pb.AuthorizeResponse_ServiceAccount:
-		result.Principal = ServiceAccountPrincipal{ServiceAccount: p.ServiceAccount}
+	rolesSet := make(map[string]struct{})
+	for _, role := range resp.Roles {
+		rolesSet[role] = struct{}{}
 	}
-	return result
+	return &AuthorizeResult{Roles: rolesSet}
 }

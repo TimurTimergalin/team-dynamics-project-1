@@ -12,6 +12,7 @@ spec:
       labels:
         app: mm-exec
     spec:
+      serviceAccountName: mm-exec-sa
       imagePullSecrets:
         - name: craas-4274eb52-inventive-macaw
       containers:

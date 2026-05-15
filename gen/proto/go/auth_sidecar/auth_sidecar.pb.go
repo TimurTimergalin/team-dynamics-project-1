@@ -287,14 +287,8 @@ func (x *AuthorizeRequest) GetTokenType() TokenType {
 }
 
 type AuthorizeResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	Roles []string               `protobuf:"bytes,1,rep,name=roles,proto3" json:"roles,omitempty"`
-	// Types that are valid to be assigned to Principal:
-	//
-	//	*AuthorizeResponse_UserId
-	//	*AuthorizeResponse_ExternalId
-	//	*AuthorizeResponse_ServiceAccount
-	Principal     isAuthorizeResponse_Principal `protobuf_oneof:"principal"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Roles         []string               `protobuf:"bytes,1,rep,name=roles,proto3" json:"roles,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -335,62 +329,6 @@ func (x *AuthorizeResponse) GetRoles() []string {
 	}
 	return nil
 }
-
-func (x *AuthorizeResponse) GetPrincipal() isAuthorizeResponse_Principal {
-	if x != nil {
-		return x.Principal
-	}
-	return nil
-}
-
-func (x *AuthorizeResponse) GetUserId() uint64 {
-	if x != nil {
-		if x, ok := x.Principal.(*AuthorizeResponse_UserId); ok {
-			return x.UserId
-		}
-	}
-	return 0
-}
-
-func (x *AuthorizeResponse) GetExternalId() *user_common.ExternalKey {
-	if x != nil {
-		if x, ok := x.Principal.(*AuthorizeResponse_ExternalId); ok {
-			return x.ExternalId
-		}
-	}
-	return nil
-}
-
-func (x *AuthorizeResponse) GetServiceAccount() string {
-	if x != nil {
-		if x, ok := x.Principal.(*AuthorizeResponse_ServiceAccount); ok {
-			return x.ServiceAccount
-		}
-	}
-	return ""
-}
-
-type isAuthorizeResponse_Principal interface {
-	isAuthorizeResponse_Principal()
-}
-
-type AuthorizeResponse_UserId struct {
-	UserId uint64 `protobuf:"varint,2,opt,name=user_id,json=userId,proto3,oneof"`
-}
-
-type AuthorizeResponse_ExternalId struct {
-	ExternalId *user_common.ExternalKey `protobuf:"bytes,3,opt,name=external_id,json=externalId,proto3,oneof"`
-}
-
-type AuthorizeResponse_ServiceAccount struct {
-	ServiceAccount string `protobuf:"bytes,4,opt,name=service_account,json=serviceAccount,proto3,oneof"`
-}
-
-func (*AuthorizeResponse_UserId) isAuthorizeResponse_Principal() {}
-
-func (*AuthorizeResponse_ExternalId) isAuthorizeResponse_Principal() {}
-
-func (*AuthorizeResponse_ServiceAccount) isAuthorizeResponse_Principal() {}
 
 type GetServiceAccountRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -500,14 +438,9 @@ const file_auth_sidecar_auth_sidecar_proto_rawDesc = "" +
 	"\x05token\x18\x02 \x01(\tH\x00R\x05token\x88\x01\x01\x126\n" +
 	"\n" +
 	"token_type\x18\x03 \x01(\x0e2\x17.auth_sidecar.TokenTypeR\ttokenTypeB\b\n" +
-	"\x06_token\"\xb9\x01\n" +
+	"\x06_token\")\n" +
 	"\x11AuthorizeResponse\x12\x14\n" +
-	"\x05roles\x18\x01 \x03(\tR\x05roles\x12\x19\n" +
-	"\auser_id\x18\x02 \x01(\x04H\x00R\x06userId\x12;\n" +
-	"\vexternal_id\x18\x03 \x01(\v2\x18.user_common.ExternalKeyH\x00R\n" +
-	"externalId\x12)\n" +
-	"\x0fservice_account\x18\x04 \x01(\tH\x00R\x0eserviceAccountB\v\n" +
-	"\tprincipal\"\x1a\n" +
+	"\x05roles\x18\x01 \x03(\tR\x05roles\"\x1a\n" +
 	"\x18GetServiceAccountRequest\"\x82\x01\n" +
 	"\x19GetServiceAccountResponse\x12\x19\n" +
 	"\x05token\x18\x01 \x01(\tH\x00R\x05token\x88\x01\x01\x12,\n" +
@@ -550,16 +483,15 @@ var file_auth_sidecar_auth_sidecar_proto_depIdxs = []int32{
 	1, // 1: auth_sidecar.AuthorityMapEntry.any_user:type_name -> auth_sidecar.AnyUser
 	2, // 2: auth_sidecar.AuthorizeRequest.authority_map:type_name -> auth_sidecar.AuthorityMapEntry
 	0, // 3: auth_sidecar.AuthorizeRequest.token_type:type_name -> auth_sidecar.TokenType
-	7, // 4: auth_sidecar.AuthorizeResponse.external_id:type_name -> user_common.ExternalKey
-	3, // 5: auth_sidecar.AuthSidecar.Authorize:input_type -> auth_sidecar.AuthorizeRequest
-	5, // 6: auth_sidecar.AuthSidecar.GetServiceAccount:input_type -> auth_sidecar.GetServiceAccountRequest
-	4, // 7: auth_sidecar.AuthSidecar.Authorize:output_type -> auth_sidecar.AuthorizeResponse
-	6, // 8: auth_sidecar.AuthSidecar.GetServiceAccount:output_type -> auth_sidecar.GetServiceAccountResponse
-	7, // [7:9] is the sub-list for method output_type
-	5, // [5:7] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	3, // 4: auth_sidecar.AuthSidecar.Authorize:input_type -> auth_sidecar.AuthorizeRequest
+	5, // 5: auth_sidecar.AuthSidecar.GetServiceAccount:input_type -> auth_sidecar.GetServiceAccountRequest
+	4, // 6: auth_sidecar.AuthSidecar.Authorize:output_type -> auth_sidecar.AuthorizeResponse
+	6, // 7: auth_sidecar.AuthSidecar.GetServiceAccount:output_type -> auth_sidecar.GetServiceAccountResponse
+	6, // [6:8] is the sub-list for method output_type
+	4, // [4:6] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_auth_sidecar_auth_sidecar_proto_init() }
@@ -574,11 +506,6 @@ func file_auth_sidecar_auth_sidecar_proto_init() {
 		(*AuthorityMapEntry_ServiceAccount)(nil),
 	}
 	file_auth_sidecar_auth_sidecar_proto_msgTypes[2].OneofWrappers = []any{}
-	file_auth_sidecar_auth_sidecar_proto_msgTypes[3].OneofWrappers = []any{
-		(*AuthorizeResponse_UserId)(nil),
-		(*AuthorizeResponse_ExternalId)(nil),
-		(*AuthorizeResponse_ServiceAccount)(nil),
-	}
 	file_auth_sidecar_auth_sidecar_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

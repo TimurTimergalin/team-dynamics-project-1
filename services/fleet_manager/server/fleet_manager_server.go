@@ -12,6 +12,7 @@ import (
 	"os"
 	"strconv"
 	pb "team_dynamics/api/proto/fleet_manager"
+	auth "team_dynamics/auth_sdk"
 	"team_dynamics/fleet_manager/config"
 	"team_dynamics/fleet_manager/controllers"
 	"team_dynamics/fleet_manager/k8s"
@@ -148,6 +149,9 @@ func main() {
 			k8s.MakeOps(
 				versionedClient,
 				opsConfig,
+			),
+			services.MakeAuthService(
+				auth.NewAuthSidecarClient(os.Getenv("AUTH_SIDECAR_ADDRESS")),
 			),
 		),
 	}

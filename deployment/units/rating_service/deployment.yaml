@@ -12,6 +12,7 @@ spec:
       labels:
         app: rating-service
     spec:
+      serviceAccountName: rating-service-sa
       imagePullSecrets:
         - name: craas-4274eb52-inventive-macaw
       containers:

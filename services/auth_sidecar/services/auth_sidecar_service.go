@@ -86,8 +86,7 @@ func (s *authSidecarServiceImpl) Authorize(ctx context.Context, req *pb.Authoriz
 			return nil, status.Errorf(codes.Unauthenticated, "invalid service account token: %v", err)
 		}
 		return &pb.AuthorizeResponse{
-			Roles:     s.roleService.ResolveRolesForServiceAccount(am, sa),
-			Principal: &pb.AuthorizeResponse_ServiceAccount{ServiceAccount: sa},
+			Roles: s.roleService.ResolveRolesForServiceAccount(am, sa),
 		}, nil
 	}
 
@@ -109,18 +108,7 @@ func (s *authSidecarServiceImpl) Authorize(ctx context.Context, req *pb.Authoriz
 		}
 	}
 
-	resp := &pb.AuthorizeResponse{
+	return &pb.AuthorizeResponse{
 		Roles: s.roleService.ResolveRolesForUser(am, *userId),
-	}
-	if userId.PlayerId != nil {
-		playerId := uint64(*userId.PlayerId)
-		resp.Principal = &pb.AuthorizeResponse_UserId{UserId: playerId}
-	} else if userId.SteamId != nil {
-		resp.Principal = &pb.AuthorizeResponse_ExternalId{
-			ExternalId: &pbCommon.ExternalKey{
-				Key: &pbCommon.ExternalKey_SteamId{SteamId: *userId.SteamId},
-			},
-		}
-	}
-	return resp, nil
+	}, nil
 }
