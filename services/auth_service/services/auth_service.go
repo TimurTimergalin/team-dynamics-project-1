@@ -19,6 +19,7 @@ type AuthService struct {
 	pb.UnimplementedAuthServiceServer
 	jwtService            JwtService
 	steamService          SteamService
+	eosService            EosService
 	userServiceClient     downstream.UserServiceClientFactory
 	authKvRepo            repos.AuthKvRepo
 	primaryPublicKeyPem   string
@@ -37,7 +38,7 @@ func marshalPublicKeyPem(keyPair models.KeyPair) (string, error) {
 	})), nil
 }
 
-func NewAuthService(jwtService JwtService, steamService SteamService, userServiceClient downstream.UserServiceClientFactory, authKvRepo repos.AuthKvRepo, primaryKeyPair models.KeyPair, secondaryKeyPair models.KeyPair, version string) (*AuthService, error) {
+func NewAuthService(jwtService JwtService, steamService SteamService, eosService EosService, userServiceClient downstream.UserServiceClientFactory, authKvRepo repos.AuthKvRepo, primaryKeyPair models.KeyPair, secondaryKeyPair models.KeyPair, version string) (*AuthService, error) {
 	primaryPem, err := marshalPublicKeyPem(primaryKeyPair)
 	if err != nil {
 		return nil, err
@@ -49,6 +50,7 @@ func NewAuthService(jwtService JwtService, steamService SteamService, userServic
 	return &AuthService{
 		jwtService:            jwtService,
 		steamService:          steamService,
+		eosService:            eosService,
 		userServiceClient:     userServiceClient,
 		authKvRepo:            authKvRepo,
 		primaryPublicKeyPem:   primaryPem,
@@ -71,8 +73,6 @@ func (s *AuthService) AuthExternal(ctx context.Context, req *pb.AuthExternalRequ
 		if steamId != key.SteamId {
 			return nil, status.Error(codes.Unauthenticated, "steam id mismatch")
 		}
-
-		// Call user_service to get internal user data
 		userResp, err := s.userServiceClient.GetSelfData(ctx, &userPb.GetSelfDataRequest{
 			Key: &pbCommon.ExternalKey{Key: &pbCommon.ExternalKey_SteamId{SteamId: steamId}},
 		})
@@ -82,11 +82,35 @@ func (s *AuthService) AuthExternal(ctx context.Context, req *pb.AuthExternalRequ
 		if userResp == nil || userResp.UserData == nil || userResp.UserData.Id == nil {
 			return nil, status.Error(codes.Internal, "user service returned invalid response")
 		}
-
-		// Create tokens with only player_id
-		userId := models.UserId{
-			PlayerId: userResp.UserData.Id,
+		userId := models.UserId{PlayerId: userResp.UserData.Id}
+		access, refresh, err := s.jwtService.MakeTokenPair(userId)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "failed to create token pair: %v", err)
 		}
+		return &pb.AuthExternalResponse{
+			Access:      &access,
+			Refresh:     &refresh,
+			UserData:    userResp.UserData,
+			ExternalKey: req.ExternalKey,
+		}, nil
+	case *pbCommon.ExternalKey_EosId:
+		accountId, err := s.eosService.Validate(ctx, *req.AuthToken)
+		if err != nil {
+			return nil, status.Errorf(codes.Unauthenticated, "eos validation failed: %v", err)
+		}
+		if accountId != key.EosId {
+			return nil, status.Error(codes.Unauthenticated, "eos id mismatch")
+		}
+		userResp, err := s.userServiceClient.GetSelfData(ctx, &userPb.GetSelfDataRequest{
+			Key: &pbCommon.ExternalKey{Key: &pbCommon.ExternalKey_EosId{EosId: accountId}},
+		})
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "failed to get user data: %v", err)
+		}
+		if userResp == nil || userResp.UserData == nil || userResp.UserData.Id == nil {
+			return nil, status.Error(codes.Internal, "user service returned invalid response")
+		}
+		userId := models.UserId{PlayerId: userResp.UserData.Id}
 		access, refresh, err := s.jwtService.MakeTokenPair(userId)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "failed to create token pair: %v", err)

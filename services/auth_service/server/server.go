@@ -140,6 +140,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
+	eosClientId, err := requireEnv("EOS_CLIENT_ID")
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+	eosClientSecret, err := requireEnv("EOS_CLIENT_SECRET")
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
 	issuer, err := requireEnv("JWT_ISSUER")
 	if err != nil {
 		log.Fatalf("%v", err)
@@ -202,10 +210,11 @@ func main() {
 		secondaryKeyPair,
 	)
 	steamService := services.NewSteamService(steamApiKey, steamAppId)
+	eosService := services.NewEosService(eosClientId, eosClientSecret)
 	userServiceClient := downstream.NewUserServiceClientFactory(userServiceAddress)
 	authKvRepo := repos.MakeAuthKvRepo(redisClient, refreshExpiration)
 
-	authService, err := services.NewAuthService(jwtService, steamService, userServiceClient, authKvRepo, primaryKeyPair, secondaryKeyPair, keyPairVersion)
+	authService, err := services.NewAuthService(jwtService, steamService, eosService, userServiceClient, authKvRepo, primaryKeyPair, secondaryKeyPair, keyPairVersion)
 	if err != nil {
 		log.Fatalf("cannot create auth service: %v", err)
 	}

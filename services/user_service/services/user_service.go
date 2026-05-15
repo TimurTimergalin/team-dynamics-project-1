@@ -43,10 +43,11 @@ type userServiceImpl struct {
 	repo           pg.UserStorageRepo
 	pageKeyService PageKeyService
 	steamService   SteamService
+	eosService     EosService
 }
 
-func MakeUserService(repo pg.UserStorageRepo, pageKeyService PageKeyService, steamService SteamService) UserService {
-	return &userServiceImpl{repo, pageKeyService, steamService}
+func MakeUserService(repo pg.UserStorageRepo, pageKeyService PageKeyService, steamService SteamService, eosService EosService) UserService {
+	return &userServiceImpl{repo, pageKeyService, steamService, eosService}
 }
 
 func convertUserData(model *models.UserData) *pbCommon.UserData {
@@ -108,7 +109,7 @@ func (s *userServiceImpl) parsePageKey(raw *string) (*models.PageKey, error) {
 
 func validateGetSelfDataRequest(req *pb.GetSelfDataRequest) error {
 	if req == nil || req.Key == nil || req.Key.Key == nil {
-		return errors.New("steam id is not set")
+		return errors.New("external key is not set")
 	}
 	return nil
 }
@@ -126,21 +127,36 @@ func (s *userServiceImpl) GetSelfData(ctx context.Context, req *pb.GetSelfDataRe
 		logger.Debug("invalid request", "error", err)
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid request: %v", err))
 	}
-	steamId := req.Key.Key.(*pbCommon.ExternalKey_SteamId).SteamId
-	steamData, err := s.steamService.GetUserSummary(ctx, fmt.Sprintf("%d", steamId))
-	if err != nil {
-		logger.Error("failed to fetch Steam data", "steam_id", steamId, "error", err)
-		return nil, status.Errorf(codes.Unavailable, "failed to fetch Steam data: %v", err)
+	switch key := req.Key.Key.(type) {
+	case *pbCommon.ExternalKey_SteamId:
+		steamData, err := s.steamService.GetUserSummary(ctx, fmt.Sprintf("%d", key.SteamId))
+		if err != nil {
+			logger.Error("failed to fetch Steam data", "steam_id", key.SteamId, "error", err)
+			return nil, status.Errorf(codes.Unavailable, "failed to fetch Steam data: %v", err)
+		}
+		user, pgErr := s.repo.UpsertSelfData(ctx, key.SteamId, steamData.Name)
+		if pgErr != nil {
+			logger.Error("failed to upsert user", "steam_id", key.SteamId, "error", pgErr)
+			return nil, convertError(pgErr)
+		}
+		logger.Debug("GetSelfData steam: ok", "user_id", user.Id)
+		return &pb.GetSelfDataResponse{UserData: convertUserData(user)}, nil
+	case *pbCommon.ExternalKey_EosId:
+		eosData, err := s.eosService.GetUserSummary(ctx, key.EosId)
+		if err != nil {
+			logger.Error("failed to fetch EOS data", "eos_id", key.EosId, "error", err)
+			return nil, status.Errorf(codes.Unavailable, "failed to fetch EOS data: %v", err)
+		}
+		user, pgErr := s.repo.UpsertSelfDataEos(ctx, key.EosId, eosData.Name)
+		if pgErr != nil {
+			logger.Error("failed to upsert eos user", "eos_id", key.EosId, "error", pgErr)
+			return nil, convertError(pgErr)
+		}
+		logger.Debug("GetSelfData eos: ok", "user_id", user.Id)
+		return &pb.GetSelfDataResponse{UserData: convertUserData(user)}, nil
+	default:
+		return nil, status.Error(codes.InvalidArgument, "unsupported external key type")
 	}
-	user, pgErr := s.repo.UpsertSelfData(ctx, steamId, steamData.Name)
-	if pgErr != nil {
-		logger.Error("failed to upsert user", "steam_id", steamId, "error", pgErr)
-		return nil, convertError(pgErr)
-	}
-	logger.Debug("GetSelfData: ok", "user_id", user.Id)
-	return &pb.GetSelfDataResponse{
-		UserData: convertUserData(user),
-	}, nil
 }
 
 func (s *userServiceImpl) GetUserData(ctx context.Context, req *pb.GetUserDataRequest) (*pb.GetUserDataResponse, error) {

@@ -11,6 +11,12 @@ type UserData struct {
 	Id      int64
 	Name    string
 	SteamId *int64
+	EosId   *string
+}
+
+type EosData struct {
+	EosId string
+	Name  string
 }
 
 type Friend struct {

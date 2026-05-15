@@ -50,6 +50,16 @@ spec:
                 secretKeyRef:
                   name: steam-api
                   key: API_KEY
+            - name: EOS_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: egs-api
+                  key: CLIENT_ID
+            - name: EOS_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: egs-api
+                  key: CLIENT_SECRET
           resources:
             requests:
               memory: "64Mi"

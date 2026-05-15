@@ -15,6 +15,7 @@ import (
 
 type UserStorageRepo interface {
 	UpsertSelfData(ctx context.Context, steamId int64, name string) (*models.UserData, *pglib.PgLibError)
+	UpsertSelfDataEos(ctx context.Context, eosId string, name string) (*models.UserData, *pglib.PgLibError)
 	GetUserData(ctx context.Context, id int64) (*models.UserData, *pglib.PgLibError)
 	GetFriends(ctx context.Context, userId int64, key *models.PageKey) ([]*models.Friend, *pglib.PgLibError)
 	GetIncomingRequests(ctx context.Context, userId int64, key *models.PageKey) ([]*models.Friend, *pglib.PgLibError)
@@ -39,6 +40,7 @@ INSERT INTO users (name, steam_id) VALUES ($1, $2)
 ON CONFLICT (steam_id) DO UPDATE SET name = EXCLUDED.name
 RETURNING id, name
 `, name, steamId).Scan(&res.Id, &res.Name)
+
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
@@ -48,6 +50,28 @@ RETURNING id, name
 			}
 		}
 		logger.Debug("error while upserting user", "error", err)
+		return nil, err, pglib.NormalRetry
+	}
+	return &res, nil, pglib.NoRetry
+}
+
+func upsertSelfDataEosImpl(ctx context.Context, tx pgx.Tx, eosId string, name string) (*models.UserData, error, pglib.ResponseStatus) {
+	logger := logging.GetLogger(ctx)
+	var res models.UserData
+	err := tx.QueryRow(ctx, `
+INSERT INTO users (name, eos_id) VALUES ($1, $2)
+ON CONFLICT (eos_id) DO UPDATE SET name = EXCLUDED.name
+RETURNING id, name
+`, name, eosId).Scan(&res.Id, &res.Name)
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			if pglib.IsSerializationError(pgErr) {
+				logger.Debug("serialization error while upserting eos user", "error", err)
+				return nil, err, pglib.FreeRetry
+			}
+		}
+		logger.Debug("error while upserting eos user", "error", err)
 		return nil, err, pglib.NormalRetry
 	}
 	return &res, nil, pglib.NoRetry
@@ -207,6 +231,17 @@ func (r userStorageRepoImpl) UpsertSelfData(ctx context.Context, steamId int64, 
 		AccessMode:     pgx.ReadWrite,
 	}, func(ctx1 context.Context, tx pgx.Tx) (*models.UserData, error, pglib.ResponseStatus) {
 		return upsertSelfDataImpl(ctx1, tx, steamId, name)
+	})
+}
+
+func (r userStorageRepoImpl) UpsertSelfDataEos(ctx context.Context, eosId string, name string) (*models.UserData, *pglib.PgLibError) {
+	return pglib.PerformOperation(ctx, r.pool, &pglib.QueryConfig{
+		Retries:        3,
+		Timeout:        200 * time.Millisecond,
+		IsolationLevel: pgx.RepeatableRead,
+		AccessMode:     pgx.ReadWrite,
+	}, func(ctx1 context.Context, tx pgx.Tx) (*models.UserData, error, pglib.ResponseStatus) {
+		return upsertSelfDataEosImpl(ctx1, tx, eosId, name)
 	})
 }
 

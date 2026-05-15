@@ -194,12 +194,21 @@ func main() {
 	if steamApiKey == "" {
 		panic("STEAM_API_KEY environment variable not set")
 	}
+	eosClientId := os.Getenv("EOS_CLIENT_ID")
+	if eosClientId == "" {
+		panic("EOS_CLIENT_ID environment variable not set")
+	}
+	eosClientSecret := os.Getenv("EOS_CLIENT_SECRET")
+	if eosClientSecret == "" {
+		panic("EOS_CLIENT_SECRET environment variable not set")
+	}
 
 	controller := &controllers.UserServiceController{
 		Service: services.MakeUserService(
 			pg.MakeUserStorageRepo(pool),
 			services.MakePageKeyService(),
 			services.NewSteamService(steamApiKey),
+			services.NewEosService(eosClientId, eosClientSecret),
 		),
 	}
 

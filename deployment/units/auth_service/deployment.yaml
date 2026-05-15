@@ -45,6 +45,16 @@ spec:
                 secretKeyRef:
                   name: steam-api
                   key: APP_ID
+            - name: EOS_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: egs-api
+                  key: CLIENT_ID
+            - name: EOS_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: egs-api
+                  key: CLIENT_SECRET
             - name: KEY_PAIR_VERSION
               valueFrom:
                 secretKeyRef:
