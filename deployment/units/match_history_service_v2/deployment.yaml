@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: match-history-service-v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: match-history-service-v2
+  template:
+    metadata:
+      labels:
+        app: match-history-service-v2
+      annotations:
+        linkerd.io/inject: enabled
+    spec:
+      serviceAccountName: match-history-service-v2-sa
+      imagePullSecrets:
+        - name: craas-4274eb52-inventive-macaw
+      containers:
+        - name: match-history-service-v2
+          image: 4274eb52-inventive-macaw.registry.twcstorage.ru/tag-duels/match-history-service-v2-server:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 50001
+              name: grpc
+            - containerPort: 8080
+              name: http
+          envFrom:
+            - configMapRef:
+                name: match-history-service-v2-env
+          env:
+            - name: PG_USER
+              valueFrom:
+                secretKeyRef:
+                  name: match-history-storage-v2-credentials
+                  key: POSTGRES_USER
+            - name: PG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: match-history-storage-v2-credentials
+                  key: POSTGRES_PASSWORD
+            - name: PG_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: match-history-storage-v2-config
+                  key: POSTGRES_DB
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"
+          livenessProbe:
+            tcpSocket:
+              port: 50001
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            tcpSocket:
+              port: 50001
+            initialDelaySeconds: 5
+            periodSeconds: 10

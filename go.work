@@ -10,6 +10,7 @@ use (
 	./services/auth_service
 	./services/fleet_manager
 	./services/match_history_service
+	./services/match_history_service_v2
 	./services/match_service
 	./services/mm_event
 	./services/rating_service

@@ -23,7 +23,6 @@ enum MatchResult {
     MATCH_RESULT_PLAYER1_WIN = 1;
     MATCH_RESULT_DRAW = 2;
     MATCH_RESULT_PLAYER2_WIN = 3;
-    MATCH_RESULT_CANCELLED = 4;
 }
 
 message MatchData {
