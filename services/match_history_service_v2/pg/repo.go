@@ -1,0 +1,298 @@
+package pg
+
+import (
+	"context"
+	"errors"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"team_dynamics/logging"
+	"team_dynamics/match_history_service_v2/models"
+	pglib "team_dynamics/pg_lib/include"
+	"time"
+)
+
+type MatchHistoryV2Repo interface {
+	GetMatchesFirstPage(ctx context.Context, userId int64) ([]*models.AggregatedMatch, *pglib.PgLibError)
+	GetMatchesSecondPage(ctx context.Context, userId int64, pageKey *models.PageKey) ([]*models.AggregatedMatch, *pglib.PgLibError)
+	GetUserRating(ctx context.Context, ratingInfo *models.RatingInfo) (*models.RatingInfo, *pglib.PgLibError)
+	SaveMatch(ctx context.Context, match *models.AggregatedMatch, ratings []*models.RatingInfo) *pglib.PgLibError
+}
+
+type matchHistoryV2RepoImpl struct {
+	pool *pgxpool.Pool
+}
+
+func MakeMatchHistoryV2Repo(pool *pgxpool.Pool) MatchHistoryV2Repo {
+	return &matchHistoryV2RepoImpl{pool}
+}
+
+// ---- match history reads ----
+
+func getAggregatedMatches(ctx context.Context, tx pgx.Tx, matchRows pgx.Rows) (*[]*models.AggregatedMatch, error, pglib.ResponseStatus) {
+	logger := logging.GetLogger(ctx)
+	matches := make([]*models.Match, 0, 10)
+	for matchRows.Next() {
+		var m models.Match
+		err := matchRows.Scan(&m.MatchId, &m.Player1Id, &m.Player2Id, &m.Player1Name, &m.Player2Name, &m.Player1Rating, &m.Player2Rating, &m.End, &m.Result)
+		if err != nil {
+			var pgErr *pgconn.PgError
+			if errors.As(err, &pgErr) {
+				if pglib.IsServerSideTimeout(pgErr) {
+					logger.Debug("Timeout when getting match list (server)", "error", err)
+					return nil, err, pglib.NormalRetry
+				}
+			}
+			if errors.Is(err, context.DeadlineExceeded) {
+				logger.Debug("Timeout when getting match list (client)", "error", err)
+				return nil, err, pglib.NormalRetry
+			}
+			logger.Error("Error occurred while reading match", "error", err)
+			return nil, err, pglib.NoRetry
+		}
+		matches = append(matches, &m)
+	}
+	if len(matches) == 0 {
+		result := make([]*models.AggregatedMatch, 0)
+		return &result, nil, pglib.NoRetry
+	}
+	matchIds := make([]string, 0, len(matches))
+	for _, match := range matches {
+		matchIds = append(matchIds, match.MatchId)
+	}
+	roundRows, err := tx.Query(ctx, `
+SELECT match_id, is_player1_killer, time_millis
+FROM rounds
+WHERE match_id = ANY($1)
+ORDER BY round_number ASC
+`, matchIds)
+	if err != nil {
+		logger.Debug("Cannot get round list", "error", err)
+		return nil, err, pglib.NormalRetry
+	}
+	defer roundRows.Close()
+	roundsMap := make(map[string][]*models.Round)
+	for roundRows.Next() {
+		var r models.Round
+		var matchId string
+		var timeMillis int64
+		err := roundRows.Scan(&matchId, &r.IsPlayer1Killer, &timeMillis)
+		if err != nil {
+			var pgErr *pgconn.PgError
+			if errors.As(err, &pgErr) {
+				if pglib.IsServerSideTimeout(pgErr) {
+					logger.Debug("Timeout when getting round list (server)", "error", err)
+					return nil, err, pglib.NormalRetry
+				}
+			}
+			if errors.Is(err, context.DeadlineExceeded) {
+				logger.Debug("Timeout when getting round list (client)", "error", err)
+				return nil, err, pglib.NormalRetry
+			}
+			logger.Error("Error occurred while reading round", "error", err)
+			return nil, err, pglib.NoRetry
+		}
+		r.Length = time.Duration(timeMillis) * time.Millisecond
+		roundsMap[matchId] = append(roundsMap[matchId], &r)
+	}
+	results := make([]*models.AggregatedMatch, 0, len(matches))
+	for _, match := range matches {
+		rounds, ok := roundsMap[match.MatchId]
+		if !ok {
+			rounds = make([]*models.Round, 0)
+		}
+		results = append(results, &models.AggregatedMatch{MatchObj: match, Rounds: rounds})
+	}
+	return &results, nil, pglib.NoRetry
+}
+
+func getMatchesFirstPageImpl(ctx context.Context, tx pgx.Tx, userId int64) (*[]*models.AggregatedMatch, error, pglib.ResponseStatus) {
+	logger := logging.GetLogger(ctx)
+	matchRows, err := tx.Query(ctx, `
+SELECT match_id, player1_id, player2_id, player1_name, player2_name,
+player1_rating, player2_rating, end_timestamp, result
+FROM matches
+WHERE (player1_id = $1 OR player2_id = $1) AND result != 3
+ORDER BY end_timestamp DESC
+LIMIT 10
+`, userId)
+	if err != nil {
+		logger.Debug("Cannot get match list", "error", err)
+		return nil, err, pglib.NormalRetry
+	}
+	defer matchRows.Close()
+	return getAggregatedMatches(ctx, tx, matchRows)
+}
+
+func getMatchesSecondPageImpl(ctx context.Context, tx pgx.Tx, userId int64, pageKey *models.PageKey) (*[]*models.AggregatedMatch, error, pglib.ResponseStatus) {
+	logger := logging.GetLogger(ctx)
+	matchRows, err := tx.Query(ctx, `
+SELECT match_id, player1_id, player2_id, player1_name, player2_name,
+player1_rating, player2_rating, end_timestamp, result
+FROM matches
+WHERE (player1_id = $1 OR player2_id = $1) AND end_timestamp < $2 AND result != 3
+ORDER BY end_timestamp DESC
+LIMIT 10
+`, userId, pageKey.Before)
+	if err != nil {
+		logger.Debug("Cannot get match list", "error", err)
+		return nil, err, pglib.NormalRetry
+	}
+	defer matchRows.Close()
+	return getAggregatedMatches(ctx, tx, matchRows)
+}
+
+func (r *matchHistoryV2RepoImpl) GetMatchesFirstPage(ctx context.Context, userId int64) ([]*models.AggregatedMatch, *pglib.PgLibError) {
+	matches, err := pglib.PerformOperation(ctx, r.pool, &pglib.QueryConfig{
+		Retries:        3,
+		Timeout:        200 * time.Millisecond,
+		IsolationLevel: pgx.ReadCommitted,
+		AccessMode:     pgx.ReadOnly,
+	}, func(ctx1 context.Context, tx pgx.Tx) (*[]*models.AggregatedMatch, error, pglib.ResponseStatus) {
+		return getMatchesFirstPageImpl(ctx1, tx, userId)
+	})
+	if matches == nil {
+		return make([]*models.AggregatedMatch, 0), err
+	}
+	return *matches, err
+}
+
+func (r *matchHistoryV2RepoImpl) GetMatchesSecondPage(ctx context.Context, userId int64, pageKey *models.PageKey) ([]*models.AggregatedMatch, *pglib.PgLibError) {
+	matches, err := pglib.PerformOperation(ctx, r.pool, &pglib.QueryConfig{
+		Retries:        3,
+		Timeout:        200 * time.Millisecond,
+		IsolationLevel: pgx.ReadCommitted,
+		AccessMode:     pgx.ReadOnly,
+	}, func(ctx1 context.Context, tx pgx.Tx) (*[]*models.AggregatedMatch, error, pglib.ResponseStatus) {
+		return getMatchesSecondPageImpl(ctx1, tx, userId, pageKey)
+	})
+	if matches == nil {
+		return make([]*models.AggregatedMatch, 0), err
+	}
+	return *matches, err
+}
+
+// ---- rating reads ----
+
+func getUserRatingImpl(ctx context.Context, tx pgx.Tx, ratingInfo *models.RatingInfo) (*models.RatingInfo, error, pglib.ResponseStatus) {
+	logger := logging.GetLogger(ctx)
+	res := models.RatingInfo{UserId: ratingInfo.UserId}
+	err := tx.QueryRow(ctx,
+		"SELECT rating, rating_deviation, rating_volatility, last_updated FROM ratings WHERE user_id = $1",
+		ratingInfo.UserId,
+	).Scan(&res.Value, &res.Deviation, &res.Volatility, &res.LastUpdate)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			_, err := tx.Exec(ctx,
+				"INSERT INTO ratings (user_id, rating, rating_deviation, rating_volatility, last_updated) VALUES ($1, $2, $3, $4, $5)",
+				ratingInfo.UserId, ratingInfo.Value, ratingInfo.Deviation, ratingInfo.Volatility, ratingInfo.LastUpdate,
+			)
+			if err != nil {
+				var pgErr *pgconn.PgError
+				if errors.As(err, &pgErr) && pglib.IsSerializationError(pgErr) {
+					logger.Debug("Serialization error while inserting default rating", "error", err)
+					return nil, err, pglib.FreeRetry
+				}
+				logger.Warn("Pg error while inserting default rating", "error", err)
+				return nil, err, pglib.NormalRetry
+			}
+			return ratingInfo, nil, pglib.NoRetry
+		}
+		logger.Warn("Error while getting rating", "error", err)
+		return nil, err, pglib.NormalRetry
+	}
+	return &res, nil, pglib.NoRetry
+}
+
+func (r *matchHistoryV2RepoImpl) GetUserRating(ctx context.Context, ratingInfo *models.RatingInfo) (*models.RatingInfo, *pglib.PgLibError) {
+	return pglib.PerformOperation(ctx, r.pool, &pglib.QueryConfig{
+		Retries:        3,
+		Timeout:        200 * time.Millisecond,
+		IsolationLevel: pgx.RepeatableRead,
+		AccessMode:     pgx.ReadWrite,
+	}, func(ctx1 context.Context, tx pgx.Tx) (*models.RatingInfo, error, pglib.ResponseStatus) {
+		return getUserRatingImpl(ctx1, tx, ratingInfo)
+	})
+}
+
+// ---- combined write ----
+
+func saveMatchImpl(ctx context.Context, tx pgx.Tx, match *models.AggregatedMatch, ratings []*models.RatingInfo) (*struct{}, error, pglib.ResponseStatus) {
+	logger := logging.GetLogger(ctx)
+	matchObj := match.MatchObj
+
+	_, err := tx.Exec(ctx, `
+INSERT INTO matches (match_id, player1_id, player2_id, player1_name, player2_name, player1_rating, player2_rating, end_timestamp, result)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+`, matchObj.MatchId, matchObj.Player1Id, matchObj.Player2Id, matchObj.Player1Name, matchObj.Player2Name,
+		matchObj.Player1Rating, matchObj.Player2Rating, matchObj.End, matchObj.Result)
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			if pglib.IsConstraintViolated(pgErr) {
+				logger.Info("Constraint violated when inserting match", "error", err)
+				return nil, nil, pglib.ForceRollback
+			}
+			if pglib.IsSerializationError(pgErr) {
+				return nil, err, pglib.FreeRetry
+			}
+		}
+		return nil, err, pglib.NormalRetry
+	}
+
+	if len(match.Rounds) > 0 {
+		batch := &pgx.Batch{}
+		for i, round := range match.Rounds {
+			batch.Queue(`
+INSERT INTO rounds (match_id, round_number, is_player1_killer, time_millis)
+VALUES ($1, $2, $3, $4)
+`, matchObj.MatchId, i, round.IsPlayer1Killer, round.Length.Milliseconds())
+		}
+		br := tx.SendBatch(ctx, batch)
+		defer func(br pgx.BatchResults) { _ = br.Close() }(br)
+		for i := 0; i < len(match.Rounds); i++ {
+			if _, err := br.Exec(); err != nil {
+				var pgErr *pgconn.PgError
+				if errors.As(err, &pgErr) {
+					if pglib.IsSerializationError(pgErr) {
+						return nil, err, pglib.FreeRetry
+					}
+				}
+				return nil, err, pglib.NormalRetry
+			}
+		}
+	}
+
+	for _, rating := range ratings {
+		var foundUserId int64
+		err := tx.QueryRow(ctx,
+			"UPDATE ratings SET (rating, rating_deviation, rating_volatility, last_updated) = ($2, $3, $4, $5) WHERE user_id = $1 RETURNING user_id",
+			rating.UserId, rating.Value, rating.Deviation, rating.Volatility, rating.LastUpdate,
+		).Scan(&foundUserId)
+		if err != nil {
+			if pglib.IsNoRows(err) {
+				logger.Warn("No rating row when updating", "user_id", rating.UserId)
+				return nil, err, pglib.NoRetry
+			}
+			var pgErr *pgconn.PgError
+			if errors.As(err, &pgErr) && pglib.IsSerializationError(pgErr) {
+				return nil, err, pglib.FreeRetry
+			}
+			return nil, err, pglib.NormalRetry
+		}
+	}
+
+	return nil, nil, pglib.NoRetry
+}
+
+func (r *matchHistoryV2RepoImpl) SaveMatch(ctx context.Context, match *models.AggregatedMatch, ratings []*models.RatingInfo) *pglib.PgLibError {
+	_, err := pglib.PerformOperation(ctx, r.pool, &pglib.QueryConfig{
+		Retries:        3,
+		Timeout:        30000 * time.Millisecond,
+		IsolationLevel: pgx.RepeatableRead,
+		AccessMode:     pgx.ReadWrite,
+	}, func(ctx1 context.Context, tx pgx.Tx) (*struct{}, error, pglib.ResponseStatus) {
+		return saveMatchImpl(ctx1, tx, match, ratings)
+	})
+	return err
+}
