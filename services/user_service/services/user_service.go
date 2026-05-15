@@ -49,11 +49,11 @@ func MakeUserService(repo pg.UserStorageRepo, pageKeyService PageKeyService, ste
 	return &userServiceImpl{repo, pageKeyService, steamService}
 }
 
-func convertUserData(model *models.UserData) *pb.UserData {
+func convertUserData(model *models.UserData) *pbCommon.UserData {
 	if model == nil {
 		return nil
 	}
-	return &pb.UserData{
+	return &pbCommon.UserData{
 		Id:   &model.Id,
 		Name: &model.Name,
 	}

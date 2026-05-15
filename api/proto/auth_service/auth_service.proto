@@ -14,6 +14,8 @@ message AuthExternalRequest {
 message AuthExternalResponse {
     optional string access = 1;
     optional string refresh = 2;
+    optional user_common.UserData user_data = 3;
+    optional user_common.ExternalKey external_key = 4;
 }
 
 message RefreshRequest {
@@ -46,9 +48,5 @@ service AuthService {
             body: "*"
         };
     }
-    rpc GetPublicKey(GetPublicKeyRequest) returns (GetPublicKeyResponse) {
-        option (google.api.http) = {
-            get: "/v1/auth/public-key"
-        };
-    }
+    rpc GetPublicKey(GetPublicKeyRequest) returns (GetPublicKeyResponse);
 }

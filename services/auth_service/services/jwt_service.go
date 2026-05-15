@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-var ErrNoUserId = errors.New("no user id set")
+var ErrNoUserId = errors.New("no player_id set")
 
 type JwtService interface {
 	MakeTokenPair(userId models.UserId) (string, string, error)
@@ -52,15 +52,10 @@ func (j *jwtServiceImpl) MakeTokenPair(userId models.UserId) (string, string, er
 		"iss": j.Issuer,
 		"iat": now.Unix(),
 	}
-	if userId.SteamId == nil && userId.PlayerId == nil {
+	if userId.PlayerId == nil {
 		return "", "", ErrNoUserId
 	}
-	if userId.SteamId != nil {
-		baseClaims["steam_id"] = *userId.SteamId
-	}
-	if userId.PlayerId != nil {
-		baseClaims["player_id"] = *userId.PlayerId
-	}
+	baseClaims["player_id"] = *userId.PlayerId
 
 	accessClaims := jwt.MapClaims{}
 	for k, v := range baseClaims {
@@ -111,12 +106,6 @@ func (j *jwtServiceImpl) Validate(token string) (*models.TokenPayload, error) {
 
 	payload := &models.TokenPayload{}
 
-	if v, ok := claims["steam_id"]; ok {
-		if f, ok := v.(float64); ok {
-			steamId := int64(f)
-			payload.UserId.SteamId = &steamId
-		}
-	}
 	if v, ok := claims["player_id"]; ok {
 		if f, ok := v.(float64); ok {
 			playerId := int64(f)

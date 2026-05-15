@@ -8,3 +8,8 @@ message ExternalKey {
         int64 steam_id = 1;
     }
 }
+
+message UserData {
+    optional int64 id = 1;
+    optional string name = 2;
+}

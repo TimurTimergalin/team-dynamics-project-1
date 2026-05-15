@@ -3,12 +3,15 @@ package main
 import (
 	"fmt"
 	"google.golang.org/grpc"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"log"
 	"net"
 	"os"
 	pb "team_dynamics/api/proto/auth_sidecar"
 	"team_dynamics/auth_sidecar/controllers"
 	"team_dynamics/auth_sidecar/downstream"
+	"team_dynamics/auth_sidecar/k8s"
 	"team_dynamics/auth_sidecar/services"
 )
 
@@ -33,11 +36,35 @@ func main() {
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
+	tokenPath, err := requireEnv("TOKEN_PATH")
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+	namespace, err := requireEnv("NAMESPACE")
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+
+	// Create Kubernetes client
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		log.Fatalf("failed to create in-cluster config: %v", err)
+	}
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		log.Fatalf("failed to create kubernetes client: %v", err)
+	}
+
+	// Create k8s operations
+	k8sOps := k8s.MakeOps(clientset, &k8s.OpsConfig{
+		TokenPath: tokenPath,
+		Namespace: namespace,
+	})
 
 	authClient := downstream.NewAuthServiceClient(authServiceAddress)
 	jwtService := services.NewJwtService(issuer)
 	roleService := services.NewRoleService()
-	sidecarService := services.NewAuthSidecarService(jwtService, roleService, authClient)
+	sidecarService := services.NewAuthSidecarService(jwtService, roleService, authClient, k8sOps)
 
 	controller := &controllers.AuthSidecarController{Service: sidecarService}
 

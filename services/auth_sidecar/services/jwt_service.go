@@ -86,12 +86,6 @@ func (s *jwtServiceImpl) tryValidate(token string, key *rsa.PublicKey) (*models.
 		return nil, errors.New("invalid claims")
 	}
 	userId := &models.UserId{}
-	if v, ok := claims["steam_id"]; ok {
-		if f, ok := v.(float64); ok {
-			steamId := int64(f)
-			userId.SteamId = &steamId
-		}
-	}
 	if v, ok := claims["player_id"]; ok {
 		if f, ok := v.(float64); ok {
 			playerId := int64(f)

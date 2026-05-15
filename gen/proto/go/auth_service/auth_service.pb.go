@@ -76,9 +76,11 @@ func (x *AuthExternalRequest) GetAuthToken() string {
 }
 
 type AuthExternalResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Access        *string                `protobuf:"bytes,1,opt,name=access,proto3,oneof" json:"access,omitempty"`
-	Refresh       *string                `protobuf:"bytes,2,opt,name=refresh,proto3,oneof" json:"refresh,omitempty"`
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	Access        *string                  `protobuf:"bytes,1,opt,name=access,proto3,oneof" json:"access,omitempty"`
+	Refresh       *string                  `protobuf:"bytes,2,opt,name=refresh,proto3,oneof" json:"refresh,omitempty"`
+	UserData      *user_common.UserData    `protobuf:"bytes,3,opt,name=user_data,json=userData,proto3,oneof" json:"user_data,omitempty"`
+	ExternalKey   *user_common.ExternalKey `protobuf:"bytes,4,opt,name=external_key,json=externalKey,proto3,oneof" json:"external_key,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -125,6 +127,20 @@ func (x *AuthExternalResponse) GetRefresh() string {
 		return *x.Refresh
 	}
 	return ""
+}
+
+func (x *AuthExternalResponse) GetUserData() *user_common.UserData {
+	if x != nil {
+		return x.UserData
+	}
+	return nil
+}
+
+func (x *AuthExternalResponse) GetExternalKey() *user_common.ExternalKey {
+	if x != nil {
+		return x.ExternalKey
+	}
+	return nil
 }
 
 type RefreshRequest struct {
@@ -329,13 +345,18 @@ const file_auth_service_auth_service_proto_rawDesc = "" +
 	"\n" +
 	"auth_token\x18\x02 \x01(\tH\x01R\tauthToken\x88\x01\x01B\x0f\n" +
 	"\r_external_keyB\r\n" +
-	"\v_auth_token\"i\n" +
+	"\v_auth_token\"\x83\x02\n" +
 	"\x14AuthExternalResponse\x12\x1b\n" +
 	"\x06access\x18\x01 \x01(\tH\x00R\x06access\x88\x01\x01\x12\x1d\n" +
-	"\arefresh\x18\x02 \x01(\tH\x01R\arefresh\x88\x01\x01B\t\n" +
+	"\arefresh\x18\x02 \x01(\tH\x01R\arefresh\x88\x01\x01\x127\n" +
+	"\tuser_data\x18\x03 \x01(\v2\x15.user_common.UserDataH\x02R\buserData\x88\x01\x01\x12@\n" +
+	"\fexternal_key\x18\x04 \x01(\v2\x18.user_common.ExternalKeyH\x03R\vexternalKey\x88\x01\x01B\t\n" +
 	"\a_accessB\n" +
 	"\n" +
-	"\b_refresh\";\n" +
+	"\b_refreshB\f\n" +
+	"\n" +
+	"_user_dataB\x0f\n" +
+	"\r_external_key\";\n" +
 	"\x0eRefreshRequest\x12\x1d\n" +
 	"\arefresh\x18\x01 \x01(\tH\x00R\arefresh\x88\x01\x01B\n" +
 	"\n" +
@@ -354,11 +375,11 @@ const file_auth_service_auth_service_proto_rawDesc = "" +
 	"\x13_primary_public_keyB\x17\n" +
 	"\x15_secondary_public_keyB\n" +
 	"\n" +
-	"\b_version2\xdb\x02\n" +
+	"\b_version2\xbe\x02\n" +
 	"\vAuthService\x12s\n" +
 	"\fAuthExternal\x12!.auth_service.AuthExternalRequest\x1a\".auth_service.AuthExternalResponse\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/auth/external\x12c\n" +
-	"\aRefresh\x12\x1c.auth_service.RefreshRequest\x1a\x1d.auth_service.RefreshResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/v1/auth/refresh\x12r\n" +
-	"\fGetPublicKey\x12!.auth_service.GetPublicKeyRequest\x1a\".auth_service.GetPublicKeyResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/auth/public-keyB&Z$team_dynamics/api/proto/auth_serviceb\x06proto3"
+	"\aRefresh\x12\x1c.auth_service.RefreshRequest\x1a\x1d.auth_service.RefreshResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/v1/auth/refresh\x12U\n" +
+	"\fGetPublicKey\x12!.auth_service.GetPublicKeyRequest\x1a\".auth_service.GetPublicKeyResponseB&Z$team_dynamics/api/proto/auth_serviceb\x06proto3"
 
 var (
 	file_auth_service_auth_service_proto_rawDescOnce sync.Once
@@ -381,20 +402,23 @@ var file_auth_service_auth_service_proto_goTypes = []any{
 	(*GetPublicKeyRequest)(nil),     // 4: auth_service.GetPublicKeyRequest
 	(*GetPublicKeyResponse)(nil),    // 5: auth_service.GetPublicKeyResponse
 	(*user_common.ExternalKey)(nil), // 6: user_common.ExternalKey
+	(*user_common.UserData)(nil),    // 7: user_common.UserData
 }
 var file_auth_service_auth_service_proto_depIdxs = []int32{
 	6, // 0: auth_service.AuthExternalRequest.external_key:type_name -> user_common.ExternalKey
-	0, // 1: auth_service.AuthService.AuthExternal:input_type -> auth_service.AuthExternalRequest
-	2, // 2: auth_service.AuthService.Refresh:input_type -> auth_service.RefreshRequest
-	4, // 3: auth_service.AuthService.GetPublicKey:input_type -> auth_service.GetPublicKeyRequest
-	1, // 4: auth_service.AuthService.AuthExternal:output_type -> auth_service.AuthExternalResponse
-	3, // 5: auth_service.AuthService.Refresh:output_type -> auth_service.RefreshResponse
-	5, // 6: auth_service.AuthService.GetPublicKey:output_type -> auth_service.GetPublicKeyResponse
-	4, // [4:7] is the sub-list for method output_type
-	1, // [1:4] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	7, // 1: auth_service.AuthExternalResponse.user_data:type_name -> user_common.UserData
+	6, // 2: auth_service.AuthExternalResponse.external_key:type_name -> user_common.ExternalKey
+	0, // 3: auth_service.AuthService.AuthExternal:input_type -> auth_service.AuthExternalRequest
+	2, // 4: auth_service.AuthService.Refresh:input_type -> auth_service.RefreshRequest
+	4, // 5: auth_service.AuthService.GetPublicKey:input_type -> auth_service.GetPublicKeyRequest
+	1, // 6: auth_service.AuthService.AuthExternal:output_type -> auth_service.AuthExternalResponse
+	3, // 7: auth_service.AuthService.Refresh:output_type -> auth_service.RefreshResponse
+	5, // 8: auth_service.AuthService.GetPublicKey:output_type -> auth_service.GetPublicKeyResponse
+	6, // [6:9] is the sub-list for method output_type
+	3, // [3:6] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_auth_service_auth_service_proto_init() }

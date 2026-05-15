@@ -6,13 +6,8 @@ option go_package = "team_dynamics/api/proto/user_service";
 import "google/api/annotations.proto";
 import "user_common/user_common.proto";
 
-message UserData {
-    optional int64 id = 1;
-    optional string name = 2;
-}
-
 message Friend {
-    optional UserData user = 1;
+    optional user_common.UserData user = 1;
     optional string source = 2;
 }
 
@@ -21,7 +16,7 @@ message GetSelfDataRequest {
 }
 
 message GetSelfDataResponse {
-    optional UserData user_data = 1;
+    optional user_common.UserData user_data = 1;
 }
 
 message GetUserDataRequest {
@@ -29,7 +24,7 @@ message GetUserDataRequest {
 }
 
 message GetUserDataResponse {
-    optional UserData user_data = 1;
+    optional user_common.UserData user_data = 1;
 }
 
 message GetFriendsRequest {

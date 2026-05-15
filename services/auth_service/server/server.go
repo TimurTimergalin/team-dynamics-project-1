@@ -18,6 +18,7 @@ import (
 	"strconv"
 	pb "team_dynamics/api/proto/auth_service"
 	"team_dynamics/auth_service/controllers"
+	"team_dynamics/auth_service/downstream"
 	"team_dynamics/auth_service/models"
 	"team_dynamics/auth_service/repos"
 	"team_dynamics/auth_service/services"
@@ -143,6 +144,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
+	userServiceAddress, err := requireEnv("USER_SERVICE_ADDRESS")
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
 	accessExpiration, err := parseDurationEnv("JWT_ACCESS_EXPIRATION")
 	if err != nil {
 		log.Fatalf("%v", err)
@@ -197,9 +202,10 @@ func main() {
 		secondaryKeyPair,
 	)
 	steamService := services.NewSteamService(steamApiKey, steamAppId)
+	userServiceClient := downstream.NewUserServiceClientFactory(userServiceAddress)
 	authKvRepo := repos.MakeAuthKvRepo(redisClient, refreshExpiration)
 
-	authService, err := services.NewAuthService(jwtService, steamService, authKvRepo, primaryKeyPair, secondaryKeyPair, keyPairVersion)
+	authService, err := services.NewAuthService(jwtService, steamService, userServiceClient, authKvRepo, primaryKeyPair, secondaryKeyPair, keyPairVersion)
 	if err != nil {
 		log.Fatalf("cannot create auth service: %v", err)
 	}
