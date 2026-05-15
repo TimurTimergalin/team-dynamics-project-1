@@ -11,5 +11,7 @@ public class TagDuelsClientTarget : TargetRules
 		DefaultBuildSettings = BuildSettingsVersion.V6;
 
 		ExtraModuleNames.AddRange( new string[] { "TagDuels" } );
+		
+		bUseLoggingInShipping = true;
 	}
 }
