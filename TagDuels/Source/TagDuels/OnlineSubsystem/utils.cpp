@@ -2,14 +2,22 @@
 #include "HttpModule.h"
 #include "Interfaces/IHttpResponse.h"
 
+ AutoFullfill::~AutoFullfill(){
+	T zero{};
+	try {
+		Promise.SetValue(zero);
+	} catch (...) {
+	}
+}
+
 TFuture<FHttpResponsePtr> MakeHttpRequest(TSharedPtr<IHttpRequest> Request)
 {
-	TSharedPtr<TPromise<FHttpResponsePtr>> Promise = MakeShared<TPromise<FHttpResponsePtr>>();
+	TSharedPtr<TPromise<FHttpResponsePtr>> Promise = MakeShared<AutoFullfill<FHttpResponsePtr>>();
 	TFuture<FHttpResponsePtr> future = Promise->GetFuture();
 
-	Request->OnProcessRequestComplete().BindLambda([Promise, Request](FHttpRequestPtr, FHttpResponsePtr Response, bool bWasSuccessful) mutable
+	Request->OnProcessRequestComplete().BindLambda([Promise](FHttpRequestPtr, FHttpResponsePtr Response, bool bWasSuccessful) mutable
 	{
-		Promise->SetValue(bWasSuccessful && Response.IsValid() ? Response : nullptr);
+		Promise->Promise.SetValue(bWasSuccessful && Response.IsValid() ? Response : nullptr);
 		if (bWasSuccessful && Response.IsValid()) {
 			int32 StatusCode = Response->GetResponseCode();
 			UE_LOG(LogTemp, Warning, TEXT("HTTP Status: %d"), StatusCode);

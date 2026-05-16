@@ -3,18 +3,24 @@
 #include "CoreMinimal.h"
 #include "Interfaces/IHttpRequest.h"
 
+struct FTokenWithExp
+{
+	FString Token;
+	FDateTime Expiry;
+};
+
 struct FAuthExternalResponse
 {
-	FString Access;
-	FString Refresh;
+	FTokenWithExp Access;
+	FTokenWithExp Refresh;
 	int64 UserId = 0;
 	FString UserName;
 };
 
 struct FRefreshResponse
 {
-	FString Access;
-	FString Refresh;
+	FTokenWithExp Access;
+	FTokenWithExp Refresh;
 };
 
 class AuthServiceClient

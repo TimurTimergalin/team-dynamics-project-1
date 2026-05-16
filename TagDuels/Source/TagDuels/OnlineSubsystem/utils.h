@@ -64,3 +64,8 @@ struct TFutureJoin {
 
 static constexpr TFutureJoin FutureJoin{};
 
+template<class T>
+struct AutoFullfill {
+	TPromise<T> Promise;
+	~AutoFullfill();
+}

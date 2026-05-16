@@ -8,6 +8,18 @@
 
 namespace
 {
+	bool ParseTokenWithExp(const TSharedPtr<FJsonObject>& JsonObject, const FString& FieldName, FTokenWithExp& OutToken)
+	{
+		const TSharedPtr<FJsonObject>* TokenObj = nullptr;
+		if (!JsonObject->TryGetObjectField(FieldName, TokenObj) || !TokenObj)
+			return false;
+		(*TokenObj)->TryGetStringField(TEXT("token"), OutToken.Token);
+		double ExpMs = 0;
+		if ((*TokenObj)->TryGetNumberField(TEXT("expMs"), ExpMs))
+			OutToken.Expiry = FDateTime::FromUnixTimestamp(static_cast<int64>(ExpMs) / 1000);
+		return true;
+	}
+
 	TOptional<FAuthExternalResponse> ConvertAuthExternalResponse(FHttpResponsePtr Response)
 	{
 		if (!Response.IsValid())
@@ -32,8 +44,8 @@ namespace
 		}
 
 		FAuthExternalResponse Result;
-		JsonObject->TryGetStringField(TEXT("access"), Result.Access);
-		JsonObject->TryGetStringField(TEXT("refresh"), Result.Refresh);
+		ParseTokenWithExp(JsonObject, TEXT("access"), Result.Access);
+		ParseTokenWithExp(JsonObject, TEXT("refresh"), Result.Refresh);
 
 		const TSharedPtr<FJsonObject>* UserDataObject = nullptr;
 		if (JsonObject->TryGetObjectField(TEXT("userData"), UserDataObject) && UserDataObject)
@@ -71,8 +83,8 @@ namespace
 		}
 
 		FRefreshResponse Result;
-		JsonObject->TryGetStringField(TEXT("access"), Result.Access);
-		JsonObject->TryGetStringField(TEXT("refresh"), Result.Refresh);
+		ParseTokenWithExp(JsonObject, TEXT("access"), Result.Access);
+		ParseTokenWithExp(JsonObject, TEXT("refresh"), Result.Refresh);
 		return Result;
 	}
 }
