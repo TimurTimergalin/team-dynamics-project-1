@@ -7,7 +7,7 @@
 class MMEventClient
 {
 public:
-	void EstablishConnection(TSharedRef<FOnMatch> OnResponse, TSharedRef<FOnErroneousResponse> OnError, int64 UserId);
+	void EstablishConnection(TSharedRef<FOnMatch> OnResponse, TSharedRef<FOnErroneousResponse> OnError, int64 UserId, const FString& AuthToken);
 	bool Close();
 	bool StartMatchmaking();
 	bool CancelMatchmaking();

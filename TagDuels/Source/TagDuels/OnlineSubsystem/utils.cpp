@@ -2,18 +2,11 @@
 #include "HttpModule.h"
 #include "Interfaces/IHttpResponse.h"
 
- AutoFullfill::~AutoFullfill(){
-	T zero{};
-	try {
-		Promise.SetValue(zero);
-	} catch (...) {
-	}
-}
 
 TFuture<FHttpResponsePtr> MakeHttpRequest(TSharedPtr<IHttpRequest> Request)
 {
-	TSharedPtr<TPromise<FHttpResponsePtr>> Promise = MakeShared<AutoFullfill<FHttpResponsePtr>>();
-	TFuture<FHttpResponsePtr> future = Promise->GetFuture();
+	TSharedPtr<AutoFullfill<FHttpResponsePtr>> Promise = MakeShared<AutoFullfill<FHttpResponsePtr>>();
+	TFuture<FHttpResponsePtr> future = Promise->Promise.GetFuture();
 
 	Request->OnProcessRequestComplete().BindLambda([Promise](FHttpRequestPtr, FHttpResponsePtr Response, bool bWasSuccessful) mutable
 	{

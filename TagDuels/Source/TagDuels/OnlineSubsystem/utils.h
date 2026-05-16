@@ -66,6 +66,12 @@ static constexpr TFutureJoin FutureJoin{};
 
 template<class T>
 struct AutoFullfill {
-	TPromise<T> Promise;
-	~AutoFullfill();
-}
+	TPromise<T> Promise{};
+	~AutoFullfill() {
+		T zero{};
+		try {
+			Promise.SetValue(zero);
+		} catch (...) {
+		}
+	};
+};

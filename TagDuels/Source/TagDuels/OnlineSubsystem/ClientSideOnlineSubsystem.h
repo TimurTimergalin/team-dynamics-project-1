@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Delegates.h"
+#include "Clients/AuthServiceClient.h"
 #include "Clients/MatchHistoryServiceV2Client.h"
 #include "Clients/MMEventClient.h"
 #include "Clients/UserEventClient.h"
@@ -24,7 +25,7 @@ public:
 	bool SteamAuthorize(FString AuthToken, int64 SteamId, FOnEmptyResponse OnResponse);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
-	bool EgsAuthorize(FString AuthToken, int64 Id, FOnEmptyResponse OnResponse);
+	bool EgsAuthorize(FString AuthToken, FString Id, FOnEmptyResponse OnResponse);
 
 	UFUNCTION(BlueprintCallable, Category = "OnlineSubsystem")
 	bool GetPlayerData(FUserPlayerData& PlayerDataOut);
@@ -103,12 +104,17 @@ public:
 	void SetPlayerData(const FString& Name, int64 PlayerId);
 
 private:
+	TFuture<bool> UpdateTokens(FOnErroneousResponse OnError);
+
 	TOptional<UserServiceClient> UsClient{};
+	TOptional<AuthServiceClient> AsClient{};
 	TOptional<MatchHistoryServiceV2Client> MhsV2Client{};
 	TOptional<MMEventClient> MmeClient{};
 	TOptional<UserEventClient> UeClient{};
 	
 	TOptional<FUserPlayerData> PlayerData{};
+	TOptional<FTokenWithExp> AccessToken{};
+	TOptional<FTokenWithExp> RefreshToken{};
 	TOptional<int64> ChallengedUserId{};
 	bool InMatchmaking = false;
 	FOnErroneousResponse OnUserEventErrorCallback{};

@@ -6,6 +6,7 @@ class UserServiceClient
 {
 public:
 	TFuture<TOptional<FUserPlayerData>> GetSelfData(int64 SteamId) const;
+	TFuture<TOptional<FUserPlayerData>> GetUserData(int64 UserId) const;
 	TFuture<TOptional<FPlayersList>> GetFriends(int64 UserId, const FString& PageKey) const;
 	TFuture<TOptional<FPlayersList>> GetIncomingRequests(int64 UserId, const FString& PageKey) const;
 	TFuture<TOptional<FPlayersList>> GetOutgoingRequests(int64 UserId, const FString& PageKey) const;

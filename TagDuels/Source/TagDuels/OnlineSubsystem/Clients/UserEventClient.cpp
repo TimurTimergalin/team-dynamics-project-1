@@ -183,10 +183,10 @@ namespace
 void UserEventClient::EstablishConnection(TSharedRef<FOnStatusUpdated> OnStatusChanged,
                                           TSharedRef<FOnChallengeReceived> OnChallengeReceived, TSharedRef<FOnMatch> OnMatchStarted,
                                           TSharedRef<FOnEmptyResponse> OnChallengeDeclined, TSharedRef<FOnChallengeCancelled> OnChallengeCancelled,
-                                          TSharedRef<FOnErroneousResponse> OnError, int64 UserId_)
+                                          TSharedRef<FOnErroneousResponse> OnError, int64 UserId_, const FString& AuthToken)
 {
 	UserId = UserId_;
-	Url = FString::Printf(TEXT("ws://%s/events?playerId=%lld"), *Address, UserId);
+	Url = FString::Printf(TEXT("ws://%s/events?playerId=%lld&authToken=%s"), *Address, UserId, *AuthToken);
 	EstablishConnection(OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnChallengeCancelled, OnError);
 }
 

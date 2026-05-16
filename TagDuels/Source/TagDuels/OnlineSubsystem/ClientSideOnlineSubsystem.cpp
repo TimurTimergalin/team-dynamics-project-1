@@ -6,36 +6,108 @@ void UClientSideOnlineSubsystem::Initialize(FSubsystemCollectionBase& SubsystemC
 {
 	Super::Initialize(SubsystemCollectionBase);
 	UsClient = CreateUserServiceClient();
+	AsClient = CreateAuthServiceClient();
 	MhsV2Client = CreateMatchHistoryServiceV2Client();
 	MmeClient = CreateMMEventClient();
 	UeClient = CreateUserEventClient();
 }
 
-bool UClientSideOnlineSubsystem::SteamAuthorize(FString /*AuthToken*/, int64 SteamId, FOnEmptyResponse OnResponse)
+bool UClientSideOnlineSubsystem::SteamAuthorize(FString AuthToken, int64 SteamId, FOnEmptyResponse OnResponse)
 {
-	if (!UsClient)
+	if (!AsClient || !UsClient)
 	{
 		return false;
 	}
-	WithRetry<FUserPlayerData>([this, SteamId]()
+	AsClient->AuthExternal(SteamId, AuthToken).Next([this, OnResponse](TOptional<FAuthExternalResponse> AuthResp)
 	{
-		return UsClient->GetSelfData(SteamId);
-	}, 3).Next([this, OnResponse](TOptional<FUserPlayerData> PlayerData_) {
-		this->PlayerData = PlayerData_;
-		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
-	}).Next(FutureJoin).Next([](bool bWasBound)
-	{
-		if (!bWasBound)
+		if (!AuthResp.IsSet())
 		{
-			UE_LOG(LogTemp, Error, TEXT("OnResponse for SteamAuthorize was not set"));
+			UE_LOG(LogTemp, Error, TEXT("SteamAuthorize: AuthExternal failed"));
+			return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
 		}
+		AccessToken = AuthResp->Access;
+		RefreshToken = AuthResp->Refresh;
+		const int64 UserId = AuthResp->UserId;
+		return UsClient->GetUserData(UserId).Next([this, OnResponse](TOptional<FUserPlayerData> UserData)
+		{
+			this->PlayerData = UserData;
+			return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
+		}).Next(FutureJoin).Next([](bool bWasBound)
+		{
+			if (!bWasBound)
+			{
+				UE_LOG(LogTemp, Error, TEXT("OnResponse for SteamAuthorize was not set"));
+			}
+			return true;
+		});
 	});
 	return true;
 }
 
-bool UClientSideOnlineSubsystem::EgsAuthorize(FString AuthToken, int64 Id, FOnEmptyResponse OnResponse)
+TFuture<bool> UClientSideOnlineSubsystem::UpdateTokens(FOnErroneousResponse OnError)
 {
-	return false;
+	if (!AsClient)
+	{
+		return MakeFulfilledPromise<bool>(false).GetFuture();
+	}
+
+	const FDateTime Now = FDateTime::UtcNow();
+
+	if (!RefreshToken.IsSet() || RefreshToken->Expiry <= Now)
+	{
+		OnGameThread(&FOnErroneousResponse::ExecuteIfBound, OnError,
+			FOnlineSubsystemError{TEXT("Your session is expired, please reconnect"), EOnlineErrorType::Critical});
+		return MakeFulfilledPromise<bool>(false).GetFuture();
+	}
+
+	if (AccessToken.IsSet() && AccessToken->Expiry > Now)
+	{
+		return MakeFulfilledPromise<bool>(true).GetFuture();
+	}
+
+	return AsClient->Refresh(RefreshToken->Token).Next([this, OnError](TOptional<FRefreshResponse> Resp)
+	{
+		if (!Resp.IsSet())
+		{
+			UE_LOG(LogTemp, Error, TEXT("UpdateTokens: Refresh failed"));
+			return false;
+		}
+		AccessToken = Resp->Access;
+		RefreshToken = Resp->Refresh;
+		return true;
+	});
+}
+
+bool UClientSideOnlineSubsystem::EgsAuthorize(FString AuthToken, FString Id, FOnEmptyResponse OnResponse)
+{
+	if (!AsClient || !UsClient)
+	{
+		return false;
+	}
+	AsClient->AuthExternal(Id, AuthToken).Next([this, OnResponse](TOptional<FAuthExternalResponse> AuthResp)
+	{
+		if (!AuthResp.IsSet())
+		{
+			UE_LOG(LogTemp, Error, TEXT("EgsAuthorize: AuthExternal failed"));
+			return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
+		}
+		AccessToken = AuthResp->Access;
+		RefreshToken = AuthResp->Refresh;
+		const int64 UserId = AuthResp->UserId;
+		return UsClient->GetUserData(UserId).Next([this, OnResponse](TOptional<FUserPlayerData> UserData)
+		{
+			this->PlayerData = UserData;
+			return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
+		}).Next(FutureJoin).Next([](bool bWasBound)
+		{
+			if (!bWasBound)
+			{
+				UE_LOG(LogTemp, Error, TEXT("OnResponse for EgsAuthorize was not set"));
+			}
+			return true;
+		});
+	});
+	return true;
 }
 
 bool UClientSideOnlineSubsystem::GetPlayerData(FUserPlayerData& PlayerDataOut)
@@ -51,31 +123,30 @@ bool UClientSideOnlineSubsystem::GetPlayerData(FUserPlayerData& PlayerDataOut)
 bool UClientSideOnlineSubsystem::GetMatchHistoryPage(FString PageToken, FOnMatchHistoryResponse OnResponse,
                                                      FOnErroneousResponse OnError)
 {
-	if (!MhsV2Client)
+	if (!MhsV2Client || !PlayerData.IsSet())
 	{
 		return false;
 	}
-	if (!PlayerData.IsSet())
+	UpdateTokens(OnError).Next([this, PageToken, OnResponse, OnError](bool bOk)
 	{
-		return false;
-	}
-
-	WithRetry<FMatchHistoryPage>([this, PageToken]()
-	{
-		return MhsV2Client->GetMatchHistory(PlayerData.GetValue().Id, PageToken);
-	}, 3).Next([this, OnResponse, OnError](TOptional<FMatchHistoryPage> Page)
-	{
-		if (!Page.IsSet())
+		if (!bOk) return;
+		WithRetry<FMatchHistoryPage>([this, PageToken]()
 		{
-			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to fetch match history after 3 attempts"), EOnlineErrorType::NonCritical});
-		}
-		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Page.GetValue());
-	}).Next(FutureJoin).Next([](bool bWasBound)
-	{
-		if (!bWasBound)
+			return MhsV2Client->GetMatchHistory(PlayerData.GetValue().Id, AccessToken->Token, PageToken);
+		}, 3).Next([this, OnResponse, OnError](TOptional<FMatchHistoryPage> Page)
 		{
-			UE_LOG(LogTemp, Error, TEXT("OnResponse or OnError for GetMatchHistoryPage was not set"));
-		}
+			if (!Page.IsSet())
+			{
+				return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to fetch match history after 3 attempts"), EOnlineErrorType::NonCritical});
+			}
+			return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Page.GetValue());
+		}).Next(FutureJoin).Next([](bool bWasBound)
+		{
+			if (!bWasBound)
+			{
+				UE_LOG(LogTemp, Error, TEXT("OnResponse or OnError for GetMatchHistoryPage was not set"));
+			}
+		});
 	});
 	return true;
 }
@@ -87,16 +158,20 @@ bool UClientSideOnlineSubsystem::GetFriendsList(FString PageToken, FOnUserListRe
 	{
 		return false;
 	}
-	WithRetry<FPlayersList>([this, PageToken]()
+	UpdateTokens(OnError).Next([this, PageToken, OnResponse, OnError](bool bOk)
 	{
-		return UsClient->GetFriends(PlayerData.GetValue().Id, PageToken);
-	}, 3).Next([OnResponse, OnError](TOptional<FPlayersList> Result)
-	{
-		if (!Result.IsSet())
+		if (!bOk) return;
+		WithRetry<FPlayersList>([this, PageToken]()
 		{
-			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to fetch friends list after 3 attempts"), EOnlineErrorType::NonCritical});
-		}
-		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Result.GetValue());
+			return UsClient->GetFriends(PlayerData.GetValue().Id, PageToken, AccessToken->Token);
+		}, 3).Next([OnResponse, OnError](TOptional<FPlayersList> Result)
+		{
+			if (!Result.IsSet())
+			{
+				return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to fetch friends list after 3 attempts"), EOnlineErrorType::NonCritical});
+			}
+			return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Result.GetValue());
+		});
 	});
 	return true;
 }
@@ -108,16 +183,20 @@ bool UClientSideOnlineSubsystem::GetOutgoingRequests(FString PageToken, FOnUserL
 	{
 		return false;
 	}
-	WithRetry<FPlayersList>([this, PageToken]()
+	UpdateTokens(OnError).Next([this, PageToken, OnResponse, OnError](bool bOk)
 	{
-		return UsClient->GetOutgoingRequests(PlayerData.GetValue().Id, PageToken);
-	}, 3).Next([OnResponse, OnError](TOptional<FPlayersList> Result)
-	{
-		if (!Result.IsSet())
+		if (!bOk) return;
+		WithRetry<FPlayersList>([this, PageToken]()
 		{
-			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to fetch outgoing requests after 3 attempts"), EOnlineErrorType::NonCritical});
-		}
-		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Result.GetValue());
+			return UsClient->GetOutgoingRequests(PlayerData.GetValue().Id, PageToken, AccessToken->Token);
+		}, 3).Next([OnResponse, OnError](TOptional<FPlayersList> Result)
+		{
+			if (!Result.IsSet())
+			{
+				return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to fetch outgoing requests after 3 attempts"), EOnlineErrorType::NonCritical});
+			}
+			return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Result.GetValue());
+		});
 	});
 	return true;
 }
@@ -129,76 +208,80 @@ bool UClientSideOnlineSubsystem::GetIncomingRequests(FString PageToken, FOnUserL
 	{
 		return false;
 	}
-	WithRetry<FPlayersList>([this, PageToken]()
+	UpdateTokens(OnError).Next([this, PageToken, OnResponse, OnError](bool bOk)
 	{
-		return UsClient->GetIncomingRequests(PlayerData.GetValue().Id, PageToken);
-	}, 3).Next([OnResponse, OnError](TOptional<FPlayersList> Result)
-	{
-		if (!Result.IsSet())
+		if (!bOk) return;
+		WithRetry<FPlayersList>([this, PageToken]()
 		{
-			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to fetch incoming requests after 3 attempts"), EOnlineErrorType::NonCritical});
-		}
-		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Result.GetValue());
+			return UsClient->GetIncomingRequests(PlayerData.GetValue().Id, PageToken, AccessToken->Token);
+		}, 3).Next([OnResponse, OnError](TOptional<FPlayersList> Result)
+		{
+			if (!Result.IsSet())
+			{
+				return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to fetch incoming requests after 3 attempts"), EOnlineErrorType::NonCritical});
+			}
+			return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Result.GetValue());
+		});
 	});
 	return true;
 }
 
 bool UClientSideOnlineSubsystem::GetRating(FOnInt64Response OnResponse, FOnErroneousResponse OnError)
 {
-	if (!MhsV2Client)
+	if (!MhsV2Client || !PlayerData.IsSet())
 	{
 		return false;
 	}
-	if (!PlayerData.IsSet())
+	UpdateTokens(OnError).Next([this, OnResponse, OnError](bool bOk)
 	{
-		return false;
-	}
-	WithRetry<int64>([this]()
-	{
-		return MhsV2Client->GetRating(PlayerData.GetValue().Id);
-	}, 3).Next([OnResponse, OnError](TOptional<int64> Rating)
-	{
-		if (!Rating.IsSet())
+		if (!bOk) return;
+		WithRetry<int64>([this]()
 		{
-			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to fetch rating after 3 attempts"), EOnlineErrorType::NonCritical});
-		}
-		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Rating.GetValue());
-	}).Next(FutureJoin).Next([](bool bWasBound)
-	{
-		if (!bWasBound)
+			return MhsV2Client->GetRating(PlayerData.GetValue().Id, AccessToken->Token);
+		}, 3).Next([OnResponse, OnError](TOptional<int64> Rating)
 		{
-			UE_LOG(LogTemp, Error, TEXT("OnResponse or OnError for GetRating was not set"));
-		}
+			if (!Rating.IsSet())
+			{
+				return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to fetch rating after 3 attempts"), EOnlineErrorType::NonCritical});
+			}
+			return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Rating.GetValue());
+		}).Next(FutureJoin).Next([](bool bWasBound)
+		{
+			if (!bWasBound)
+			{
+				UE_LOG(LogTemp, Error, TEXT("OnResponse or OnError for GetRating was not set"));
+			}
+		});
 	});
 	return true;
 }
 
 bool UClientSideOnlineSubsystem::GetRatingById(int64 OtherUserId, FOnInt64Response OnResponse, FOnErroneousResponse OnError)
 {
-	if (!MhsV2Client)
+	if (!MhsV2Client || !PlayerData.IsSet())
 	{
 		return false;
 	}
-	if (!PlayerData.IsSet())
+	UpdateTokens(OnError).Next([this, OtherUserId, OnResponse, OnError](bool bOk)
 	{
-		return false;
-	}
-	WithRetry<int64>([this, OtherUserId]()
-	{
-		return MhsV2Client->GetRating(OtherUserId);
-	}, 3).Next([OnResponse, OnError](TOptional<int64> Rating)
-	{
-		if (!Rating.IsSet())
+		if (!bOk) return;
+		WithRetry<int64>([this, OtherUserId]()
 		{
-			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to fetch rating after 3 attempts"), EOnlineErrorType::NonCritical});
-		}
-		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Rating.GetValue());
-	}).Next(FutureJoin).Next([](bool bWasBound)
-	{
-		if (!bWasBound)
+			return MhsV2Client->GetRating(OtherUserId, AccessToken->Token);
+		}, 3).Next([OnResponse, OnError](TOptional<int64> Rating)
 		{
-			UE_LOG(LogTemp, Error, TEXT("OnResponse or OnError for GetRating was not set"));
-		}
+			if (!Rating.IsSet())
+			{
+				return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to fetch rating after 3 attempts"), EOnlineErrorType::NonCritical});
+			}
+			return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse, Rating.GetValue());
+		}).Next(FutureJoin).Next([](bool bWasBound)
+		{
+			if (!bWasBound)
+			{
+				UE_LOG(LogTemp, Error, TEXT("OnResponse or OnError for GetRating was not set"));
+			}
+		});
 	});
 	return true;
 }
@@ -210,13 +293,17 @@ void UClientSideOnlineSubsystem::SendOrAcceptRequest(int64 OtherUserId, FOnEmpty
 	{
 		return;
 	}
-	UsClient->AddFriend(PlayerData.GetValue().Id, OtherUserId).Next([OnResponse, OnError](bool bSuccess)
+	UpdateTokens(OnError).Next([this, OtherUserId, OnResponse, OnError](bool bOk)
 	{
-		if (!bSuccess)
+		if (!bOk) return;
+		UsClient->AddFriend(PlayerData.GetValue().Id, OtherUserId, AccessToken->Token).Next([OnResponse, OnError](bool bSuccess)
 		{
-			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to send/accept friend request"), EOnlineErrorType::NonCritical});
-		}
-		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
+			if (!bSuccess)
+			{
+				return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to send/accept friend request"), EOnlineErrorType::NonCritical});
+			}
+			return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
+		});
 	});
 }
 
@@ -227,30 +314,31 @@ void UClientSideOnlineSubsystem::DeclineOrDeleteFriend(int64 OtherUserId, FOnEmp
 	{
 		return;
 	}
-	UsClient->RemoveFriend(PlayerData.GetValue().Id, OtherUserId).Next([OnResponse, OnError](bool bSuccess)
+	UpdateTokens(OnError).Next([this, OtherUserId, OnResponse, OnError](bool bOk)
 	{
-		if (!bSuccess)
+		if (!bOk) return;
+		UsClient->RemoveFriend(PlayerData.GetValue().Id, OtherUserId, AccessToken->Token).Next([OnResponse, OnError](bool bSuccess)
 		{
-			return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to decline/remove friend"), EOnlineErrorType::NonCritical});
-		}
-		return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
+			if (!bSuccess)
+			{
+				return OnGameThread(&decltype(OnError)::ExecuteIfBound, OnError, FOnlineSubsystemError{TEXT("Failed to decline/remove friend"), EOnlineErrorType::NonCritical});
+			}
+			return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
+		});
 	});
 }
 
 bool UClientSideOnlineSubsystem::ConnectToMMEvent(FOnMatch OnResponse, FOnErroneousResponse OnError)
 {
-	if (!PlayerData.IsSet())
+	if (!PlayerData.IsSet() || !MmeClient.IsSet() || MmeClient->IsConnected())
 	{
 		return false;
 	}
-	if (!MmeClient.IsSet()) {
-		return false;
-	}
-	if (MmeClient->IsConnected())
+	UpdateTokens(OnError).Next([this, OnResponse, OnError](bool bOk)
 	{
-		return false;
-	}
-	MmeClient->EstablishConnection(MakeShared<FOnMatch>(MoveTemp(OnResponse)), MakeShared<FOnErroneousResponse>(MoveTemp(OnError)), PlayerData->Id);
+		if (!bOk) return;
+		MmeClient->EstablishConnection(MakeShared<FOnMatch>(OnResponse), MakeShared<FOnErroneousResponse>(OnError), PlayerData->Id, AccessToken->Token);
+	});
 	return true;
 }
 
@@ -297,30 +385,25 @@ bool UClientSideOnlineSubsystem::ConnectToUserEvent(
 	FOnChallengeCancelled OnChallengeCancelled,
 	FOnErroneousResponse OnError)
 {
-	if (!PlayerData.IsSet())
+	if (!PlayerData.IsSet() || !UeClient.IsSet() || UeClient->IsConnected())
 	{
-		UE_LOG(LogTemp, Error, TEXT("!PlayerData.IsSet()"));
 		return false;
 	}
-	if (!UeClient.IsSet())
+	UpdateTokens(OnError).Next([this,
+		OnStatusChanged, OnChallengeReceived, OnMatchStarted, OnChallengeDeclined, OnChallengeCancelled, OnError](bool bOk)
 	{
-		UE_LOG(LogTemp, Error, TEXT("!UeClient.IsSet()"));
-		return false;
-	}
-	if (UeClient->IsConnected())
-	{
-		UE_LOG(LogTemp, Error, TEXT("UeClient->IsConnected()"));
-		return false;
-	}
-	UeClient->EstablishConnection(
-		MakeShared<FOnStatusUpdated>(MoveTemp(OnStatusChanged)),
-		MakeShared<FOnChallengeReceived>(MoveTemp(OnChallengeReceived)),
-		MakeShared<FOnMatch>(MoveTemp(OnMatchStarted)),
-		MakeShared<FOnEmptyResponse>(MoveTemp(OnChallengeDeclined)),
-		MakeShared<FOnChallengeCancelled>(MoveTemp(OnChallengeCancelled)),
-		MakeShared<FOnErroneousResponse>(MoveTemp(OnError)),
-		PlayerData->Id
-	);
+		if (!bOk) return;
+		UeClient->EstablishConnection(
+			MakeShared<FOnStatusUpdated>(OnStatusChanged),
+			MakeShared<FOnChallengeReceived>(OnChallengeReceived),
+			MakeShared<FOnMatch>(OnMatchStarted),
+			MakeShared<FOnEmptyResponse>(OnChallengeDeclined),
+			MakeShared<FOnChallengeCancelled>(OnChallengeCancelled),
+			MakeShared<FOnErroneousResponse>(OnError),
+			PlayerData->Id,
+			AccessToken->Token
+		);
+	});
 	return true;
 }
 

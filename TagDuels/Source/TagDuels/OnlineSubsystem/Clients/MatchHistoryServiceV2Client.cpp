@@ -170,7 +170,7 @@ MatchHistoryServiceV2Client::MatchHistoryServiceV2Client(const FString& Address)
 {
 }
 
-TSharedPtr<IHttpRequest> MatchHistoryServiceV2Client::CreateGetMatchHistoryRequest(int64 UserId, const FString& PageKey) const
+TSharedPtr<IHttpRequest> MatchHistoryServiceV2Client::CreateGetMatchHistoryRequest(int64 UserId, const FString& PageKey, const FString& AuthToken) const
 {
     FString Url = FString::Printf(TEXT("http://%s/v1/match_history?user_id=%lld"), *Address, UserId);
     if (!PageKey.IsEmpty())
@@ -180,26 +180,28 @@ TSharedPtr<IHttpRequest> MatchHistoryServiceV2Client::CreateGetMatchHistoryReque
     Request->SetURL(Url);
     Request->SetVerb(TEXT("GET"));
     Request->SetHeader(TEXT("Accept"), TEXT("application/json"));
+    Request->SetHeader(TEXT("x-auth-token"), AuthToken);
     return Request;
 }
 
-TSharedPtr<IHttpRequest> MatchHistoryServiceV2Client::CreateGetRatingRequest(int64 UserId) const
+TSharedPtr<IHttpRequest> MatchHistoryServiceV2Client::CreateGetRatingRequest(int64 UserId, const FString& AuthToken) const
 {
     TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest();
     Request->SetURL(FString::Printf(TEXT("http://%s/v1/ratings/%lld"), *Address, UserId));
     Request->SetVerb(TEXT("GET"));
     Request->SetHeader(TEXT("Accept"), TEXT("application/json"));
+    Request->SetHeader(TEXT("x-auth-token"), AuthToken);
     return Request;
 }
 
-TFuture<TOptional<FMatchHistoryPage>> MatchHistoryServiceV2Client::GetMatchHistory(int64 UserId, const FString& PageKey) const
+TFuture<TOptional<FMatchHistoryPage>> MatchHistoryServiceV2Client::GetMatchHistory(int64 UserId, const FString& AuthToken, const FString& PageKey) const
 {
-    return MakeHttpRequest(CreateGetMatchHistoryRequest(UserId, PageKey)).Next(ConvertGetMatchHistoryResponse);
+    return MakeHttpRequest(CreateGetMatchHistoryRequest(UserId, PageKey, AuthToken)).Next(ConvertGetMatchHistoryResponse);
 }
 
-TFuture<TOptional<int64>> MatchHistoryServiceV2Client::GetRating(int64 UserId) const
+TFuture<TOptional<int64>> MatchHistoryServiceV2Client::GetRating(int64 UserId, const FString& AuthToken) const
 {
-    return MakeHttpRequest(CreateGetRatingRequest(UserId)).Next(ConvertGetRatingResponseV2);
+    return MakeHttpRequest(CreateGetRatingRequest(UserId, AuthToken)).Next(ConvertGetRatingResponseV2);
 }
 
 TOptional<MatchHistoryServiceV2Client> CreateMatchHistoryServiceV2Client()

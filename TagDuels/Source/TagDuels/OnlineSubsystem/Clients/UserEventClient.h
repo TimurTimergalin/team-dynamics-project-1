@@ -14,7 +14,8 @@ public:
 		TSharedRef<FOnEmptyResponse> OnChallengeDeclined,
 		TSharedRef<FOnChallengeCancelled> OnChallengeCancelled,
 		TSharedRef<FOnErroneousResponse> OnError,
-		int64 UserId_
+		int64 UserId_,
+		const FString& AuthToken
 	);
 	
 	bool Subscribe(TArray<int64> UserIds);

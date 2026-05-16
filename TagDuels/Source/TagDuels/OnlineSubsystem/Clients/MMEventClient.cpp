@@ -111,10 +111,10 @@ void MMEventClient::Retry(const FString& Error, EOnlineErrorType Type, TSharedRe
 	}
 }
 
-void MMEventClient::EstablishConnection(TSharedRef<FOnMatch> OnResponse, TSharedRef<FOnErroneousResponse> OnError, int64 UserId_)
+void MMEventClient::EstablishConnection(TSharedRef<FOnMatch> OnResponse, TSharedRef<FOnErroneousResponse> OnError, int64 UserId_, const FString& AuthToken)
 {
 	UserId = UserId_;
-	Url = FString::Printf(TEXT("ws://%s/events?playerId=%lld&fleet=%s"), *Address, UserId, *Fleet);
+	Url = FString::Printf(TEXT("ws://%s/events?playerId=%lld&fleet=%s&authToken=%s"), *Address, UserId, *Fleet, *AuthToken);
 	EstablishConnection(OnResponse, OnError);
 }
 

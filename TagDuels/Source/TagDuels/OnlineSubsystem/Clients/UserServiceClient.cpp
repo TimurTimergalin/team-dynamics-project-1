@@ -57,27 +57,37 @@ namespace
 
 UserServiceClient::UserServiceClient(const FString& Address): Address(Address) {}
 
-TSharedPtr<IHttpRequest> UserServiceClient::GetSelfDataRequest(int64 SteamId) const
+TSharedPtr<IHttpRequest> UserServiceClient::GetSelfDataRequest(int64 SteamId, const FString& AuthToken) const
 {
-	// Build URL: http://<Address>/v1/self?key.steam_id=<SteamId>
 	FString Url = FString::Format(TEXT("http://{0}/v1/self?key.steam_id={1}"), { Address, SteamId });
-	//FString Url = FString::Printf(TEXT("http://%s/v1/self?key.steam_id=%lld"), *Address, SteamId);
 	UE_LOG(LogTemp, Display, TEXT("%s"), *Url);
 
 	TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest();
 	Request->SetURL(Url);
 	Request->SetVerb(TEXT("GET"));
 	Request->SetHeader(TEXT("Accept"), TEXT("application/json"));
+	Request->SetHeader(TEXT("x-auth-token"), AuthToken);
 
 	return Request;
 }
 
-TFuture<TOptional<FUserPlayerData>> UserServiceClient::GetSelfData(int64 SteamId) const
+TFuture<TOptional<FUserPlayerData>> UserServiceClient::GetSelfData(int64 SteamId, const FString& AuthToken) const
 {
-	return MakeHttpRequest(GetSelfDataRequest(SteamId)).Next(ConvertGetSelfDataResponse);
+	return MakeHttpRequest(GetSelfDataRequest(SteamId, AuthToken)).Next(ConvertGetSelfDataResponse);
 }
 
-TSharedPtr<IHttpRequest> UserServiceClient::GetFriendsRequest(const FString& Path, int64 UserId, const FString& PageKey) const
+TFuture<TOptional<FUserPlayerData>> UserServiceClient::GetUserData(int64 UserId, const FString& AuthToken) const
+{
+	FString Url = FString::Printf(TEXT("http://%s/v1/users/%lld"), *Address, UserId);
+	TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest();
+	Request->SetURL(Url);
+	Request->SetVerb(TEXT("GET"));
+	Request->SetHeader(TEXT("Accept"), TEXT("application/json"));
+	Request->SetHeader(TEXT("x-auth-token"), AuthToken);
+	return MakeHttpRequest(Request).Next(ConvertGetSelfDataResponse);
+}
+
+TSharedPtr<IHttpRequest> UserServiceClient::GetFriendsRequest(const FString& Path, int64 UserId, const FString& PageKey, const FString& AuthToken) const
 {
 	FString Url = FString::Printf(TEXT("http://%s%s?user_id=%lld"), *Address, *Path, UserId);
 	if (!PageKey.IsEmpty())
@@ -88,6 +98,7 @@ TSharedPtr<IHttpRequest> UserServiceClient::GetFriendsRequest(const FString& Pat
 	Request->SetURL(Url);
 	Request->SetVerb(TEXT("GET"));
 	Request->SetHeader(TEXT("Accept"), TEXT("application/json"));
+	Request->SetHeader(TEXT("x-auth-token"), AuthToken);
 	return Request;
 }
 
@@ -130,22 +141,22 @@ namespace
 	}
 }
 
-TFuture<TOptional<FPlayersList>> UserServiceClient::GetFriends(int64 UserId, const FString& PageKey) const
+TFuture<TOptional<FPlayersList>> UserServiceClient::GetFriends(int64 UserId, const FString& PageKey, const FString& AuthToken) const
 {
-	return MakeHttpRequest(GetFriendsRequest(TEXT("/v1/friends"), UserId, PageKey)).Next(ConvertFriendsResponse);
+	return MakeHttpRequest(GetFriendsRequest(TEXT("/v1/friends"), UserId, PageKey, AuthToken)).Next(ConvertFriendsResponse);
 }
 
-TFuture<TOptional<FPlayersList>> UserServiceClient::GetIncomingRequests(int64 UserId, const FString& PageKey) const
+TFuture<TOptional<FPlayersList>> UserServiceClient::GetIncomingRequests(int64 UserId, const FString& PageKey, const FString& AuthToken) const
 {
-	return MakeHttpRequest(GetFriendsRequest(TEXT("/v1/friends/incoming"), UserId, PageKey)).Next(ConvertFriendsResponse);
+	return MakeHttpRequest(GetFriendsRequest(TEXT("/v1/friends/incoming"), UserId, PageKey, AuthToken)).Next(ConvertFriendsResponse);
 }
 
-TFuture<TOptional<FPlayersList>> UserServiceClient::GetOutgoingRequests(int64 UserId, const FString& PageKey) const
+TFuture<TOptional<FPlayersList>> UserServiceClient::GetOutgoingRequests(int64 UserId, const FString& PageKey, const FString& AuthToken) const
 {
-	return MakeHttpRequest(GetFriendsRequest(TEXT("/v1/friends/outgoing"), UserId, PageKey)).Next(ConvertFriendsResponse);
+	return MakeHttpRequest(GetFriendsRequest(TEXT("/v1/friends/outgoing"), UserId, PageKey, AuthToken)).Next(ConvertFriendsResponse);
 }
 
-TSharedPtr<IHttpRequest> UserServiceClient::MutationRequest(const FString& Verb, const FString& Path, int64 UserId, int64 OtherUserId) const
+TSharedPtr<IHttpRequest> UserServiceClient::MutationRequest(const FString& Verb, const FString& Path, int64 UserId, int64 OtherUserId, const FString& AuthToken) const
 {
 	FString Url = FString::Printf(TEXT("http://%s%s"), *Address, *Path);
 	FString Body = FString::Printf(TEXT("{\"user_id\":%lld,\"other_user_id\":%lld}"), UserId, OtherUserId);
@@ -153,6 +164,7 @@ TSharedPtr<IHttpRequest> UserServiceClient::MutationRequest(const FString& Verb,
 	Request->SetURL(Url);
 	Request->SetVerb(Verb);
 	Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+	Request->SetHeader(TEXT("x-auth-token"), AuthToken);
 	Request->SetContentAsString(Body);
 	return Request;
 }
@@ -170,14 +182,14 @@ namespace
 	}
 }
 
-TFuture<bool> UserServiceClient::AddFriend(int64 UserId, int64 OtherUserId) const
+TFuture<bool> UserServiceClient::AddFriend(int64 UserId, int64 OtherUserId, const FString& AuthToken) const
 {
-	return MakeHttpRequest(MutationRequest(TEXT("POST"), TEXT("/v1/friends"), UserId, OtherUserId)).Next(ConvertMutationResponse);
+	return MakeHttpRequest(MutationRequest(TEXT("POST"), TEXT("/v1/friends"), UserId, OtherUserId, AuthToken)).Next(ConvertMutationResponse);
 }
 
-TFuture<bool> UserServiceClient::RemoveFriend(int64 UserId, int64 OtherUserId) const
+TFuture<bool> UserServiceClient::RemoveFriend(int64 UserId, int64 OtherUserId, const FString& AuthToken) const
 {
-	return MakeHttpRequest(MutationRequest(TEXT("POST"), TEXT("/v1/friends/remove"), UserId, OtherUserId)).Next(ConvertMutationResponse);
+	return MakeHttpRequest(MutationRequest(TEXT("POST"), TEXT("/v1/friends/remove"), UserId, OtherUserId, AuthToken)).Next(ConvertMutationResponse);
 }
 
 TOptional<UserServiceClient> CreateUserServiceClient()
