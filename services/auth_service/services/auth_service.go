@@ -88,8 +88,8 @@ func (s *AuthService) AuthExternal(ctx context.Context, req *pb.AuthExternalRequ
 			return nil, status.Errorf(codes.Internal, "failed to create token pair: %v", err)
 		}
 		return &pb.AuthExternalResponse{
-			Access:      &access,
-			Refresh:     &refresh,
+			Access:      &pb.TokenWithExp{Token: &access.Token, ExpMs: &access.ExpMs},
+			Refresh:     &pb.TokenWithExp{Token: &refresh.Token, ExpMs: &refresh.ExpMs},
 			UserData:    userResp.UserData,
 			ExternalKey: req.ExternalKey,
 		}, nil
@@ -116,8 +116,8 @@ func (s *AuthService) AuthExternal(ctx context.Context, req *pb.AuthExternalRequ
 			return nil, status.Errorf(codes.Internal, "failed to create token pair: %v", err)
 		}
 		return &pb.AuthExternalResponse{
-			Access:      &access,
-			Refresh:     &refresh,
+			Access:      &pb.TokenWithExp{Token: &access.Token, ExpMs: &access.ExpMs},
+			Refresh:     &pb.TokenWithExp{Token: &refresh.Token, ExpMs: &refresh.ExpMs},
 			UserData:    userResp.UserData,
 			ExternalKey: req.ExternalKey,
 		}, nil
@@ -156,7 +156,10 @@ func (s *AuthService) Refresh(ctx context.Context, req *pb.RefreshRequest) (*pb.
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to create token pair: %v", err)
 	}
-	return &pb.RefreshResponse{Access: &access, Refresh: &refresh}, nil
+	return &pb.RefreshResponse{
+		Access:  &pb.TokenWithExp{Token: &access.Token, ExpMs: &access.ExpMs},
+		Refresh: &pb.TokenWithExp{Token: &refresh.Token, ExpMs: &refresh.ExpMs},
+	}, nil
 }
 
 func (s *AuthService) GetPublicKey(_ context.Context, _ *pb.GetPublicKeyRequest) (*pb.GetPublicKeyResponse, error) {

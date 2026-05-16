@@ -11,9 +11,14 @@ message AuthExternalRequest {
     optional string auth_token = 2;
 }
 
+message TokenWithExp {
+    optional string token = 1;
+    optional int64 exp_ms = 2;
+}
+
 message AuthExternalResponse {
-    optional string access = 1;
-    optional string refresh = 2;
+    optional TokenWithExp access = 1;
+    optional TokenWithExp refresh = 2;
     optional user_common.UserData user_data = 3;
     optional user_common.ExternalKey external_key = 4;
 }
@@ -23,8 +28,8 @@ message RefreshRequest {
 }
 
 message RefreshResponse {
-    optional string access = 1;
-    optional string refresh = 2;
+    optional TokenWithExp access = 1;
+    optional TokenWithExp refresh = 2;
 }
 
 message GetPublicKeyRequest {}

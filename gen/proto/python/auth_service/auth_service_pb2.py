@@ -26,7 +26,7 @@ from google.api import annotations_pb2 as google_dot_api_dot_annotations__pb2
 from user_common import user_common_pb2 as user__common_dot_user__common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1f\x61uth_service/auth_service.proto\x12\x0c\x61uth_service\x1a\x1cgoogle/api/annotations.proto\x1a\x1duser_common/user_common.proto\"\x83\x01\n\x13\x41uthExternalRequest\x12\x33\n\x0c\x65xternal_key\x18\x01 \x01(\x0b\x32\x18.user_common.ExternalKeyH\x00\x88\x01\x01\x12\x17\n\nauth_token\x18\x02 \x01(\tH\x01\x88\x01\x01\x42\x0f\n\r_external_keyB\r\n\x0b_auth_token\"\xdb\x01\n\x14\x41uthExternalResponse\x12\x13\n\x06\x61\x63\x63\x65ss\x18\x01 \x01(\tH\x00\x88\x01\x01\x12\x14\n\x07refresh\x18\x02 \x01(\tH\x01\x88\x01\x01\x12-\n\tuser_data\x18\x03 \x01(\x0b\x32\x15.user_common.UserDataH\x02\x88\x01\x01\x12\x33\n\x0c\x65xternal_key\x18\x04 \x01(\x0b\x32\x18.user_common.ExternalKeyH\x03\x88\x01\x01\x42\t\n\x07_accessB\n\n\x08_refreshB\x0c\n\n_user_dataB\x0f\n\r_external_key\"2\n\x0eRefreshRequest\x12\x14\n\x07refresh\x18\x01 \x01(\tH\x00\x88\x01\x01\x42\n\n\x08_refresh\"S\n\x0fRefreshResponse\x12\x13\n\x06\x61\x63\x63\x65ss\x18\x01 \x01(\tH\x00\x88\x01\x01\x12\x14\n\x07refresh\x18\x02 \x01(\tH\x01\x88\x01\x01\x42\t\n\x07_accessB\n\n\x08_refresh\"\x15\n\x13GetPublicKeyRequest\"\xac\x01\n\x14GetPublicKeyResponse\x12\x1f\n\x12primary_public_key\x18\x01 \x01(\tH\x00\x88\x01\x01\x12!\n\x14secondary_public_key\x18\x02 \x01(\tH\x01\x88\x01\x01\x12\x14\n\x07version\x18\x03 \x01(\tH\x02\x88\x01\x01\x42\x15\n\x13_primary_public_keyB\x17\n\x15_secondary_public_keyB\n\n\x08_version2\xbe\x02\n\x0b\x41uthService\x12s\n\x0c\x41uthExternal\x12!.auth_service.AuthExternalRequest\x1a\".auth_service.AuthExternalResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\"\x11/v1/auth/external:\x01*\x12\x63\n\x07Refresh\x12\x1c.auth_service.RefreshRequest\x1a\x1d.auth_service.RefreshResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\"\x10/v1/auth/refresh:\x01*\x12U\n\x0cGetPublicKey\x12!.auth_service.GetPublicKeyRequest\x1a\".auth_service.GetPublicKeyResponseB&Z$team_dynamics/api/proto/auth_serviceb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1f\x61uth_service/auth_service.proto\x12\x0c\x61uth_service\x1a\x1cgoogle/api/annotations.proto\x1a\x1duser_common/user_common.proto\"\x83\x01\n\x13\x41uthExternalRequest\x12\x33\n\x0c\x65xternal_key\x18\x01 \x01(\x0b\x32\x18.user_common.ExternalKeyH\x00\x88\x01\x01\x12\x17\n\nauth_token\x18\x02 \x01(\tH\x01\x88\x01\x01\x42\x0f\n\r_external_keyB\r\n\x0b_auth_token\"L\n\x0cTokenWithExp\x12\x12\n\x05token\x18\x01 \x01(\tH\x00\x88\x01\x01\x12\x13\n\x06\x65xp_ms\x18\x02 \x01(\x03H\x01\x88\x01\x01\x42\x08\n\x06_tokenB\t\n\x07_exp_ms\"\x93\x02\n\x14\x41uthExternalResponse\x12/\n\x06\x61\x63\x63\x65ss\x18\x01 \x01(\x0b\x32\x1a.auth_service.TokenWithExpH\x00\x88\x01\x01\x12\x30\n\x07refresh\x18\x02 \x01(\x0b\x32\x1a.auth_service.TokenWithExpH\x01\x88\x01\x01\x12-\n\tuser_data\x18\x03 \x01(\x0b\x32\x15.user_common.UserDataH\x02\x88\x01\x01\x12\x33\n\x0c\x65xternal_key\x18\x04 \x01(\x0b\x32\x18.user_common.ExternalKeyH\x03\x88\x01\x01\x42\t\n\x07_accessB\n\n\x08_refreshB\x0c\n\n_user_dataB\x0f\n\r_external_key\"2\n\x0eRefreshRequest\x12\x14\n\x07refresh\x18\x01 \x01(\tH\x00\x88\x01\x01\x42\n\n\x08_refresh\"\x8b\x01\n\x0fRefreshResponse\x12/\n\x06\x61\x63\x63\x65ss\x18\x01 \x01(\x0b\x32\x1a.auth_service.TokenWithExpH\x00\x88\x01\x01\x12\x30\n\x07refresh\x18\x02 \x01(\x0b\x32\x1a.auth_service.TokenWithExpH\x01\x88\x01\x01\x42\t\n\x07_accessB\n\n\x08_refresh\"\x15\n\x13GetPublicKeyRequest\"\xac\x01\n\x14GetPublicKeyResponse\x12\x1f\n\x12primary_public_key\x18\x01 \x01(\tH\x00\x88\x01\x01\x12!\n\x14secondary_public_key\x18\x02 \x01(\tH\x01\x88\x01\x01\x12\x14\n\x07version\x18\x03 \x01(\tH\x02\x88\x01\x01\x42\x15\n\x13_primary_public_keyB\x17\n\x15_secondary_public_keyB\n\n\x08_version2\xbe\x02\n\x0b\x41uthService\x12s\n\x0c\x41uthExternal\x12!.auth_service.AuthExternalRequest\x1a\".auth_service.AuthExternalResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\"\x11/v1/auth/external:\x01*\x12\x63\n\x07Refresh\x12\x1c.auth_service.RefreshRequest\x1a\x1d.auth_service.RefreshResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\"\x10/v1/auth/refresh:\x01*\x12U\n\x0cGetPublicKey\x12!.auth_service.GetPublicKeyRequest\x1a\".auth_service.GetPublicKeyResponseB&Z$team_dynamics/api/proto/auth_serviceb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -40,16 +40,18 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_AUTHSERVICE'].methods_by_name['Refresh']._serialized_options = b'\202\323\344\223\002\025\"\020/v1/auth/refresh:\001*'
   _globals['_AUTHEXTERNALREQUEST']._serialized_start=111
   _globals['_AUTHEXTERNALREQUEST']._serialized_end=242
-  _globals['_AUTHEXTERNALRESPONSE']._serialized_start=245
-  _globals['_AUTHEXTERNALRESPONSE']._serialized_end=464
-  _globals['_REFRESHREQUEST']._serialized_start=466
-  _globals['_REFRESHREQUEST']._serialized_end=516
-  _globals['_REFRESHRESPONSE']._serialized_start=518
-  _globals['_REFRESHRESPONSE']._serialized_end=601
-  _globals['_GETPUBLICKEYREQUEST']._serialized_start=603
-  _globals['_GETPUBLICKEYREQUEST']._serialized_end=624
-  _globals['_GETPUBLICKEYRESPONSE']._serialized_start=627
-  _globals['_GETPUBLICKEYRESPONSE']._serialized_end=799
-  _globals['_AUTHSERVICE']._serialized_start=802
-  _globals['_AUTHSERVICE']._serialized_end=1120
+  _globals['_TOKENWITHEXP']._serialized_start=244
+  _globals['_TOKENWITHEXP']._serialized_end=320
+  _globals['_AUTHEXTERNALRESPONSE']._serialized_start=323
+  _globals['_AUTHEXTERNALRESPONSE']._serialized_end=598
+  _globals['_REFRESHREQUEST']._serialized_start=600
+  _globals['_REFRESHREQUEST']._serialized_end=650
+  _globals['_REFRESHRESPONSE']._serialized_start=653
+  _globals['_REFRESHRESPONSE']._serialized_end=792
+  _globals['_GETPUBLICKEYREQUEST']._serialized_start=794
+  _globals['_GETPUBLICKEYREQUEST']._serialized_end=815
+  _globals['_GETPUBLICKEYRESPONSE']._serialized_start=818
+  _globals['_GETPUBLICKEYRESPONSE']._serialized_end=990
+  _globals['_AUTHSERVICE']._serialized_start=993
+  _globals['_AUTHSERVICE']._serialized_end=1311
 # @@protoc_insertion_point(module_scope)

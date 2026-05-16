@@ -12,7 +12,7 @@ import (
 var ErrNoUserId = errors.New("no player_id set")
 
 type JwtService interface {
-	MakeTokenPair(userId models.UserId) (string, string, error)
+	MakeTokenPair(userId models.UserId) (models.TokenWithExp, models.TokenWithExp, error)
 	Validate(token string) (*models.TokenPayload, error)
 }
 
@@ -45,7 +45,7 @@ func (j *jwtServiceImpl) makeToken(claims jwt.MapClaims, keyPair models.KeyPair)
 	return token.SignedString(keyPair.PrivateKey)
 }
 
-func (j *jwtServiceImpl) MakeTokenPair(userId models.UserId) (string, string, error) {
+func (j *jwtServiceImpl) MakeTokenPair(userId models.UserId) (models.TokenWithExp, models.TokenWithExp, error) {
 	now := time.Now()
 
 	baseClaims := jwt.MapClaims{
@@ -53,32 +53,36 @@ func (j *jwtServiceImpl) MakeTokenPair(userId models.UserId) (string, string, er
 		"iat": now.Unix(),
 	}
 	if userId.PlayerId == nil {
-		return "", "", ErrNoUserId
+		return models.TokenWithExp{}, models.TokenWithExp{}, ErrNoUserId
 	}
 	baseClaims["player_id"] = *userId.PlayerId
 
+	accessExp := now.Add(j.AccessTokenExpirationTime)
 	accessClaims := jwt.MapClaims{}
 	for k, v := range baseClaims {
 		accessClaims[k] = v
 	}
-	accessClaims["exp"] = now.Add(j.AccessTokenExpirationTime).Unix()
+	accessClaims["exp"] = accessExp.Unix()
 
+	refreshExp := now.Add(j.RefreshTokenExpirationTime)
 	refreshClaims := jwt.MapClaims{}
 	for k, v := range baseClaims {
 		refreshClaims[k] = v
 	}
-	refreshClaims["exp"] = now.Add(j.RefreshTokenExpirationTime).Unix()
+	refreshClaims["exp"] = refreshExp.Unix()
 	refreshClaims["token_id"] = uuid.New().String()
 
 	accessToken, err := j.makeToken(accessClaims, j.PrimaryKeyPair)
 	if err != nil {
-		return "", "", err
+		return models.TokenWithExp{}, models.TokenWithExp{}, err
 	}
 	refreshToken, err := j.makeToken(refreshClaims, j.PrimaryKeyPair)
 	if err != nil {
-		return "", "", err
+		return models.TokenWithExp{}, models.TokenWithExp{}, err
 	}
-	return accessToken, refreshToken, nil
+	return models.TokenWithExp{Token: accessToken, ExpMs: accessExp.UnixMilli()},
+		models.TokenWithExp{Token: refreshToken, ExpMs: refreshExp.UnixMilli()},
+		nil
 }
 
 func (j *jwtServiceImpl) Validate(token string) (*models.TokenPayload, error) {

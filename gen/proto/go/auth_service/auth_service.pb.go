@@ -75,10 +75,62 @@ func (x *AuthExternalRequest) GetAuthToken() string {
 	return ""
 }
 
+type TokenWithExp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Token         *string                `protobuf:"bytes,1,opt,name=token,proto3,oneof" json:"token,omitempty"`
+	ExpMs         *int64                 `protobuf:"varint,2,opt,name=exp_ms,json=expMs,proto3,oneof" json:"exp_ms,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TokenWithExp) Reset() {
+	*x = TokenWithExp{}
+	mi := &file_auth_service_auth_service_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TokenWithExp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TokenWithExp) ProtoMessage() {}
+
+func (x *TokenWithExp) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_service_auth_service_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TokenWithExp.ProtoReflect.Descriptor instead.
+func (*TokenWithExp) Descriptor() ([]byte, []int) {
+	return file_auth_service_auth_service_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *TokenWithExp) GetToken() string {
+	if x != nil && x.Token != nil {
+		return *x.Token
+	}
+	return ""
+}
+
+func (x *TokenWithExp) GetExpMs() int64 {
+	if x != nil && x.ExpMs != nil {
+		return *x.ExpMs
+	}
+	return 0
+}
+
 type AuthExternalResponse struct {
 	state         protoimpl.MessageState   `protogen:"open.v1"`
-	Access        *string                  `protobuf:"bytes,1,opt,name=access,proto3,oneof" json:"access,omitempty"`
-	Refresh       *string                  `protobuf:"bytes,2,opt,name=refresh,proto3,oneof" json:"refresh,omitempty"`
+	Access        *TokenWithExp            `protobuf:"bytes,1,opt,name=access,proto3,oneof" json:"access,omitempty"`
+	Refresh       *TokenWithExp            `protobuf:"bytes,2,opt,name=refresh,proto3,oneof" json:"refresh,omitempty"`
 	UserData      *user_common.UserData    `protobuf:"bytes,3,opt,name=user_data,json=userData,proto3,oneof" json:"user_data,omitempty"`
 	ExternalKey   *user_common.ExternalKey `protobuf:"bytes,4,opt,name=external_key,json=externalKey,proto3,oneof" json:"external_key,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -87,7 +139,7 @@ type AuthExternalResponse struct {
 
 func (x *AuthExternalResponse) Reset() {
 	*x = AuthExternalResponse{}
-	mi := &file_auth_service_auth_service_proto_msgTypes[1]
+	mi := &file_auth_service_auth_service_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -99,7 +151,7 @@ func (x *AuthExternalResponse) String() string {
 func (*AuthExternalResponse) ProtoMessage() {}
 
 func (x *AuthExternalResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_auth_service_proto_msgTypes[1]
+	mi := &file_auth_service_auth_service_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -112,21 +164,21 @@ func (x *AuthExternalResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthExternalResponse.ProtoReflect.Descriptor instead.
 func (*AuthExternalResponse) Descriptor() ([]byte, []int) {
-	return file_auth_service_auth_service_proto_rawDescGZIP(), []int{1}
+	return file_auth_service_auth_service_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *AuthExternalResponse) GetAccess() string {
-	if x != nil && x.Access != nil {
-		return *x.Access
+func (x *AuthExternalResponse) GetAccess() *TokenWithExp {
+	if x != nil {
+		return x.Access
 	}
-	return ""
+	return nil
 }
 
-func (x *AuthExternalResponse) GetRefresh() string {
-	if x != nil && x.Refresh != nil {
-		return *x.Refresh
+func (x *AuthExternalResponse) GetRefresh() *TokenWithExp {
+	if x != nil {
+		return x.Refresh
 	}
-	return ""
+	return nil
 }
 
 func (x *AuthExternalResponse) GetUserData() *user_common.UserData {
@@ -152,7 +204,7 @@ type RefreshRequest struct {
 
 func (x *RefreshRequest) Reset() {
 	*x = RefreshRequest{}
-	mi := &file_auth_service_auth_service_proto_msgTypes[2]
+	mi := &file_auth_service_auth_service_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -164,7 +216,7 @@ func (x *RefreshRequest) String() string {
 func (*RefreshRequest) ProtoMessage() {}
 
 func (x *RefreshRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_auth_service_proto_msgTypes[2]
+	mi := &file_auth_service_auth_service_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -177,7 +229,7 @@ func (x *RefreshRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RefreshRequest.ProtoReflect.Descriptor instead.
 func (*RefreshRequest) Descriptor() ([]byte, []int) {
-	return file_auth_service_auth_service_proto_rawDescGZIP(), []int{2}
+	return file_auth_service_auth_service_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *RefreshRequest) GetRefresh() string {
@@ -189,15 +241,15 @@ func (x *RefreshRequest) GetRefresh() string {
 
 type RefreshResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Access        *string                `protobuf:"bytes,1,opt,name=access,proto3,oneof" json:"access,omitempty"`
-	Refresh       *string                `protobuf:"bytes,2,opt,name=refresh,proto3,oneof" json:"refresh,omitempty"`
+	Access        *TokenWithExp          `protobuf:"bytes,1,opt,name=access,proto3,oneof" json:"access,omitempty"`
+	Refresh       *TokenWithExp          `protobuf:"bytes,2,opt,name=refresh,proto3,oneof" json:"refresh,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RefreshResponse) Reset() {
 	*x = RefreshResponse{}
-	mi := &file_auth_service_auth_service_proto_msgTypes[3]
+	mi := &file_auth_service_auth_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -209,7 +261,7 @@ func (x *RefreshResponse) String() string {
 func (*RefreshResponse) ProtoMessage() {}
 
 func (x *RefreshResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_auth_service_proto_msgTypes[3]
+	mi := &file_auth_service_auth_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -222,21 +274,21 @@ func (x *RefreshResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RefreshResponse.ProtoReflect.Descriptor instead.
 func (*RefreshResponse) Descriptor() ([]byte, []int) {
-	return file_auth_service_auth_service_proto_rawDescGZIP(), []int{3}
+	return file_auth_service_auth_service_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *RefreshResponse) GetAccess() string {
-	if x != nil && x.Access != nil {
-		return *x.Access
+func (x *RefreshResponse) GetAccess() *TokenWithExp {
+	if x != nil {
+		return x.Access
 	}
-	return ""
+	return nil
 }
 
-func (x *RefreshResponse) GetRefresh() string {
-	if x != nil && x.Refresh != nil {
-		return *x.Refresh
+func (x *RefreshResponse) GetRefresh() *TokenWithExp {
+	if x != nil {
+		return x.Refresh
 	}
-	return ""
+	return nil
 }
 
 type GetPublicKeyRequest struct {
@@ -247,7 +299,7 @@ type GetPublicKeyRequest struct {
 
 func (x *GetPublicKeyRequest) Reset() {
 	*x = GetPublicKeyRequest{}
-	mi := &file_auth_service_auth_service_proto_msgTypes[4]
+	mi := &file_auth_service_auth_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -259,7 +311,7 @@ func (x *GetPublicKeyRequest) String() string {
 func (*GetPublicKeyRequest) ProtoMessage() {}
 
 func (x *GetPublicKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_auth_service_proto_msgTypes[4]
+	mi := &file_auth_service_auth_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -272,7 +324,7 @@ func (x *GetPublicKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPublicKeyRequest.ProtoReflect.Descriptor instead.
 func (*GetPublicKeyRequest) Descriptor() ([]byte, []int) {
-	return file_auth_service_auth_service_proto_rawDescGZIP(), []int{4}
+	return file_auth_service_auth_service_proto_rawDescGZIP(), []int{5}
 }
 
 type GetPublicKeyResponse struct {
@@ -286,7 +338,7 @@ type GetPublicKeyResponse struct {
 
 func (x *GetPublicKeyResponse) Reset() {
 	*x = GetPublicKeyResponse{}
-	mi := &file_auth_service_auth_service_proto_msgTypes[5]
+	mi := &file_auth_service_auth_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -298,7 +350,7 @@ func (x *GetPublicKeyResponse) String() string {
 func (*GetPublicKeyResponse) ProtoMessage() {}
 
 func (x *GetPublicKeyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_service_auth_service_proto_msgTypes[5]
+	mi := &file_auth_service_auth_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -311,7 +363,7 @@ func (x *GetPublicKeyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPublicKeyResponse.ProtoReflect.Descriptor instead.
 func (*GetPublicKeyResponse) Descriptor() ([]byte, []int) {
-	return file_auth_service_auth_service_proto_rawDescGZIP(), []int{5}
+	return file_auth_service_auth_service_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetPublicKeyResponse) GetPrimaryPublicKey() string {
@@ -345,10 +397,15 @@ const file_auth_service_auth_service_proto_rawDesc = "" +
 	"\n" +
 	"auth_token\x18\x02 \x01(\tH\x01R\tauthToken\x88\x01\x01B\x0f\n" +
 	"\r_external_keyB\r\n" +
-	"\v_auth_token\"\x83\x02\n" +
-	"\x14AuthExternalResponse\x12\x1b\n" +
-	"\x06access\x18\x01 \x01(\tH\x00R\x06access\x88\x01\x01\x12\x1d\n" +
-	"\arefresh\x18\x02 \x01(\tH\x01R\arefresh\x88\x01\x01\x127\n" +
+	"\v_auth_token\"Z\n" +
+	"\fTokenWithExp\x12\x19\n" +
+	"\x05token\x18\x01 \x01(\tH\x00R\x05token\x88\x01\x01\x12\x1a\n" +
+	"\x06exp_ms\x18\x02 \x01(\x03H\x01R\x05expMs\x88\x01\x01B\b\n" +
+	"\x06_tokenB\t\n" +
+	"\a_exp_ms\"\xbb\x02\n" +
+	"\x14AuthExternalResponse\x127\n" +
+	"\x06access\x18\x01 \x01(\v2\x1a.auth_service.TokenWithExpH\x00R\x06access\x88\x01\x01\x129\n" +
+	"\arefresh\x18\x02 \x01(\v2\x1a.auth_service.TokenWithExpH\x01R\arefresh\x88\x01\x01\x127\n" +
 	"\tuser_data\x18\x03 \x01(\v2\x15.user_common.UserDataH\x02R\buserData\x88\x01\x01\x12@\n" +
 	"\fexternal_key\x18\x04 \x01(\v2\x18.user_common.ExternalKeyH\x03R\vexternalKey\x88\x01\x01B\t\n" +
 	"\a_accessB\n" +
@@ -360,10 +417,10 @@ const file_auth_service_auth_service_proto_rawDesc = "" +
 	"\x0eRefreshRequest\x12\x1d\n" +
 	"\arefresh\x18\x01 \x01(\tH\x00R\arefresh\x88\x01\x01B\n" +
 	"\n" +
-	"\b_refresh\"d\n" +
-	"\x0fRefreshResponse\x12\x1b\n" +
-	"\x06access\x18\x01 \x01(\tH\x00R\x06access\x88\x01\x01\x12\x1d\n" +
-	"\arefresh\x18\x02 \x01(\tH\x01R\arefresh\x88\x01\x01B\t\n" +
+	"\b_refresh\"\x9c\x01\n" +
+	"\x0fRefreshResponse\x127\n" +
+	"\x06access\x18\x01 \x01(\v2\x1a.auth_service.TokenWithExpH\x00R\x06access\x88\x01\x01\x129\n" +
+	"\arefresh\x18\x02 \x01(\v2\x1a.auth_service.TokenWithExpH\x01R\arefresh\x88\x01\x01B\t\n" +
 	"\a_accessB\n" +
 	"\n" +
 	"\b_refresh\"\x15\n" +
@@ -393,32 +450,37 @@ func file_auth_service_auth_service_proto_rawDescGZIP() []byte {
 	return file_auth_service_auth_service_proto_rawDescData
 }
 
-var file_auth_service_auth_service_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_auth_service_auth_service_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_auth_service_auth_service_proto_goTypes = []any{
 	(*AuthExternalRequest)(nil),     // 0: auth_service.AuthExternalRequest
-	(*AuthExternalResponse)(nil),    // 1: auth_service.AuthExternalResponse
-	(*RefreshRequest)(nil),          // 2: auth_service.RefreshRequest
-	(*RefreshResponse)(nil),         // 3: auth_service.RefreshResponse
-	(*GetPublicKeyRequest)(nil),     // 4: auth_service.GetPublicKeyRequest
-	(*GetPublicKeyResponse)(nil),    // 5: auth_service.GetPublicKeyResponse
-	(*user_common.ExternalKey)(nil), // 6: user_common.ExternalKey
-	(*user_common.UserData)(nil),    // 7: user_common.UserData
+	(*TokenWithExp)(nil),            // 1: auth_service.TokenWithExp
+	(*AuthExternalResponse)(nil),    // 2: auth_service.AuthExternalResponse
+	(*RefreshRequest)(nil),          // 3: auth_service.RefreshRequest
+	(*RefreshResponse)(nil),         // 4: auth_service.RefreshResponse
+	(*GetPublicKeyRequest)(nil),     // 5: auth_service.GetPublicKeyRequest
+	(*GetPublicKeyResponse)(nil),    // 6: auth_service.GetPublicKeyResponse
+	(*user_common.ExternalKey)(nil), // 7: user_common.ExternalKey
+	(*user_common.UserData)(nil),    // 8: user_common.UserData
 }
 var file_auth_service_auth_service_proto_depIdxs = []int32{
-	6, // 0: auth_service.AuthExternalRequest.external_key:type_name -> user_common.ExternalKey
-	7, // 1: auth_service.AuthExternalResponse.user_data:type_name -> user_common.UserData
-	6, // 2: auth_service.AuthExternalResponse.external_key:type_name -> user_common.ExternalKey
-	0, // 3: auth_service.AuthService.AuthExternal:input_type -> auth_service.AuthExternalRequest
-	2, // 4: auth_service.AuthService.Refresh:input_type -> auth_service.RefreshRequest
-	4, // 5: auth_service.AuthService.GetPublicKey:input_type -> auth_service.GetPublicKeyRequest
-	1, // 6: auth_service.AuthService.AuthExternal:output_type -> auth_service.AuthExternalResponse
-	3, // 7: auth_service.AuthService.Refresh:output_type -> auth_service.RefreshResponse
-	5, // 8: auth_service.AuthService.GetPublicKey:output_type -> auth_service.GetPublicKeyResponse
-	6, // [6:9] is the sub-list for method output_type
-	3, // [3:6] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	7,  // 0: auth_service.AuthExternalRequest.external_key:type_name -> user_common.ExternalKey
+	1,  // 1: auth_service.AuthExternalResponse.access:type_name -> auth_service.TokenWithExp
+	1,  // 2: auth_service.AuthExternalResponse.refresh:type_name -> auth_service.TokenWithExp
+	8,  // 3: auth_service.AuthExternalResponse.user_data:type_name -> user_common.UserData
+	7,  // 4: auth_service.AuthExternalResponse.external_key:type_name -> user_common.ExternalKey
+	1,  // 5: auth_service.RefreshResponse.access:type_name -> auth_service.TokenWithExp
+	1,  // 6: auth_service.RefreshResponse.refresh:type_name -> auth_service.TokenWithExp
+	0,  // 7: auth_service.AuthService.AuthExternal:input_type -> auth_service.AuthExternalRequest
+	3,  // 8: auth_service.AuthService.Refresh:input_type -> auth_service.RefreshRequest
+	5,  // 9: auth_service.AuthService.GetPublicKey:input_type -> auth_service.GetPublicKeyRequest
+	2,  // 10: auth_service.AuthService.AuthExternal:output_type -> auth_service.AuthExternalResponse
+	4,  // 11: auth_service.AuthService.Refresh:output_type -> auth_service.RefreshResponse
+	6,  // 12: auth_service.AuthService.GetPublicKey:output_type -> auth_service.GetPublicKeyResponse
+	10, // [10:13] is the sub-list for method output_type
+	7,  // [7:10] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_auth_service_auth_service_proto_init() }
@@ -430,14 +492,15 @@ func file_auth_service_auth_service_proto_init() {
 	file_auth_service_auth_service_proto_msgTypes[1].OneofWrappers = []any{}
 	file_auth_service_auth_service_proto_msgTypes[2].OneofWrappers = []any{}
 	file_auth_service_auth_service_proto_msgTypes[3].OneofWrappers = []any{}
-	file_auth_service_auth_service_proto_msgTypes[5].OneofWrappers = []any{}
+	file_auth_service_auth_service_proto_msgTypes[4].OneofWrappers = []any{}
+	file_auth_service_auth_service_proto_msgTypes[6].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_service_auth_service_proto_rawDesc), len(file_auth_service_auth_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

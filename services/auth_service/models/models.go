@@ -16,3 +16,8 @@ type KeyPair struct {
 	PrivateKey *rsa.PrivateKey
 	PublicKey  *rsa.PublicKey
 }
+
+type TokenWithExp struct {
+	Token string
+	ExpMs int64
+}
