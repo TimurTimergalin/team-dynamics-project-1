@@ -28,7 +28,7 @@ bool UClientSideOnlineSubsystem::SteamAuthorize(FString AuthToken, int64 SteamId
 		AccessToken = AuthResp->Access;
 		RefreshToken = AuthResp->Refresh;
 		const int64 UserId = AuthResp->UserId;
-		return UsClient->GetUserData(UserId).Next([this, OnResponse](TOptional<FUserPlayerData> UserData)
+		return UsClient->GetUserData(UserId, AuthResp->Access.Token).Next([this, OnResponse](TOptional<FUserPlayerData> UserData)
 		{
 			this->PlayerData = UserData;
 			return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
@@ -94,7 +94,7 @@ bool UClientSideOnlineSubsystem::EgsAuthorize(FString AuthToken, FString Id, FOn
 		AccessToken = AuthResp->Access;
 		RefreshToken = AuthResp->Refresh;
 		const int64 UserId = AuthResp->UserId;
-		return UsClient->GetUserData(UserId).Next([this, OnResponse](TOptional<FUserPlayerData> UserData)
+		return UsClient->GetUserData(UserId, AuthResp->Access.Token).Next([this, OnResponse](TOptional<FUserPlayerData> UserData)
 		{
 			this->PlayerData = UserData;
 			return OnGameThread(&decltype(OnResponse)::ExecuteIfBound, OnResponse);
