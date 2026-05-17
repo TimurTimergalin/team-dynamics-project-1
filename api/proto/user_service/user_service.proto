@@ -92,11 +92,7 @@ message RemoveFriendResponse {
 }
 
 service UserService {
-    rpc GetSelfData(GetSelfDataRequest) returns (GetSelfDataResponse) {
-        option (google.api.http) = {
-            get: "/v1/self"
-        };
-    }
+    rpc GetSelfData(GetSelfDataRequest) returns (GetSelfDataResponse);
 
     rpc GetUserData(GetUserDataRequest) returns (GetUserDataResponse) {
         option (google.api.http) = {
