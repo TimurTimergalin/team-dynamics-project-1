@@ -5,6 +5,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: match-service-sa
+    namespace: default
 roleRef:
   kind: ClusterRole
   name: auth-sidecar-role

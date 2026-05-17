@@ -5,6 +5,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: match-history-service-v2-sa
+    namespace: default
 roleRef:
   kind: ClusterRole
   name: auth-sidecar-role

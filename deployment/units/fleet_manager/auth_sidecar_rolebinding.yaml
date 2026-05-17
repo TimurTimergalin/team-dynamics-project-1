@@ -5,6 +5,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: fleet-manager-sa
+    namespace: default
 roleRef:
   kind: ClusterRole
   name: auth-sidecar-role

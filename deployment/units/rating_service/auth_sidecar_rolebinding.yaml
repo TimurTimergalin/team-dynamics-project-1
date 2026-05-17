@@ -5,6 +5,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: rating-service-sa
+    namespace: default
 roleRef:
   kind: ClusterRole
   name: auth-sidecar-role
