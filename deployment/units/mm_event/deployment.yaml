@@ -50,3 +50,21 @@ spec:
               port: 50001
             initialDelaySeconds: 5
             periodSeconds: 10
+        - name: auth-sidecar
+          image: 4274eb52-inventive-macaw.registry.twcstorage.ru/tag-duels/auth-sidecar-server:latest
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: auth-sidecar-env
+          env:
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "50m"
+            limits:
+              memory: "64Mi"
+              cpu: "100m"

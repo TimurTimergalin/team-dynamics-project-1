@@ -1,0 +1,11 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mm-event-auth-sidecar-rolebinding
+subjects:
+  - kind: ServiceAccount
+    name: mm-event-sa
+roleRef:
+  kind: ClusterRole
+  name: auth-sidecar-role
+  apiGroup: rbac.authorization.k8s.io

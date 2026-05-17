@@ -1,0 +1,11 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: match-history-service-v2-auth-sidecar-rolebinding
+subjects:
+  - kind: ServiceAccount
+    name: match-history-service-v2-sa
+roleRef:
+  kind: ClusterRole
+  name: auth-sidecar-role
+  apiGroup: rbac.authorization.k8s.io
