@@ -4,9 +4,10 @@ metadata:
   labels:
     environment: dev
   name: rating-storage-pvc
+  namespace: rating
 spec:
   accessModes:
   - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 512Mi

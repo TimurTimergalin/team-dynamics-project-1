@@ -4,6 +4,7 @@ metadata:
   labels:
     environment: production
   name: match-history-storage-pvc
+  namespace: match-history
 spec:
   accessModes:
   - ReadWriteOnce
