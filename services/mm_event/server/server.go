@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"team_dynamics/auth_sdk"
 	"team_dynamics/mm_event/client"
 	"team_dynamics/mm_event/controllers"
 	"team_dynamics/mm_event/downstream"
@@ -247,11 +248,17 @@ func main() {
 			return true
 		},
 	}
+	authSidecarAddress := os.Getenv("AUTH_SIDECAR_ADDRESS")
+	if authSidecarAddress == "" {
+		log.Fatalf("AUTH_SIDECAR_ADDRESS environment variable not set")
+	}
+	authSidecar := auth_sdk.NewAuthSidecarClient(authSidecarAddress)
+
 	hub := client.NewHub(disconnectCh, registerCh, logger, clientConfig)
 	factory := client.NewClientFactory(
-		downstream.NewMatchServiceClientFactory(mmeCfg.MatchServiceAddress),
-		downstream.NewMatchHistoryServiceV2ClientFactory(mmeCfg.MatchHistoryServiceV2Address),
-		downstream.NewUserServiceClientFactory(mmeCfg.UserServiceAddress),
+		downstream.NewMatchServiceClientFactory(mmeCfg.MatchServiceAddress, authSidecar),
+		downstream.NewMatchHistoryServiceV2ClientFactory(mmeCfg.MatchHistoryServiceV2Address, authSidecar),
+		downstream.NewUserServiceClientFactory(mmeCfg.UserServiceAddress, authSidecar),
 		mmPoolRepo, disconnectCh, logger, clientConfig, upgrader,
 	)
 

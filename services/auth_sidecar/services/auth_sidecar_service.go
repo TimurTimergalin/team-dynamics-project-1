@@ -16,6 +16,7 @@ import (
 
 type AuthSidecarService interface {
 	Authorize(ctx context.Context, req *pb.AuthorizeRequest) (*pb.AuthorizeResponse, error)
+	GetServiceAccount(ctx context.Context, req *pb.GetServiceAccountRequest) (*pb.GetServiceAccountResponse, error)
 }
 
 type authSidecarServiceImpl struct {
@@ -33,6 +34,19 @@ func NewAuthSidecarService(jwtService JwtService, roleService RoleService, authC
 		authClient:  authClient,
 		k8sOps:      k8sOps,
 	}
+}
+
+func (s *authSidecarServiceImpl) GetServiceAccount(ctx context.Context, _ *pb.GetServiceAccountRequest) (*pb.GetServiceAccountResponse, error) {
+	info, err := s.k8sOps.GetServiceAccount(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to get service account: %v", err)
+	}
+	token := info.Token
+	sa := info.ServiceAccount
+	return &pb.GetServiceAccountResponse{
+		Token:          &token,
+		ServiceAccount: &sa,
+	}, nil
 }
 
 func (s *authSidecarServiceImpl) fetchAndUpdateKeys(ctx context.Context) (bool, error) {

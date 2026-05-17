@@ -9,6 +9,7 @@ import (
 	"net"
 	"os"
 	pb "team_dynamics/api/proto/auth_sidecar"
+	"team_dynamics/auth_sdk"
 	"team_dynamics/auth_sidecar/controllers"
 	"team_dynamics/auth_sidecar/downstream"
 	"team_dynamics/auth_sidecar/k8s"
@@ -61,7 +62,8 @@ func main() {
 		Namespace: namespace,
 	})
 
-	authClient := downstream.NewAuthServiceClient(authServiceAddress)
+	authSidecar := auth_sdk.NewAuthSidecarClient(listenAddress)
+	authClient := downstream.NewAuthServiceClient(authServiceAddress, authSidecar)
 	jwtService := services.NewJwtService(issuer)
 	roleService := services.NewRoleService()
 	sidecarService := services.NewAuthSidecarService(jwtService, roleService, authClient, k8sOps)

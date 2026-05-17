@@ -14,6 +14,7 @@ import (
 	"os"
 	"strconv"
 	pb "team_dynamics/api/proto/match_service"
+	"team_dynamics/auth_sdk"
 	"team_dynamics/match_service/config"
 	"team_dynamics/match_service/controllers"
 	"team_dynamics/match_service/downstream"
@@ -146,11 +147,17 @@ func main() {
 	if err != nil {
 		log.Fatalf("error in match service config: %v", err)
 	}
+	authSidecarAddress := os.Getenv("AUTH_SIDECAR_ADDRESS")
+	if authSidecarAddress == "" {
+		log.Fatalf("AUTH_SIDECAR_ADDRESS environment variable not set")
+	}
+	authSidecar := auth_sdk.NewAuthSidecarClient(authSidecarAddress)
+
 	controller := &controllers.MatchServiceController{
 		Service: services.MakeMatchService(
 			msRedis.MakeMatchKvRepo(redisClient),
-			downstream.NewFleetManagerClientFactory(matchServiceConfig.FleetManagerAddress),
-			downstream.NewMatchHistoryServiceV2ClientFactory(matchServiceConfig.MatchHistoryServiceV2Address),
+			downstream.NewFleetManagerClientFactory(matchServiceConfig.FleetManagerAddress, authSidecar),
+			downstream.NewMatchHistoryServiceV2ClientFactory(matchServiceConfig.MatchHistoryServiceV2Address, authSidecar),
 		),
 	}
 

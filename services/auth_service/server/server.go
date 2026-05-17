@@ -17,6 +17,7 @@ import (
 	"os"
 	"strconv"
 	pb "team_dynamics/api/proto/auth_service"
+	"team_dynamics/auth_sdk"
 	"team_dynamics/auth_service/controllers"
 	"team_dynamics/auth_service/downstream"
 	"team_dynamics/auth_service/models"
@@ -211,7 +212,12 @@ func main() {
 	)
 	steamService := services.NewSteamService(steamApiKey, steamAppId)
 	eosService := services.NewEosService(eosClientId, eosClientSecret)
-	userServiceClient := downstream.NewUserServiceClientFactory(userServiceAddress)
+	authSidecarAddress, err := requireEnv("AUTH_SIDECAR_ADDRESS")
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+	authSidecar := auth_sdk.NewAuthSidecarClient(authSidecarAddress)
+	userServiceClient := downstream.NewUserServiceClientFactory(userServiceAddress, authSidecar)
 	authKvRepo := repos.MakeAuthKvRepo(redisClient, refreshExpiration)
 
 	authService, err := services.NewAuthService(jwtService, steamService, eosService, userServiceClient, authKvRepo, primaryKeyPair, secondaryKeyPair, keyPairVersion)

@@ -5,6 +5,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	authPb "team_dynamics/api/proto/auth_service"
+	"team_dynamics/auth_sdk"
 )
 
 type AuthServiceClient interface {
@@ -12,14 +13,19 @@ type AuthServiceClient interface {
 }
 
 type authServiceClient struct {
-	address string
+	address     string
+	authSidecar *auth_sdk.AuthSidecarClient
 }
 
-func NewAuthServiceClient(address string) AuthServiceClient {
-	return &authServiceClient{address}
+func NewAuthServiceClient(address string, authSidecar *auth_sdk.AuthSidecarClient) AuthServiceClient {
+	return &authServiceClient{address: address, authSidecar: authSidecar}
 }
 
 func (c *authServiceClient) GetPublicKey(ctx context.Context, req *authPb.GetPublicKeyRequest) (*authPb.GetPublicKeyResponse, error) {
+	ctx, err := attachCredentials(ctx, c.authSidecar)
+	if err != nil {
+		return nil, err
+	}
 	conn, err := grpc.NewClient(c.address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err

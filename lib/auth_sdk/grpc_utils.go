@@ -22,6 +22,14 @@ func AttachServiceAccountToContext(ctx context.Context, token string, serviceAcc
 	)
 }
 
+func AttachCredentialsFromSidecar(ctx context.Context, client *AuthSidecarClient) (context.Context, error) {
+	info, err := client.GetServiceAccount(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return AttachServiceAccountToContext(ctx, info.Token, info.ServiceAccount), nil
+}
+
 func ExtractAuthFromContext(ctx context.Context) *IncomingAuth {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {

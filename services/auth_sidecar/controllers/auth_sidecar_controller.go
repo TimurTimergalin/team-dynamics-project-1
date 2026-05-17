@@ -14,3 +14,7 @@ type AuthSidecarController struct {
 func (c *AuthSidecarController) Authorize(ctx context.Context, req *pb.AuthorizeRequest) (*pb.AuthorizeResponse, error) {
 	return c.Service.Authorize(ctx, req)
 }
+
+func (c *AuthSidecarController) GetServiceAccount(ctx context.Context, req *pb.GetServiceAccountRequest) (*pb.GetServiceAccountResponse, error) {
+	return c.Service.GetServiceAccount(ctx, req)
+}

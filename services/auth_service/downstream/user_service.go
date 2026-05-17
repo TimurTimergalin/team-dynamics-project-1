@@ -5,6 +5,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	userPb "team_dynamics/api/proto/user_service"
+	"team_dynamics/auth_sdk"
 )
 
 type UserServiceClientFactory interface {
@@ -12,14 +13,19 @@ type UserServiceClientFactory interface {
 }
 
 type userServiceClientFactory struct {
-	address string
+	address     string
+	authSidecar *auth_sdk.AuthSidecarClient
 }
 
-func NewUserServiceClientFactory(address string) UserServiceClientFactory {
-	return &userServiceClientFactory{address}
+func NewUserServiceClientFactory(address string, authSidecar *auth_sdk.AuthSidecarClient) UserServiceClientFactory {
+	return &userServiceClientFactory{address: address, authSidecar: authSidecar}
 }
 
 func (f *userServiceClientFactory) GetSelfData(ctx context.Context, req *userPb.GetSelfDataRequest) (*userPb.GetSelfDataResponse, error) {
+	ctx, err := attachCredentials(ctx, f.authSidecar)
+	if err != nil {
+		return nil, err
+	}
 	conn, err := grpc.NewClient(f.address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err

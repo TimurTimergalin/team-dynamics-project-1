@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"team_dynamics/auth_sdk"
 	"team_dynamics/user_event/client"
 	"team_dynamics/user_event/controllers"
 	"team_dynamics/user_event/downstream"
@@ -174,12 +175,18 @@ func main() {
 		},
 	}
 
+	authSidecarAddress := os.Getenv("AUTH_SIDECAR_ADDRESS")
+	if authSidecarAddress == "" {
+		log.Fatalf("AUTH_SIDECAR_ADDRESS environment variable not set")
+	}
+	authSidecar := auth_sdk.NewAuthSidecarClient(authSidecarAddress)
+
 	ctx := context.Background()
 	hub := client.NewHub(disconnectCh, registerCh, logger, clientCfg)
 	factory := client.NewClientFactory(
-		downstream.NewUserServiceClientFactory(serverCfg.UserServiceAddress),
-		downstream.NewMatchHistoryServiceV2ClientFactory(serverCfg.MatchHistoryServiceV2Address),
-		downstream.NewMatchServiceClientFactory(serverCfg.MatchServiceAddress),
+		downstream.NewUserServiceClientFactory(serverCfg.UserServiceAddress, authSidecar),
+		downstream.NewMatchHistoryServiceV2ClientFactory(serverCfg.MatchHistoryServiceV2Address, authSidecar),
+		downstream.NewMatchServiceClientFactory(serverCfg.MatchServiceAddress, authSidecar),
 		userKvRepo, disconnectCh, logger, clientCfg, upgrader,
 	)
 
