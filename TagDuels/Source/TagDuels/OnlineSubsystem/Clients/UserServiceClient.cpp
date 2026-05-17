@@ -57,25 +57,6 @@ namespace
 
 UserServiceClient::UserServiceClient(const FString& Address): Address(Address) {}
 
-TSharedPtr<IHttpRequest> UserServiceClient::GetSelfDataRequest(int64 SteamId, const FString& AuthToken) const
-{
-	FString Url = FString::Format(TEXT("http://{0}/v1/self?key.steam_id={1}"), { Address, SteamId });
-	UE_LOG(LogTemp, Display, TEXT("%s"), *Url);
-
-	TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest();
-	Request->SetURL(Url);
-	Request->SetVerb(TEXT("GET"));
-	Request->SetHeader(TEXT("Accept"), TEXT("application/json"));
-	Request->SetHeader(TEXT("x-auth-token"), AuthToken);
-
-	return Request;
-}
-
-TFuture<TOptional<FUserPlayerData>> UserServiceClient::GetSelfData(int64 SteamId, const FString& AuthToken) const
-{
-	return MakeHttpRequest(GetSelfDataRequest(SteamId, AuthToken)).Next(ConvertGetSelfDataResponse);
-}
-
 TFuture<TOptional<FUserPlayerData>> UserServiceClient::GetUserData(int64 UserId, const FString& AuthToken) const
 {
 	FString Url = FString::Printf(TEXT("http://%s/v1/users/%lld"), *Address, UserId);
