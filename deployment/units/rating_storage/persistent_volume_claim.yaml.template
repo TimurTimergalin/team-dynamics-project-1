@@ -3,7 +3,6 @@ base:
   kind: PersistentVolumeClaim
   metadata:
     name: rating-storage-pvc
-    namespace: rating
   spec:
     accessModes:
       - ReadWriteOnce

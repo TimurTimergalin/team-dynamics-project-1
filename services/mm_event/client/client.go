@@ -117,7 +117,7 @@ func (c *clientImpl) checkInPool() error {
 }
 
 func (c *clientImpl) checkMatch() (*string, error) {
-	if c.state != WaitingForMatch {
+	if c.state == Erroneous {
 		return nil, nil
 	}
 	resp, err := c.msFactory.GetMatch(c.ctx, &msPb.GetMatchRequest{PlayerId: &c.player.Id})

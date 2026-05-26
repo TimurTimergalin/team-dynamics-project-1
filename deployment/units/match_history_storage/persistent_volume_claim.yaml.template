@@ -3,7 +3,6 @@ base:
   kind: PersistentVolumeClaim
   metadata:
     name: match-history-storage-pvc
-    namespace: match-history
   spec:
     accessModes:
       - ReadWriteOnce

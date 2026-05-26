@@ -4,6 +4,7 @@ metadata:
   labels:
     environment: production
   name: rating-storage-pvc
+  namespace: rating
 spec:
   accessModes:
   - ReadWriteOnce

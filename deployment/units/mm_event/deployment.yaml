@@ -41,11 +41,11 @@ spec:
               cpu: "200m"
           livenessProbe:
             tcpSocket:
-              port: 50001
+              port: 8080
             initialDelaySeconds: 10
             periodSeconds: 30
           readinessProbe:
             tcpSocket:
-              port: 50001
+              port: 8080
             initialDelaySeconds: 5
             periodSeconds: 10
