@@ -9,6 +9,10 @@ EXCLUDED_FOLDERS = [
     "google",
 ]
 
+transforms = {
+    "google": "google/api"
+}
+
 
 def generate_proto(input_dir: str, output_dir_go: str, output_dir_python: str) -> None:
     for output_dir in output_dir_go, output_dir_python:
@@ -16,6 +20,7 @@ def generate_proto(input_dir: str, output_dir_go: str, output_dir_python: str) -
     entries = os.listdir(input_dir)
 
     for entry in entries:
+        entry = transforms.get(entry, entry)
         sub_path = os.path.join(input_dir, entry)
         if not os.path.isdir(sub_path):
             continue
