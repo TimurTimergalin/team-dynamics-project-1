@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: rating-service
+      annotations:
+        linkerd.io/inject: enabled
     spec:
       imagePullSecrets:
         - name: craas-4274eb52-inventive-macaw
