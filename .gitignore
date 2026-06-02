@@ -10,3 +10,4 @@ releases
 **/*.exe
 testt
 deployment/secrets/*.yaml
+TagDuels 5.7/TagDuels.uproject
